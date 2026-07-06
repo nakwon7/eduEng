@@ -4,7 +4,7 @@ import { useState, useRef, useCallback } from "react";
 import TopicSelector from "@/components/TopicSelector";
 import TranscriptBox, { Message } from "@/components/TranscriptBox";
 import UserSetup from "@/components/UserSetup";
-import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
+import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
 import { useUserProfile } from "@/hooks/useUserProfile";
 
@@ -20,18 +20,9 @@ export default function Home() {
   const [view, setView] = useState<View>("home");
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const messagesRef = useRef<Message[]>([]);
-  const micStreamRef = useRef<MediaStream | null>(null);
 
   const { profile, saveProfile, loaded } = useUserProfile();
-
-  const {
-    transcript,
-    isListening,
-    startListening,
-    stopListening,
-    resetTranscript,
-    isSupported,
-  } = useSpeechRecognition();
+  const { isRecording, isTranscribing, startRecording, stopRecording } = useAudioRecorder();
   const { speak, stop: stopSpeaking, isSpeaking } = useSpeechSynthesis();
 
   const addMessage = useCallback((msg: Message) => {
@@ -40,10 +31,10 @@ export default function Home() {
   }, []);
 
   const startCall = useCallback(async () => {
-    // 마이크 권한 미리 요청 — 이후 STT에서 팝업 안 뜸
+    // 마이크 권한 미리 확인
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      micStreamRef.current = stream;
+      stream.getTracks().forEach((t) => t.stop());
     } catch {
       alert("마이크 권한이 필요해요. 브라우저 설정에서 허용해주세요.");
       return;
@@ -72,33 +63,26 @@ export default function Home() {
 
   const endCall = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
-    // 마이크 스트림 해제
-    micStreamRef.current?.getTracks().forEach((t) => t.stop());
-    micStreamRef.current = null;
     stopSpeaking();
     setCallState("idle");
     setMessages([]);
     messagesRef.current = [];
     setCallDuration(0);
-    resetTranscript();
-  }, [stopSpeaking, resetTranscript]);
+  }, [stopSpeaking]);
 
-  const handleMicPress = useCallback(() => {
-    if (!isListening) {
-      stopSpeaking();
-      startListening();
-    }
-  }, [isListening, stopSpeaking, startListening]);
+  const handleMicPress = useCallback(async () => {
+    if (isRecording || isSpeaking) return;
+    stopSpeaking();
+    await startRecording();
+  }, [isRecording, isSpeaking, stopSpeaking, startRecording]);
 
   const handleMicRelease = useCallback(async () => {
-    if (!isListening) return;
-    stopListening();
+    if (!isRecording) return;
 
-    const userText = transcript.trim();
+    const userText = (await stopRecording()).trim();
     if (!userText) return;
 
     addMessage({ role: "user", content: userText });
-    resetTranscript();
     setIsAiTyping(true);
 
     const history = messagesRef.current.slice(0, -1);
@@ -137,13 +121,24 @@ export default function Home() {
         content: "Sorry, I had a little trouble there. Could you say that again?",
       });
     }
-  }, [isListening, stopListening, transcript, addMessage, resetTranscript, topic, speak, profile]);
+  }, [isRecording, stopRecording, addMessage, topic, speak, profile]);
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60);
     const sec = s % 60;
     return `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
   };
+
+  const isBusy = isTranscribing || isAiTyping || isSpeaking;
+  const micStatus = isRecording
+    ? "듣는 중... 손을 떼면 전송"
+    : isTranscribing
+    ? "인식 중..."
+    : isAiTyping
+    ? "Alex가 생각 중..."
+    : isSpeaking
+    ? "Alex가 말하는 중..."
+    : "마이크 버튼을 누르고 말하세요";
 
   if (!loaded) return null;
 
@@ -152,12 +147,10 @@ export default function Home() {
       <div className="w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-[700px]">
         {/* Header */}
         <div className="bg-gray-800 px-6 pt-8 pb-6 text-center relative">
-          {/* 설정 버튼 */}
           {profile && callState === "idle" && view === "home" && (
             <button
               onClick={() => setView("settings")}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-300 text-xl"
-              title="프로필 수정"
             >
               ⚙️
             </button>
@@ -200,18 +193,13 @@ export default function Home() {
             ) : (
               <div className="flex-1 flex flex-col justify-between">
                 <TopicSelector selected={topic} onSelect={setTopic} />
-                {!isSupported && (
-                  <p className="text-red-400 text-xs text-center mt-3">
-                    ⚠️ Chrome 브라우저에서 사용하세요
-                  </p>
-                )}
               </div>
             )
           ) : (
             <TranscriptBox
               messages={messages}
-              interimTranscript={isListening ? transcript : ""}
-              isAiTyping={isAiTyping}
+              interimTranscript=""
+              isAiTyping={isAiTyping || isTranscribing}
             />
           )}
         </div>
@@ -239,18 +227,18 @@ export default function Home() {
               <button
                 onMouseDown={handleMicPress}
                 onMouseUp={handleMicRelease}
-                onTouchStart={handleMicPress}
-                onTouchEnd={handleMicRelease}
-                disabled={callState === "calling" || isSpeaking}
-                className={`w-20 h-20 rounded-full flex items-center justify-center text-3xl transition-all shadow-lg ${
-                  isListening
+                onTouchStart={(e) => { e.preventDefault(); handleMicPress(); }}
+                onTouchEnd={(e) => { e.preventDefault(); handleMicRelease(); }}
+                disabled={callState === "calling" || isBusy && !isRecording}
+                className={`w-20 h-20 rounded-full flex items-center justify-center text-3xl transition-all shadow-lg select-none ${
+                  isRecording
                     ? "bg-red-500 scale-110 ring-4 ring-red-400 ring-opacity-50"
-                    : isSpeaking
+                    : isBusy
                     ? "bg-gray-600 cursor-not-allowed"
                     : "bg-green-600 hover:bg-green-500 active:scale-95"
                 }`}
               >
-                {isListening ? "🔴" : isSpeaking ? "🔊" : "🎤"}
+                {isRecording ? "🔴" : isTranscribing ? "⏳" : isSpeaking ? "🔊" : "🎤"}
               </button>
 
               <div className="w-16 h-16" />
@@ -258,13 +246,7 @@ export default function Home() {
           )}
 
           {callState === "active" && (
-            <p className="text-gray-500 text-xs text-center mt-3">
-              {isListening
-                ? "듣는 중... 손을 떼면 전송"
-                : isSpeaking
-                ? "Alex가 말하는 중..."
-                : "마이크 버튼을 누르고 말하세요"}
-            </p>
+            <p className="text-gray-500 text-xs text-center mt-3">{micStatus}</p>
           )}
         </div>
       </div>
