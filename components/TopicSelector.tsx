@@ -1,10 +1,14 @@
 "use client";
 
-const TOPICS = [
+export const TOPICS = [
   { id: "self-intro", label: "자기소개", emoji: "👋", en: "Self Introduction" },
   { id: "daily", label: "일상대화", emoji: "☕", en: "Daily Conversation" },
   { id: "business", label: "비즈니스", emoji: "💼", en: "Business English" },
   { id: "travel", label: "여행", emoji: "✈️", en: "Travel" },
+  { id: "health", label: "건강/운동", emoji: "💪", en: "Health & Fitness" },
+  { id: "food", label: "음식/요리", emoji: "🍳", en: "Food & Cooking" },
+  { id: "movies", label: "영화/드라마", emoji: "🎬", en: "Movies & TV" },
+  { id: "work", label: "직장생활", emoji: "🏢", en: "Work & Career" },
 ];
 
 interface TopicSelectorProps {
@@ -13,9 +17,23 @@ interface TopicSelectorProps {
 }
 
 export default function TopicSelector({ selected, onSelect }: TopicSelectorProps) {
+  const handleRandom = () => {
+    const others = TOPICS.filter((t) => t.en !== selected);
+    const pick = others[Math.floor(Math.random() * others.length)];
+    onSelect(pick.en);
+  };
+
   return (
     <div className="w-full">
-      <p className="text-gray-400 text-sm mb-3 text-center">오늘의 주제 선택</p>
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-gray-400 text-sm">오늘의 주제 선택</p>
+        <button
+          onClick={handleRandom}
+          className="flex items-center gap-1 text-xs text-green-400 hover:text-green-300 bg-gray-800 hover:bg-gray-700 px-2 py-1 rounded-lg transition-all"
+        >
+          🎲 랜덤
+        </button>
+      </div>
       <div className="grid grid-cols-2 gap-2">
         {TOPICS.map((topic) => (
           <button

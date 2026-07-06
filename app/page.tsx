@@ -1,45 +1,91 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import TopicSelector from "@/components/TopicSelector";
 import TranscriptBox, { Message } from "@/components/TranscriptBox";
 import UserSetup from "@/components/UserSetup";
+import SessionWarning from "@/components/SessionWarning";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
-import { useUserProfile } from "@/hooks/useUserProfile";
+import { supabase } from "@/lib/supabase";
+import type { Profile } from "@/lib/supabase";
 
 type CallState = "idle" | "calling" | "active";
 type View = "home" | "settings";
 
 export default function Home() {
+  const router = useRouter();
   const [callState, setCallState] = useState<CallState>("idle");
   const [topic, setTopic] = useState("Daily Conversation");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isAiTyping, setIsAiTyping] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
   const [view, setView] = useState<View>("home");
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
+  const [showSessionWarning, setShowSessionWarning] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const messagesRef = useRef<Message[]>([]);
 
-  const { profile, saveProfile, loaded } = useUserProfile();
   const { isRecording, isTranscribing, startRecording, stopRecording } = useAudioRecorder();
   const { speak, stop: stopSpeaking, unlock: unlockTTS, isSpeaking } = useSpeechSynthesis();
+
+  // 인증 상태 확인
+  useEffect(() => {
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { router.push("/login"); return; }
+
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      if (!prof?.approved) { router.push("/pending"); return; }
+
+      setProfile(prof);
+      setSessionToken(localStorage.getItem("edueng_session"));
+      setLoaded(true);
+    };
+    init();
+  }, [router]);
+
+  const handleSessionExpired = useCallback(() => {
+    setShowSessionWarning(true);
+    if (timerRef.current) clearInterval(timerRef.current);
+    stopSpeaking();
+    setCallState("idle");
+  }, [stopSpeaking]);
 
   const addMessage = useCallback((msg: Message) => {
     messagesRef.current = [...messagesRef.current, msg];
     setMessages([...messagesRef.current]);
   }, []);
 
-  const startCall = useCallback(async () => {
-    // 사용자 제스처 안에서 TTS 잠금 해제 (모바일 자동재생 차단 우회)
-    unlockTTS();
+  const saveProfileChanges = async (updates: { name: string; level: string }) => {
+    if (!profile) return;
+    await supabase.from("profiles").update(updates).eq("id", profile.id);
+    setProfile({ ...profile, ...updates } as Profile);
+    setView("home");
+  };
 
-    // 마이크 권한 미리 확인
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    localStorage.removeItem("edueng_session");
+    router.push("/login");
+  };
+
+  const startCall = useCallback(async () => {
+    unlockTTS();
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream.getTracks().forEach((t) => t.stop());
     } catch {
-      alert("마이크 권한이 필요해요. 브라우저 설정에서 허용해주세요.");
+      alert("마이크 권한이 필요해요.");
       return;
     }
 
@@ -56,13 +102,21 @@ export default function Home() {
           : topic === "Business English"
           ? `Good day ${firstName}! I'm Alex. Let's practice some business English. How would you introduce yourself to a new colleague?`
           : topic === "Travel"
-          ? `Hi ${firstName}! I'm Alex. Let's talk about travel today. Have you been anywhere interesting lately?`
+          ? `Hi ${firstName}! I'm Alex. Let's talk about travel. Have you been anywhere interesting lately?`
+          : topic === "Health & Fitness"
+          ? `Hey ${firstName}! I'm Alex. Let's talk about health and fitness today. Do you exercise regularly?`
+          : topic === "Food & Cooking"
+          ? `Hi ${firstName}! I'm Alex. Let's chat about food today. Do you enjoy cooking?`
+          : topic === "Movies & TV"
+          ? `Hey ${firstName}! I'm Alex. Let's talk about movies and TV shows. Watched anything good lately?`
+          : topic === "Work & Career"
+          ? `Good day ${firstName}! I'm Alex. Let's practice work-related English today. Tell me about your job!`
           : `Hey ${firstName}! This is Alex, your English tutor. How are you doing today?`;
 
       addMessage({ role: "assistant", content: greeting });
       speak(greeting);
     }, 1500);
-  }, [topic, addMessage, speak, profile]);
+  }, [topic, addMessage, speak, profile, unlockTTS]);
 
   const endCall = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -82,7 +136,10 @@ export default function Home() {
   const handleMicRelease = useCallback(async () => {
     if (!isRecording) return;
 
-    const userText = (await stopRecording()).trim();
+    const formData = new FormData();
+    const recorder = { stopRecording };
+
+    const userText = (await recorder.stopRecording()).trim();
     if (!userText) return;
 
     addMessage({ role: "user", content: userText });
@@ -95,9 +152,16 @@ export default function Home() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: apiMessages, topic, profile }),
+        body: JSON.stringify({
+          messages: apiMessages,
+          topic,
+          profile,
+          sessionToken,
+          userId: profile?.id,
+        }),
       });
 
+      if (res.status === 401) { handleSessionExpired(); return; }
       if (!res.ok) throw new Error("API error");
 
       const reader = res.body!.getReader();
@@ -119,12 +183,9 @@ export default function Home() {
       speak(aiText);
     } catch {
       setIsAiTyping(false);
-      addMessage({
-        role: "assistant",
-        content: "Sorry, I had a little trouble there. Could you say that again?",
-      });
+      addMessage({ role: "assistant", content: "Sorry, I had a little trouble there. Could you say that again?" });
     }
-  }, [isRecording, stopRecording, addMessage, topic, speak, profile]);
+  }, [isRecording, stopRecording, addMessage, topic, speak, profile, sessionToken, handleSessionExpired]);
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60);
@@ -133,124 +194,95 @@ export default function Home() {
   };
 
   const isBusy = isTranscribing || isAiTyping || isSpeaking;
-  const micStatus = isRecording
-    ? "듣는 중... 손을 떼면 전송"
-    : isTranscribing
-    ? "인식 중..."
-    : isAiTyping
-    ? "Alex가 생각 중..."
-    : isSpeaking
-    ? "Alex가 말하는 중..."
+  const micStatus = isRecording ? "듣는 중... 손을 떼면 전송"
+    : isTranscribing ? "인식 중..."
+    : isAiTyping ? "Alex가 생각 중..."
+    : isSpeaking ? "Alex가 말하는 중..."
     : "마이크 버튼을 누르고 말하세요";
 
-  if (!loaded) return null;
+  if (!loaded) {
+    return (
+      <main className="min-h-screen bg-gray-950 flex items-center justify-center">
+        <p className="text-gray-500 text-sm">로딩 중...</p>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
+      {showSessionWarning && (
+        <SessionWarning onRelogin={() => setShowSessionWarning(false)} />
+      )}
+
       <div className="w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-[700px]">
         {/* Header */}
         <div className="bg-gray-800 px-6 pt-8 pb-6 text-center relative">
           {profile && callState === "idle" && view === "home" && (
-            <button
-              onClick={() => setView("settings")}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-300 text-xl"
-            >
-              ⚙️
-            </button>
+            <>
+              <button onClick={() => setView("settings")} className="absolute top-4 right-4 text-gray-500 hover:text-gray-300 text-xl">⚙️</button>
+              <button onClick={handleLogout} className="absolute top-4 left-4 text-gray-600 hover:text-gray-400 text-xs">로그아웃</button>
+            </>
           )}
           {view === "settings" && (
-            <button
-              onClick={() => setView("home")}
-              className="absolute top-4 left-4 text-gray-500 hover:text-gray-300 text-sm"
-            >
-              ← 뒤로
-            </button>
+            <button onClick={() => setView("home")} className="absolute top-4 left-4 text-gray-500 hover:text-gray-300 text-sm">← 뒤로</button>
           )}
 
-          <div className="w-20 h-20 bg-green-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-3">
-            🎓
-          </div>
+          <div className="w-20 h-20 bg-green-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-3">🎓</div>
           <h1 className="text-white text-lg font-semibold">Alex</h1>
           <p className="text-gray-400 text-sm">AI English Tutor</p>
           {profile && callState === "idle" && view === "home" && (
             <p className="text-green-400 text-xs mt-1">안녕하세요, {profile.name}님 👋</p>
           )}
-          {callState === "active" && (
-            <p className="text-green-400 text-sm mt-1 font-mono">{formatTime(callDuration)}</p>
-          )}
-          {callState === "calling" && (
-            <p className="text-yellow-400 text-sm mt-1 animate-pulse">연결 중...</p>
-          )}
+          {callState === "active" && <p className="text-green-400 text-sm mt-1 font-mono">{formatTime(callDuration)}</p>}
+          {callState === "calling" && <p className="text-yellow-400 text-sm mt-1 animate-pulse">연결 중...</p>}
         </div>
 
         {/* Body */}
         <div className="flex-1 flex flex-col px-4 py-4 min-h-0">
           {view === "settings" ? (
             <UserSetup
-              existing={profile || undefined}
-              onComplete={(p) => { saveProfile(p); setView("home"); }}
+              existing={profile ? { name: profile.name, level: profile.level } : undefined}
+              onComplete={saveProfileChanges}
             />
           ) : callState === "idle" ? (
-            !profile ? (
-              <UserSetup onComplete={saveProfile} />
-            ) : (
-              <div className="flex-1 flex flex-col justify-between">
-                <TopicSelector selected={topic} onSelect={setTopic} />
-              </div>
-            )
+            <div className="flex-1 flex flex-col justify-between">
+              <TopicSelector selected={topic} onSelect={setTopic} />
+            </div>
           ) : (
-            <TranscriptBox
-              messages={messages}
-              interimTranscript=""
-              isAiTyping={isAiTyping || isTranscribing}
-            />
+            <TranscriptBox messages={messages} interimTranscript="" isAiTyping={isAiTyping || isTranscribing} />
           )}
         </div>
 
         {/* Controls */}
         <div className="px-6 pb-8 pt-4">
-          {callState === "idle" && profile && view === "home" && (
-            <button
-              onClick={startCall}
-              className="w-full py-4 bg-green-600 hover:bg-green-500 text-white rounded-2xl font-semibold text-lg transition-all active:scale-95 shadow-lg"
-            >
+          {callState === "idle" && view === "home" && (
+            <button onClick={startCall} className="w-full py-4 bg-green-600 hover:bg-green-500 text-white rounded-2xl font-semibold text-lg transition-all active:scale-95 shadow-lg">
               📞 통화 시작
             </button>
           )}
 
           {callState !== "idle" && (
             <div className="flex items-center justify-center gap-6">
-              <button
-                onClick={endCall}
-                className="w-16 h-16 bg-red-600 hover:bg-red-500 rounded-full flex items-center justify-center text-2xl transition-all active:scale-95 shadow-lg"
-              >
-                📵
-              </button>
-
+              <button onClick={endCall} className="w-16 h-16 bg-red-600 hover:bg-red-500 rounded-full flex items-center justify-center text-2xl transition-all active:scale-95 shadow-lg">📵</button>
               <button
                 onMouseDown={handleMicPress}
                 onMouseUp={handleMicRelease}
                 onTouchStart={(e) => { e.preventDefault(); handleMicPress(); }}
                 onTouchEnd={(e) => { e.preventDefault(); handleMicRelease(); }}
-                disabled={callState === "calling" || isBusy && !isRecording}
+                disabled={callState === "calling" || (isBusy && !isRecording)}
                 className={`w-20 h-20 rounded-full flex items-center justify-center text-3xl transition-all shadow-lg select-none ${
-                  isRecording
-                    ? "bg-red-500 scale-110 ring-4 ring-red-400 ring-opacity-50"
-                    : isBusy
-                    ? "bg-gray-600 cursor-not-allowed"
-                    : "bg-green-600 hover:bg-green-500 active:scale-95"
+                  isRecording ? "bg-red-500 scale-110 ring-4 ring-red-400 ring-opacity-50"
+                  : isBusy ? "bg-gray-600 cursor-not-allowed"
+                  : "bg-green-600 hover:bg-green-500 active:scale-95"
                 }`}
               >
                 {isRecording ? "🔴" : isTranscribing ? "⏳" : isSpeaking ? "🔊" : "🎤"}
               </button>
-
               <div className="w-16 h-16" />
             </div>
           )}
 
-          {callState === "active" && (
-            <p className="text-gray-500 text-xs text-center mt-3">{micStatus}</p>
-          )}
+          {callState === "active" && <p className="text-gray-500 text-xs text-center mt-3">{micStatus}</p>}
         </div>
       </div>
     </main>

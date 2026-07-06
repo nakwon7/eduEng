@@ -1,5 +1,6 @@
 import Groq from "groq-sdk";
 import { NextRequest, NextResponse } from "next/server";
+import { supabaseAdmin } from "@/lib/supabase";
 
 const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -15,7 +16,21 @@ Rules:
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages, topic, profile } = await req.json();
+    const { messages, topic, profile, sessionToken, userId } = await req.json();
+
+    // 세션 토큰 검증 (중복 로그인 차단)
+    if (userId && sessionToken) {
+      const admin = supabaseAdmin();
+      const { data } = await admin
+        .from("profiles")
+        .select("session_token")
+        .eq("id", userId)
+        .single();
+
+      if (data?.session_token !== sessionToken) {
+        return NextResponse.json({ error: "SESSION_EXPIRED" }, { status: 401 });
+      }
+    }
 
     const levelGuide =
       profile?.level === "beginner"
@@ -25,7 +40,7 @@ export async function POST(req: NextRequest) {
         : "Use everyday vocabulary. Balance correction with natural flow.";
 
     const profileInfo = profile
-      ? `\n\nStudent info:\n- Name: ${profile.name}\n- Level: ${profile.level}\n- ${levelGuide}\n- Always address them by name (${profile.name}) occasionally to keep it personal.`
+      ? `\n\nStudent info:\n- Name: ${profile.name}\n- Level: ${profile.level}\n- ${levelGuide}\n- Address them by name occasionally.`
       : "";
 
     const systemPrompt = `${SYSTEM_PROMPT}${profileInfo}\n\nToday's topic: ${topic || "General Conversation"}`;
@@ -34,10 +49,7 @@ export async function POST(req: NextRequest) {
       model: "llama-3.3-70b-versatile",
       max_tokens: 300,
       stream: true,
-      messages: [
-        { role: "system", content: systemPrompt },
-        ...messages,
-      ],
+      messages: [{ role: "system", content: systemPrompt }, ...messages],
     });
 
     const encoder = new TextEncoder();
@@ -56,9 +68,6 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     console.error("Chat API error:", error);
-    return NextResponse.json(
-      { error: "Failed to get response" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to get response" }, { status: 500 });
   }
 }
