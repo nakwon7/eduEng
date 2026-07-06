@@ -15,9 +15,20 @@ Rules:
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages, topic } = await req.json();
+    const { messages, topic, profile } = await req.json();
 
-    const systemPrompt = `${SYSTEM_PROMPT}\n\nToday's topic: ${topic || "General Conversation"}`;
+    const levelGuide =
+      profile?.level === "beginner"
+        ? "Use simple vocabulary and short sentences. Speak slowly and clearly."
+        : profile?.level === "advanced"
+        ? "Use natural, native-level expressions. Challenge them with idioms and complex structures."
+        : "Use everyday vocabulary. Balance correction with natural flow.";
+
+    const profileInfo = profile
+      ? `\n\nStudent info:\n- Name: ${profile.name}\n- Level: ${profile.level}\n- ${levelGuide}\n- Always address them by name (${profile.name}) occasionally to keep it personal.`
+      : "";
+
+    const systemPrompt = `${SYSTEM_PROMPT}${profileInfo}\n\nToday's topic: ${topic || "General Conversation"}`;
 
     const stream = await client.chat.completions.create({
       model: "llama-3.3-70b-versatile",

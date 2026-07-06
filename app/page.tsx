@@ -3,8 +3,10 @@
 import { useState, useRef, useCallback } from "react";
 import TopicSelector from "@/components/TopicSelector";
 import TranscriptBox, { Message } from "@/components/TranscriptBox";
+import UserSetup from "@/components/UserSetup";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 type CallState = "idle" | "calling" | "active";
 
@@ -16,6 +18,8 @@ export default function Home() {
   const [callDuration, setCallDuration] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const messagesRef = useRef<Message[]>([]);
+
+  const { profile, saveProfile, clearProfile, loaded } = useUserProfile();
 
   const {
     transcript,
@@ -41,19 +45,20 @@ export default function Home() {
         setCallDuration((d) => d + 1);
       }, 1000);
 
+      const firstName = profile?.name || "there";
       const greeting =
         topic === "Self Introduction"
-          ? "Hello! I'm Alex, your English tutor. Let's practice self-introductions today. Could you start by telling me your name and what you do?"
+          ? `Hello ${firstName}! I'm Alex. Let's practice self-introductions today. Could you start by telling me a bit about yourself?`
           : topic === "Business English"
-          ? "Good day! I'm Alex. Let's practice some business English today. Imagine you're in a meeting — how would you introduce yourself to a new colleague?"
+          ? `Good day ${firstName}! I'm Alex. Let's practice some business English today. How would you introduce yourself to a new colleague?`
           : topic === "Travel"
-          ? "Hi there! I'm Alex. Let's talk about travel today. Have you been anywhere interesting lately, or is there somewhere you'd love to visit?"
-          : "Hey! This is Alex, your English tutor. How are you doing today? Let's have a nice chat!";
+          ? `Hi ${firstName}! I'm Alex. Let's talk about travel today. Have you been anywhere interesting lately?`
+          : `Hey ${firstName}! This is Alex, your English tutor. How are you doing today?`;
 
       addMessage({ role: "assistant", content: greeting });
       speak(greeting);
     }, 1500);
-  }, [topic, addMessage, speak]);
+  }, [topic, addMessage, speak, profile]);
 
   const endCall = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -83,7 +88,6 @@ export default function Home() {
     resetTranscript();
     setIsAiTyping(true);
 
-    // Build api messages from history before the new user message
     const history = messagesRef.current.slice(0, -1);
     const apiMessages = [
       ...history,
@@ -94,7 +98,7 @@ export default function Home() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: apiMessages, topic }),
+        body: JSON.stringify({ messages: apiMessages, topic, profile }),
       });
 
       if (!res.ok) throw new Error("API error");
@@ -111,10 +115,7 @@ export default function Home() {
         const { done, value } = await reader.read();
         if (done) break;
         aiText += decoder.decode(value, { stream: true });
-        messagesRef.current[aiMsgIndex] = {
-          role: "assistant",
-          content: aiText,
-        };
+        messagesRef.current[aiMsgIndex] = { role: "assistant", content: aiText };
         setMessages([...messagesRef.current]);
       }
 
@@ -123,25 +124,18 @@ export default function Home() {
       setIsAiTyping(false);
       addMessage({
         role: "assistant",
-        content:
-          "Sorry, I had a little trouble there. Could you say that again?",
+        content: "Sorry, I had a little trouble there. Could you say that again?",
       });
     }
-  }, [
-    isListening,
-    stopListening,
-    transcript,
-    addMessage,
-    resetTranscript,
-    topic,
-    speak,
-  ]);
+  }, [isListening, stopListening, transcript, addMessage, resetTranscript, topic, speak, profile]);
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60);
     const sec = s % 60;
     return `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
   };
+
+  if (!loaded) return null;
 
   return (
     <main className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
@@ -153,32 +147,37 @@ export default function Home() {
           </div>
           <h1 className="text-white text-lg font-semibold">Alex</h1>
           <p className="text-gray-400 text-sm">AI English Tutor</p>
-          {callState === "active" && (
-            <p className="text-green-400 text-sm mt-1 font-mono">
-              {formatTime(callDuration)}
+          {profile && callState === "idle" && (
+            <p className="text-green-400 text-xs mt-1">
+              안녕하세요, {profile.name}님 👋
+              <button onClick={clearProfile} className="text-gray-600 ml-2 hover:text-gray-400 text-xs">
+                (초기화)
+              </button>
             </p>
+          )}
+          {callState === "active" && (
+            <p className="text-green-400 text-sm mt-1 font-mono">{formatTime(callDuration)}</p>
           )}
           {callState === "calling" && (
-            <p className="text-yellow-400 text-sm mt-1 animate-pulse">
-              연결 중...
-            </p>
-          )}
-          {callState === "idle" && (
-            <p className="text-gray-500 text-sm mt-1">통화 대기 중</p>
+            <p className="text-yellow-400 text-sm mt-1 animate-pulse">연결 중...</p>
           )}
         </div>
 
         {/* Body */}
         <div className="flex-1 flex flex-col px-4 py-4 min-h-0">
           {callState === "idle" ? (
-            <div className="flex-1 flex flex-col justify-between">
-              <TopicSelector selected={topic} onSelect={setTopic} />
-              {!isSupported && (
-                <p className="text-red-400 text-xs text-center mt-3">
-                  ⚠️ Chrome 브라우저에서 사용하세요 (음성 기능 필요)
-                </p>
-              )}
-            </div>
+            !profile ? (
+              <UserSetup onComplete={saveProfile} />
+            ) : (
+              <div className="flex-1 flex flex-col justify-between">
+                <TopicSelector selected={topic} onSelect={setTopic} />
+                {!isSupported && (
+                  <p className="text-red-400 text-xs text-center mt-3">
+                    ⚠️ Chrome 브라우저에서 사용하세요
+                  </p>
+                )}
+              </div>
+            )
           ) : (
             <TranscriptBox
               messages={messages}
@@ -190,19 +189,20 @@ export default function Home() {
 
         {/* Controls */}
         <div className="px-6 pb-8 pt-4">
-          {callState === "idle" ? (
+          {callState === "idle" && profile && (
             <button
               onClick={startCall}
               className="w-full py-4 bg-green-600 hover:bg-green-500 text-white rounded-2xl font-semibold text-lg transition-all active:scale-95 shadow-lg"
             >
               📞 통화 시작
             </button>
-          ) : (
+          )}
+
+          {callState !== "idle" && (
             <div className="flex items-center justify-center gap-6">
               <button
                 onClick={endCall}
                 className="w-16 h-16 bg-red-600 hover:bg-red-500 rounded-full flex items-center justify-center text-2xl transition-all active:scale-95 shadow-lg"
-                title="통화 종료"
               >
                 📵
               </button>
@@ -220,7 +220,6 @@ export default function Home() {
                     ? "bg-gray-600 cursor-not-allowed"
                     : "bg-green-600 hover:bg-green-500 active:scale-95"
                 }`}
-                title={isListening ? "놓으면 전송" : "누르고 말하기"}
               >
                 {isListening ? "🔴" : isSpeaking ? "🔊" : "🎤"}
               </button>
@@ -231,11 +230,7 @@ export default function Home() {
 
           {callState === "active" && (
             <p className="text-gray-500 text-xs text-center mt-3">
-              {isListening
-                ? "듣는 중... 손을 떼면 전송"
-                : isSpeaking
-                ? "Alex가 말하는 중..."
-                : "마이크 버튼을 누르고 말하세요"}
+              {isListening ? "듣는 중... 손을 떼면 전송" : isSpeaking ? "Alex가 말하는 중..." : "마이크 버튼을 누르고 말하세요"}
             </p>
           )}
         </div>
