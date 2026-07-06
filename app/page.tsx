@@ -23,7 +23,7 @@ export default function Home() {
 
   const { profile, saveProfile, loaded } = useUserProfile();
   const { isRecording, isTranscribing, startRecording, stopRecording } = useAudioRecorder();
-  const { speak, stop: stopSpeaking, isSpeaking } = useSpeechSynthesis();
+  const { speak, stop: stopSpeaking, unlock: unlockTTS, isSpeaking } = useSpeechSynthesis();
 
   const addMessage = useCallback((msg: Message) => {
     messagesRef.current = [...messagesRef.current, msg];
@@ -31,6 +31,9 @@ export default function Home() {
   }, []);
 
   const startCall = useCallback(async () => {
+    // 사용자 제스처 안에서 TTS 잠금 해제 (모바일 자동재생 차단 우회)
+    unlockTTS();
+
     // 마이크 권한 미리 확인
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
