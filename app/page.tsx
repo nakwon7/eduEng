@@ -9,6 +9,7 @@ import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
 import { useUserProfile } from "@/hooks/useUserProfile";
 
 type CallState = "idle" | "calling" | "active";
+type View = "home" | "settings";
 
 export default function Home() {
   const [callState, setCallState] = useState<CallState>("idle");
@@ -16,10 +17,12 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isAiTyping, setIsAiTyping] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
+  const [view, setView] = useState<View>("home");
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const messagesRef = useRef<Message[]>([]);
+  const micStreamRef = useRef<MediaStream | null>(null);
 
-  const { profile, saveProfile, clearProfile, loaded } = useUserProfile();
+  const { profile, saveProfile, loaded } = useUserProfile();
 
   const {
     transcript,
@@ -37,20 +40,27 @@ export default function Home() {
   }, []);
 
   const startCall = useCallback(async () => {
+    // 마이크 권한 미리 요청 — 이후 STT에서 팝업 안 뜸
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      micStreamRef.current = stream;
+    } catch {
+      alert("마이크 권한이 필요해요. 브라우저 설정에서 허용해주세요.");
+      return;
+    }
+
     setCallState("calling");
     setTimeout(() => {
       setCallState("active");
       setCallDuration(0);
-      timerRef.current = setInterval(() => {
-        setCallDuration((d) => d + 1);
-      }, 1000);
+      timerRef.current = setInterval(() => setCallDuration((d) => d + 1), 1000);
 
       const firstName = profile?.name || "there";
       const greeting =
         topic === "Self Introduction"
           ? `Hello ${firstName}! I'm Alex. Let's practice self-introductions today. Could you start by telling me a bit about yourself?`
           : topic === "Business English"
-          ? `Good day ${firstName}! I'm Alex. Let's practice some business English today. How would you introduce yourself to a new colleague?`
+          ? `Good day ${firstName}! I'm Alex. Let's practice some business English. How would you introduce yourself to a new colleague?`
           : topic === "Travel"
           ? `Hi ${firstName}! I'm Alex. Let's talk about travel today. Have you been anywhere interesting lately?`
           : `Hey ${firstName}! This is Alex, your English tutor. How are you doing today?`;
@@ -62,6 +72,9 @@ export default function Home() {
 
   const endCall = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
+    // 마이크 스트림 해제
+    micStreamRef.current?.getTracks().forEach((t) => t.stop());
+    micStreamRef.current = null;
     stopSpeaking();
     setCallState("idle");
     setMessages([]);
@@ -89,10 +102,7 @@ export default function Home() {
     setIsAiTyping(true);
 
     const history = messagesRef.current.slice(0, -1);
-    const apiMessages = [
-      ...history,
-      { role: "user" as const, content: userText },
-    ];
+    const apiMessages = [...history, { role: "user" as const, content: userText }];
 
     try {
       const res = await fetch("/api/chat", {
@@ -141,19 +151,33 @@ export default function Home() {
     <main className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-[700px]">
         {/* Header */}
-        <div className="bg-gray-800 px-6 pt-8 pb-6 text-center">
+        <div className="bg-gray-800 px-6 pt-8 pb-6 text-center relative">
+          {/* 설정 버튼 */}
+          {profile && callState === "idle" && view === "home" && (
+            <button
+              onClick={() => setView("settings")}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-300 text-xl"
+              title="프로필 수정"
+            >
+              ⚙️
+            </button>
+          )}
+          {view === "settings" && (
+            <button
+              onClick={() => setView("home")}
+              className="absolute top-4 left-4 text-gray-500 hover:text-gray-300 text-sm"
+            >
+              ← 뒤로
+            </button>
+          )}
+
           <div className="w-20 h-20 bg-green-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-3">
             🎓
           </div>
           <h1 className="text-white text-lg font-semibold">Alex</h1>
           <p className="text-gray-400 text-sm">AI English Tutor</p>
-          {profile && callState === "idle" && (
-            <p className="text-green-400 text-xs mt-1">
-              안녕하세요, {profile.name}님 👋
-              <button onClick={clearProfile} className="text-gray-600 ml-2 hover:text-gray-400 text-xs">
-                (초기화)
-              </button>
-            </p>
+          {profile && callState === "idle" && view === "home" && (
+            <p className="text-green-400 text-xs mt-1">안녕하세요, {profile.name}님 👋</p>
           )}
           {callState === "active" && (
             <p className="text-green-400 text-sm mt-1 font-mono">{formatTime(callDuration)}</p>
@@ -165,7 +189,12 @@ export default function Home() {
 
         {/* Body */}
         <div className="flex-1 flex flex-col px-4 py-4 min-h-0">
-          {callState === "idle" ? (
+          {view === "settings" ? (
+            <UserSetup
+              existing={profile || undefined}
+              onComplete={(p) => { saveProfile(p); setView("home"); }}
+            />
+          ) : callState === "idle" ? (
             !profile ? (
               <UserSetup onComplete={saveProfile} />
             ) : (
@@ -189,7 +218,7 @@ export default function Home() {
 
         {/* Controls */}
         <div className="px-6 pb-8 pt-4">
-          {callState === "idle" && profile && (
+          {callState === "idle" && profile && view === "home" && (
             <button
               onClick={startCall}
               className="w-full py-4 bg-green-600 hover:bg-green-500 text-white rounded-2xl font-semibold text-lg transition-all active:scale-95 shadow-lg"
@@ -230,7 +259,11 @@ export default function Home() {
 
           {callState === "active" && (
             <p className="text-gray-500 text-xs text-center mt-3">
-              {isListening ? "듣는 중... 손을 떼면 전송" : isSpeaking ? "Alex가 말하는 중..." : "마이크 버튼을 누르고 말하세요"}
+              {isListening
+                ? "듣는 중... 손을 떼면 전송"
+                : isSpeaking
+                ? "Alex가 말하는 중..."
+                : "마이크 버튼을 누르고 말하세요"}
             </p>
           )}
         </div>

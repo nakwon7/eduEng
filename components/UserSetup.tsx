@@ -5,6 +5,7 @@ import { UserProfile } from "@/hooks/useUserProfile";
 
 interface UserSetupProps {
   onComplete: (profile: UserProfile) => void;
+  existing?: UserProfile;
 }
 
 const LEVELS = [
@@ -13,9 +14,9 @@ const LEVELS = [
   { id: "advanced", label: "고급", desc: "자유로운 대화, 뉘앙스 학습" },
 ] as const;
 
-export default function UserSetup({ onComplete }: UserSetupProps) {
-  const [name, setName] = useState("");
-  const [level, setLevel] = useState<UserProfile["level"]>("intermediate");
+export default function UserSetup({ onComplete, existing }: UserSetupProps) {
+  const [name, setName] = useState(existing?.name || "");
+  const [level, setLevel] = useState<UserProfile["level"]>(existing?.level || "intermediate");
 
   const handleSubmit = () => {
     if (!name.trim()) return;
@@ -25,10 +26,9 @@ export default function UserSetup({ onComplete }: UserSetupProps) {
   return (
     <div className="flex-1 flex flex-col justify-center px-2 py-4">
       <p className="text-green-400 text-sm text-center mb-6">
-        처음 오셨군요! 간단히 알려주세요 👋
+        {existing ? "프로필 수정" : "처음 오셨군요! 간단히 알려주세요 👋"}
       </p>
 
-      {/* 이름 */}
       <div className="mb-5">
         <label className="text-gray-400 text-xs mb-2 block">이름 (영어로)</label>
         <input
@@ -41,7 +41,6 @@ export default function UserSetup({ onComplete }: UserSetupProps) {
         />
       </div>
 
-      {/* 레벨 */}
       <div className="mb-6">
         <label className="text-gray-400 text-xs mb-2 block">영어 레벨</label>
         <div className="space-y-2">
@@ -67,7 +66,7 @@ export default function UserSetup({ onComplete }: UserSetupProps) {
         disabled={!name.trim()}
         className="w-full py-3 bg-green-600 hover:bg-green-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-xl font-semibold transition-all"
       >
-        시작하기
+        {existing ? "저장" : "시작하기"}
       </button>
     </div>
   );
