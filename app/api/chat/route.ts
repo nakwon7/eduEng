@@ -56,11 +56,13 @@ export async function POST(req: NextRequest) {
 
     const systemPrompt = `${SYSTEM_PROMPT}${profileInfo}\n\nToday's topic: ${topic || "General Conversation"}`;
 
+    const recentMessages = messages.slice(-10);
+
     const stream = await client.chat.completions.create({
       model: "llama-3.3-70b-versatile",
       max_tokens: 300,
       stream: true,
-      messages: [{ role: "system", content: systemPrompt }, ...messages],
+      messages: [{ role: "system", content: systemPrompt }, ...recentMessages],
     });
 
     const encoder = new TextEncoder();
