@@ -54,7 +54,7 @@ export default function SignupPage() {
       <main className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
         <div className="w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl p-8 text-center">
           <div className="text-5xl mb-4">📬</div>
-          <h2 className="text-white text-lg font-bold mb-2">신청 완료!</h2>
+          <h2 className="text-white text-lg font-bold mb-2">가입 완료!</h2>
           <p className="text-gray-400 text-sm leading-relaxed">
             관리자 승인 후 로그인 가능합니다.<br />
             승인이 완료되면 별도로 안내드릴게요.
@@ -77,7 +77,7 @@ export default function SignupPage() {
           <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-3">
             🎓
           </div>
-          <h1 className="text-white text-xl font-bold">에듀잉 신청</h1>
+          <h1 className="text-white text-xl font-bold">회원가입</h1>
           <p className="text-gray-400 text-xs mt-1">관리자 승인 후 이용 가능합니다</p>
         </div>
 
@@ -142,7 +142,7 @@ export default function SignupPage() {
             disabled={loading}
             className="w-full py-3 bg-green-600 hover:bg-green-500 disabled:bg-gray-700 text-white rounded-xl font-semibold transition-all"
           >
-            {loading ? "신청 중..." : "신청하기"}
+            {loading ? "가입 중..." : "가입하기"}
           </button>
         </form>
 
