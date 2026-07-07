@@ -11,11 +11,14 @@ export default function LoginPage() {
       const { data: { session } } = await supabase.auth.getSession();
       if (session && localStorage.getItem("edueng_session")) {
         router.replace("/app");
+      } else {
+        setChecking(false);
       }
     };
     check();
   }, [router]);
 
+  const [checking, setChecking] = useState(true);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -62,6 +65,14 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  if (checking) {
+    return (
+      <main className="min-h-screen bg-gray-950 flex items-center justify-center">
+        <p className="text-gray-600 text-sm">로딩 중...</p>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
