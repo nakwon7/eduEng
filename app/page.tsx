@@ -1,43 +1,76 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import TopicSelector from "@/components/TopicSelector";
 import TranscriptBox, { Message } from "@/components/TranscriptBox";
 import UserSetup from "@/components/UserSetup";
-import BetaGate from "@/components/BetaGate";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
-import { useUserProfile } from "@/hooks/useUserProfile";
+import { supabase } from "@/lib/supabase";
+import { UserProfile } from "@/hooks/useUserProfile";
 
 type CallState = "idle" | "calling" | "active";
 type View = "home" | "settings";
 
 export default function Home() {
+  const router = useRouter();
   const [callState, setCallState] = useState<CallState>("idle");
   const [topic, setTopic] = useState("Daily Conversation");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isAiTyping, setIsAiTyping] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
   const [view, setView] = useState<View>("home");
-  const [betaConfirmed, setBetaConfirmed] = useState(false);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const messagesRef = useRef<Message[]>([]);
 
-  const { profile, saveProfile, loaded: profileLoaded } = useUserProfile();
   const { isRecording, isTranscribing, startRecording, stopRecording } = useAudioRecorder();
   const { speak, stop: stopSpeaking, unlock: unlockTTS, isSpeaking } = useSpeechSynthesis();
 
   useEffect(() => {
-    const confirmed = localStorage.getItem("edueng_beta") === "true";
-    setBetaConfirmed(confirmed);
-    setLoaded(true);
-  }, []);
+    const init = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        router.push("/login");
+        return;
+      }
 
-  const handleBetaConfirm = () => {
-    localStorage.setItem("edueng_beta", "true");
-    setBetaConfirmed(true);
+      const storedToken = localStorage.getItem("edueng_session");
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("name, level, session_token")
+        .eq("id", session.user.id)
+        .single();
+
+      if (!profileData || profileData.session_token !== storedToken) {
+        await supabase.auth.signOut();
+        localStorage.removeItem("edueng_session");
+        router.push("/login");
+        return;
+      }
+
+      setUserId(session.user.id);
+      setProfile({ name: profileData.name, level: profileData.level });
+      setLoaded(true);
+    };
+    init();
+  }, [router]);
+
+  const handleLogout = async () => {
+    localStorage.removeItem("edueng_session");
+    await supabase.auth.signOut();
+    router.push("/login");
+  };
+
+  const saveProfile = async (p: UserProfile) => {
+    if (!userId) return;
+    await supabase.from("profiles").update({ name: p.name, level: p.level }).eq("id", userId);
+    setProfile(p);
+    setView("home");
   };
 
   const addMessage = useCallback((msg: Message) => {
@@ -149,7 +182,7 @@ export default function Home() {
     : isSpeaking ? "Alex가 말하는 중..."
     : "마이크 버튼을 누르고 말하세요";
 
-  if (!loaded || !profileLoaded) {
+  if (!loaded) {
     return (
       <main className="min-h-screen bg-gray-950 flex items-center justify-center">
         <p className="text-gray-500 text-sm">로딩 중...</p>
@@ -162,8 +195,11 @@ export default function Home() {
       <div className="w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-[700px]">
         {/* Header */}
         <div className="bg-gray-800 px-6 pt-8 pb-6 text-center relative">
-          {profile && callState === "idle" && view === "home" && betaConfirmed && (
-            <button onClick={() => setView("settings")} className="absolute top-4 right-4 text-gray-500 hover:text-gray-300 text-xl">⚙️</button>
+          {callState === "idle" && view === "home" && (
+            <>
+              <button onClick={() => setView("settings")} className="absolute top-4 right-4 text-gray-500 hover:text-gray-300 text-xl">⚙️</button>
+              <button onClick={handleLogout} className="absolute top-4 left-4 text-gray-500 hover:text-gray-300 text-xs">로그아웃</button>
+            </>
           )}
           {view === "settings" && (
             <button onClick={() => setView("home")} className="absolute top-4 left-4 text-gray-500 hover:text-gray-300 text-sm">← 뒤로</button>
@@ -172,7 +208,7 @@ export default function Home() {
           <div className="w-20 h-20 bg-green-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-3">🎓</div>
           <h1 className="text-white text-lg font-semibold">Alex</h1>
           <p className="text-gray-400 text-sm">AI English Tutor</p>
-          {profile && callState === "idle" && view === "home" && betaConfirmed && (
+          {profile && callState === "idle" && view === "home" && (
             <p className="text-green-400 text-xs mt-1">안녕하세요, {profile.name}님 👋</p>
           )}
           {callState === "active" && <p className="text-green-400 text-sm mt-1 font-mono">{formatTime(callDuration)}</p>}
@@ -181,18 +217,12 @@ export default function Home() {
 
         {/* Body */}
         <div className="flex-1 flex flex-col px-4 py-4 min-h-0">
-          {!betaConfirmed ? (
-            <BetaGate onConfirm={handleBetaConfirm} />
-          ) : view === "settings" ? (
-            <UserSetup existing={profile || undefined} onComplete={(p) => { saveProfile(p); setView("home"); }} />
+          {view === "settings" ? (
+            <UserSetup existing={profile || undefined} onComplete={saveProfile} />
           ) : callState === "idle" ? (
-            !profile ? (
-              <UserSetup onComplete={saveProfile} />
-            ) : (
-              <div className="flex-1 flex flex-col justify-between">
-                <TopicSelector selected={topic} onSelect={setTopic} />
-              </div>
-            )
+            <div className="flex-1 flex flex-col justify-between">
+              <TopicSelector selected={topic} onSelect={setTopic} />
+            </div>
           ) : (
             <TranscriptBox messages={messages} interimTranscript="" isAiTyping={isAiTyping || isTranscribing} />
           )}
@@ -200,7 +230,7 @@ export default function Home() {
 
         {/* Controls */}
         <div className="px-6 pb-8 pt-4">
-          {betaConfirmed && callState === "idle" && profile && view === "home" && (
+          {callState === "idle" && view === "home" && (
             <button onClick={startCall} className="w-full py-4 bg-green-600 hover:bg-green-500 text-white rounded-2xl font-semibold text-lg transition-all active:scale-95 shadow-lg">
               📞 통화 시작
             </button>
