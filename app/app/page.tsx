@@ -29,6 +29,7 @@ export default function Home() {
   const [trialCalls, setTrialCalls] = useState<number>(0);
   const [trialMinutes, setTrialMinutes] = useState<number>(30);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
+  const [unlimited, setUnlimited] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const isTrialCallRef = useRef(false);
 
@@ -49,7 +50,7 @@ export default function Home() {
       const storedToken = localStorage.getItem("edueng_session");
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("name, level, username, session_token, trial_calls, trial_minutes, expires_at")
+        .select("name, level, username, session_token, trial_calls, trial_minutes, expires_at, unlimited")
         .eq("id", session.user.id)
         .single();
 
@@ -67,6 +68,7 @@ export default function Home() {
       setTrialCalls(profileData.trial_calls ?? 0);
       setTrialMinutes(profileData.trial_minutes ?? 30);
       setExpiresAt(profileData.expires_at ?? null);
+      setUnlimited(profileData.unlimited ?? false);
       setLoaded(true);
     };
     init();
@@ -86,7 +88,8 @@ export default function Home() {
   };
 
   const isPaid = !!expiresAt && new Date(expiresAt) > new Date();
-  const canMakeCall = username === "gooster" || isPaid || trialCalls > 0;
+  const isUnlimited = username === "gooster" || unlimited;
+  const canMakeCall = isUnlimited || isPaid || trialCalls > 0;
 
   const addMessage = useCallback((msg: Message) => {
     messagesRef.current = [...messagesRef.current, msg];
@@ -126,7 +129,7 @@ export default function Home() {
 
   const startCall = useCallback(async () => {
     if (!canMakeCall) return;
-    isTrialCallRef.current = !isPaid && username !== "gooster";
+    isTrialCallRef.current = !isPaid && !isUnlimited;
     unlockTTS();
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -290,7 +293,7 @@ export default function Home() {
           {callState === "idle" && view === "home" && (
             canMakeCall ? (
               <div>
-                {!isPaid && username !== "gooster" && (
+                {!isPaid && !isUnlimited && (
                   <p className="text-yellow-400 text-xs text-center mb-2">
                     체험 통화 {trialCalls}회 남음 · 회당 {trialMinutes}분
                   </p>

@@ -34,11 +34,12 @@ export async function POST(req: NextRequest) {
       // 이용 기간 만료 확인
       const { data: profile } = await admin
         .from("profiles")
-        .select("expires_at, username")
+        .select("expires_at, username, unlimited")
         .eq("id", userId)
         .single();
 
-      if (profile?.username !== "gooster" && profile?.expires_at && new Date(profile.expires_at) < new Date()) {
+      const isUnlimited = profile?.username === "gooster" || profile?.unlimited;
+      if (!isUnlimited && profile?.expires_at && new Date(profile.expires_at) < new Date()) {
         return NextResponse.json({ error: "SUBSCRIPTION_EXPIRED" }, { status: 403 });
       }
     }
