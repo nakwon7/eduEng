@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 const LEVELS = [
@@ -13,6 +14,21 @@ const USERNAME_REGEX = /^[A-Za-z][A-Za-z0-9]{1,19}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function SignupPage() {
+  const router = useRouter();
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    const check = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session && localStorage.getItem("edueng_session")) {
+        router.replace("/app");
+      } else {
+        setChecking(false);
+      }
+    };
+    check();
+  }, [router]);
+
   const [step, setStep] = useState<"form" | "done">("form");
   const [username, setUsername] = useState("");
   const [name, setName] = useState("");
@@ -69,6 +85,14 @@ export default function SignupPage() {
       setLoading(false);
     }
   };
+
+  if (checking) {
+    return (
+      <main className="min-h-screen bg-gray-950 flex items-center justify-center">
+        <p className="text-gray-600 text-sm">로딩 중...</p>
+      </main>
+    );
+  }
 
   if (step === "done") {
     return (
