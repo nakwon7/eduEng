@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
 
   const { error } = await admin
     .from("profiles")
-    .update({ unlimited })
+    .update({ unlimited, ...(unlimited ? { expires_at: null } : {}) })
     .eq("id", targetId);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
