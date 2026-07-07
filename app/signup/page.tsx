@@ -9,6 +9,9 @@ const LEVELS = [
   { id: "advanced", label: "고급", desc: "자유로운 대화, 뉘앙스 학습" },
 ] as const;
 
+const NAME_REGEX = /^[A-Za-z][A-Za-z0-9]{1,19}$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export default function SignupPage() {
   const [step, setStep] = useState<"form" | "done">("form");
   const [name, setName] = useState("");
@@ -18,12 +21,28 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const nameError = name && !NAME_REGEX.test(name)
+    ? "영문자로 시작, 영문+숫자 2~20자"
+    : "";
+  const emailError = email && !EMAIL_REGEX.test(email)
+    ? "올바른 이메일 형식이 아닙니다"
+    : "";
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (nameError || emailError) return;
     setError("");
     setLoading(true);
 
     try {
+      // 이름 중복 확인
+      const { data: existing } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("name", name)
+        .single();
+      if (existing) throw new Error("이미 사용 중인 이름입니다");
+
       const { data, error: authError } = await supabase.auth.signUp({ email, password });
       if (authError) throw authError;
 
@@ -83,7 +102,9 @@ export default function SignupPage() {
 
         <form onSubmit={handleSignup} className="space-y-4">
           <div>
-            <label className="text-gray-400 text-xs mb-1 block">이름 (영어로)</label>
+            <label className="text-gray-400 text-xs mb-1 block">
+              영어 이름 <span className="text-gray-600">(AI 튜터가 부르는 이름 · 로그인 아이디)</span>
+            </label>
             <input
               type="text"
               value={name}
@@ -92,6 +113,7 @@ export default function SignupPage() {
               placeholder="e.g. Minjun"
               className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
             />
+            {nameError && <p className="text-red-400 text-xs mt-1">{nameError}</p>}
           </div>
           <div>
             <label className="text-gray-400 text-xs mb-1 block">이메일</label>
@@ -103,6 +125,7 @@ export default function SignupPage() {
               placeholder="example@email.com"
               className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
             />
+            {emailError && <p className="text-red-400 text-xs mt-1">{emailError}</p>}
           </div>
           <div>
             <label className="text-gray-400 text-xs mb-1 block">비밀번호</label>
@@ -139,7 +162,7 @@ export default function SignupPage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !!nameError || !!emailError}
             className="w-full py-3 bg-green-600 hover:bg-green-500 disabled:bg-gray-700 text-white rounded-xl font-semibold transition-all"
           >
             {loading ? "가입 중..." : "가입하기"}

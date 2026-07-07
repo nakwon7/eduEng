@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -17,26 +17,31 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
-      if (authError) throw authError;
+      // 이름으로 이메일 조회
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("id, email, approved")
+        .eq("name", name)
+        .single();
+
+      if (profileError || !profile) throw new Error("아이디 또는 비밀번호가 올바르지 않습니다");
+
+      if (!profile.approved) {
+        setError("아직 승인 대기 중입니다. 승인 후 이용 가능합니다.");
+        setLoading(false);
+        return;
+      }
+
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email: profile.email,
+        password,
+      });
+      if (authError) throw new Error("아이디 또는 비밀번호가 올바르지 않습니다");
 
       const userId = data.user?.id;
       if (!userId) throw new Error("로그인 실패");
 
-      // 승인 여부 확인
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("approved")
-        .eq("id", userId)
-        .single();
-
-      if (!profile?.approved) {
-        await supabase.auth.signOut();
-        router.push("/pending");
-        return;
-      }
-
-      // 세션 토큰 발급 (중복 로그인 차단용)
+      // 세션 토큰 발급 (중복 로그인 차단)
       const sessionToken = crypto.randomUUID();
       await supabase.from("profiles").update({ session_token: sessionToken }).eq("id", userId);
       localStorage.setItem("edueng_session", sessionToken);
@@ -62,14 +67,14 @@ export default function LoginPage() {
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="text-gray-400 text-xs mb-1 block">이메일</label>
+            <label className="text-gray-400 text-xs mb-1 block">영어 이름 (아이디)</label>
             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               required
               className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="example@email.com"
+              placeholder="e.g. Minjun"
             />
           </div>
           <div>
