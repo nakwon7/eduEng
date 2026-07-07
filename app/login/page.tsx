@@ -45,7 +45,7 @@ export default function LoginPage() {
       await supabase.from("profiles").update({ session_token: sessionToken }).eq("id", userId);
       localStorage.setItem("edueng_session", sessionToken);
 
-      router.push("/");
+      router.push("/app");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "로그인 실패");
     } finally {
