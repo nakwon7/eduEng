@@ -55,7 +55,7 @@ export default function LoginPage() {
       await supabase.from("profiles").update({ session_token: sessionToken }).eq("id", userId);
       localStorage.setItem("edueng_session", sessionToken);
 
-      router.push("/app");
+      router.replace("/app");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "로그인 실패");
     } finally {
@@ -82,6 +82,7 @@ export default function LoginPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
+              autoComplete="username"
               className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
               placeholder="아이디 입력"
             />
@@ -93,6 +94,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              autoComplete="current-password"
               className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
               placeholder="••••••••"
             />
