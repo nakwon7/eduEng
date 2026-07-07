@@ -88,6 +88,34 @@ export default function Home() {
   const isPaid = !!expiresAt && new Date(expiresAt) > new Date();
   const canMakeCall = username === "gooster" || isPaid || trialCalls > 0;
 
+  const addMessage = useCallback((msg: Message) => {
+    messagesRef.current = [...messagesRef.current, msg];
+    setMessages([...messagesRef.current]);
+  }, []);
+
+  const endCall = useCallback(async () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    stopSpeaking();
+    const wasTrial = isTrialCallRef.current;
+    isTrialCallRef.current = false;
+    setCallState("idle");
+    setMessages([]);
+    messagesRef.current = [];
+    setCallDuration(0);
+
+    if (wasTrial && userId && sessionToken) {
+      const res = await fetch("/api/trial/use", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, sessionToken }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setTrialCalls(data.trial_calls);
+      }
+    }
+  }, [stopSpeaking, userId, sessionToken]);
+
   // 30분 자동 종료 (체험 통화)
   useEffect(() => {
     if (callState === "active" && isTrialCallRef.current && callDuration >= trialMinutes * 60) {
@@ -95,11 +123,6 @@ export default function Home() {
       alert(`체험 통화 ${trialMinutes}분이 종료됐습니다.`);
     }
   }, [callDuration, callState, trialMinutes, endCall]);
-
-  const addMessage = useCallback((msg: Message) => {
-    messagesRef.current = [...messagesRef.current, msg];
-    setMessages([...messagesRef.current]);
-  }, []);
 
   const startCall = useCallback(async () => {
     if (!canMakeCall) return;
@@ -134,29 +157,6 @@ export default function Home() {
       speak(greeting);
     }, 1500);
   }, [topic, addMessage, speak, profile, unlockTTS, canMakeCall, isPaid, username]);
-
-  const endCall = useCallback(async () => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    stopSpeaking();
-    const wasTrial = isTrialCallRef.current;
-    isTrialCallRef.current = false;
-    setCallState("idle");
-    setMessages([]);
-    messagesRef.current = [];
-    setCallDuration(0);
-
-    if (wasTrial && userId && sessionToken) {
-      const res = await fetch("/api/trial/use", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, sessionToken }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setTrialCalls(data.trial_calls);
-      }
-    }
-  }, [stopSpeaking, userId, sessionToken]);
 
   const handleMicPress = useCallback(async () => {
     if (isRecording || isSpeaking) return;
