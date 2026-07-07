@@ -26,7 +26,11 @@ export default function Home() {
   const [userId, setUserId] = useState<string | null>(null);
   const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
+  const [trialCalls, setTrialCalls] = useState<number>(0);
+  const [trialMinutes, setTrialMinutes] = useState<number>(30);
+  const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const isTrialCallRef = useRef(false);
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const messagesRef = useRef<Message[]>([]);
@@ -45,7 +49,7 @@ export default function Home() {
       const storedToken = localStorage.getItem("edueng_session");
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("name, level, username, session_token")
+        .select("name, level, username, session_token, trial_calls, trial_minutes, expires_at")
         .eq("id", session.user.id)
         .single();
 
@@ -60,6 +64,9 @@ export default function Home() {
       setSessionToken(storedToken);
       setUsername(profileData.username);
       setProfile({ name: profileData.name, level: profileData.level });
+      setTrialCalls(profileData.trial_calls ?? 0);
+      setTrialMinutes(profileData.trial_minutes ?? 30);
+      setExpiresAt(profileData.expires_at ?? null);
       setLoaded(true);
     };
     init();
@@ -78,12 +85,25 @@ export default function Home() {
     setView("home");
   };
 
+  const isPaid = !!expiresAt && new Date(expiresAt) > new Date();
+  const canMakeCall = username === "gooster" || isPaid || trialCalls > 0;
+
+  // 30분 자동 종료 (체험 통화)
+  useEffect(() => {
+    if (callState === "active" && isTrialCallRef.current && callDuration >= trialMinutes * 60) {
+      endCall();
+      alert(`체험 통화 ${trialMinutes}분이 종료됐습니다.`);
+    }
+  }, [callDuration, callState, trialMinutes, endCall]);
+
   const addMessage = useCallback((msg: Message) => {
     messagesRef.current = [...messagesRef.current, msg];
     setMessages([...messagesRef.current]);
   }, []);
 
   const startCall = useCallback(async () => {
+    if (!canMakeCall) return;
+    isTrialCallRef.current = !isPaid && username !== "gooster";
     unlockTTS();
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -115,14 +135,28 @@ export default function Home() {
     }, 1500);
   }, [topic, addMessage, speak, profile, unlockTTS]);
 
-  const endCall = useCallback(() => {
+  const endCall = useCallback(async () => {
     if (timerRef.current) clearInterval(timerRef.current);
     stopSpeaking();
+    const wasTrial = isTrialCallRef.current;
+    isTrialCallRef.current = false;
     setCallState("idle");
     setMessages([]);
     messagesRef.current = [];
     setCallDuration(0);
-  }, [stopSpeaking]);
+
+    if (wasTrial && userId && sessionToken) {
+      const res = await fetch("/api/trial/use", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, sessionToken }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setTrialCalls(data.trial_calls);
+      }
+    }
+  }, [stopSpeaking, userId, sessionToken]);
 
   const handleMicPress = useCallback(async () => {
     if (isRecording || isSpeaking) return;
@@ -254,9 +288,35 @@ export default function Home() {
         {/* Controls */}
         <div className="px-6 pb-8 pt-4">
           {callState === "idle" && view === "home" && (
-            <button onClick={startCall} className="w-full py-4 bg-green-600 hover:bg-green-500 text-white rounded-2xl font-semibold text-lg transition-all active:scale-95 shadow-lg">
-              📞 통화 시작
-            </button>
+            canMakeCall ? (
+              <div>
+                {!isPaid && username !== "gooster" && (
+                  <p className="text-yellow-400 text-xs text-center mb-2">
+                    체험 통화 {trialCalls}회 남음 · 회당 {trialMinutes}분
+                  </p>
+                )}
+                {isPaid && expiresAt && (
+                  <p className="text-gray-500 text-xs text-center mb-2">
+                    이용 기간 {new Date(expiresAt).toLocaleDateString("ko-KR")}까지
+                  </p>
+                )}
+                <button onClick={startCall} className="w-full py-4 bg-green-600 hover:bg-green-500 text-white rounded-2xl font-semibold text-lg transition-all active:scale-95 shadow-lg">
+                  📞 통화 시작
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3 text-center">
+                <p className="text-white text-sm font-medium">체험 횟수를 모두 사용했습니다</p>
+                <p className="text-gray-400 text-xs leading-relaxed">
+                  멤버십 가입 후 무제한으로 이용하세요<br />월 9,900원
+                </p>
+                <div className="bg-gray-800 rounded-xl p-3 text-xs text-gray-300 space-y-1">
+                  <p>토스 1000-4983-0654</p>
+                  <p>예금주: 최귀송</p>
+                  <p className="text-gray-500 pt-1">입금 후 카카오톡으로 아이디를 알려주세요</p>
+                </div>
+              </div>
+            )
           )}
 
           {callState !== "idle" && (

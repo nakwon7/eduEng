@@ -56,7 +56,7 @@ export default function SignupPage() {
         username,
         name,
         level,
-        approved: false,
+        approved: true,
         session_token: null,
       });
       if (profileError) throw profileError;
