@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 export interface UserProfile {
   name: string;
   level: "beginner" | "intermediate" | "advanced";
+  tutor: "alex" | "rachel";
 }
 
 export function useUserProfile() {

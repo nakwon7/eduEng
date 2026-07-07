@@ -50,7 +50,7 @@ export default function Home() {
       const storedToken = localStorage.getItem("edueng_session");
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("name, level, username, session_token, trial_calls, trial_minutes, expires_at, unlimited")
+        .select("name, level, tutor, username, session_token, trial_calls, trial_minutes, expires_at, unlimited")
         .eq("id", session.user.id)
         .single();
 
@@ -64,7 +64,7 @@ export default function Home() {
       setUserId(session.user.id);
       setSessionToken(storedToken);
       setUsername(profileData.username);
-      setProfile({ name: profileData.name, level: profileData.level });
+      setProfile({ name: profileData.name, level: profileData.level, tutor: profileData.tutor || "alex" });
       setTrialCalls(profileData.trial_calls ?? 0);
       setTrialMinutes(profileData.trial_minutes ?? 30);
       setExpiresAt(profileData.expires_at ?? null);
@@ -82,7 +82,7 @@ export default function Home() {
 
   const saveProfile = async (p: UserProfile) => {
     if (!userId) return;
-    await supabase.from("profiles").update({ name: p.name, level: p.level }).eq("id", userId);
+    await supabase.from("profiles").update({ name: p.name, level: p.level, tutor: p.tutor }).eq("id", userId);
     setProfile(p);
     setView("home");
   };
@@ -146,15 +146,16 @@ export default function Home() {
       timerRef.current = setInterval(() => setCallDuration((d) => d + 1), 1000);
 
       const firstName = profile?.name || "there";
+      const tutorName = profile?.tutor === "rachel" ? "Rachel" : "Alex";
       const greeting =
-        topic === "Self Introduction" ? `Hello ${firstName}! I'm Alex. Let's practice self-introductions. Could you tell me a bit about yourself?`
-        : topic === "Business English" ? `Good day ${firstName}! I'm Alex. Let's practice business English. How would you introduce yourself to a new colleague?`
-        : topic === "Travel" ? `Hi ${firstName}! I'm Alex. Let's talk about travel. Have you been anywhere interesting lately?`
-        : topic === "Health & Fitness" ? `Hey ${firstName}! I'm Alex. Let's talk about health and fitness. Do you exercise regularly?`
-        : topic === "Food & Cooking" ? `Hi ${firstName}! I'm Alex. Let's chat about food. Do you enjoy cooking?`
-        : topic === "Movies & TV" ? `Hey ${firstName}! I'm Alex. Let's talk about movies and TV. Watched anything good lately?`
-        : topic === "Work & Career" ? `Good day ${firstName}! I'm Alex. Let's practice work-related English. Tell me about your job!`
-        : `Hey ${firstName}! This is Alex, your English tutor. How are you doing today?`;
+        topic === "Self Introduction" ? `Hello ${firstName}! I'm ${tutorName}. Let's practice self-introductions. Could you tell me a bit about yourself?`
+        : topic === "Business English" ? `Good day ${firstName}! I'm ${tutorName}. Let's practice business English. How would you introduce yourself to a new colleague?`
+        : topic === "Travel" ? `Hi ${firstName}! I'm ${tutorName}. Let's talk about travel. Have you been anywhere interesting lately?`
+        : topic === "Health & Fitness" ? `Hey ${firstName}! I'm ${tutorName}. Let's talk about health and fitness. Do you exercise regularly?`
+        : topic === "Food & Cooking" ? `Hi ${firstName}! I'm ${tutorName}. Let's chat about food. Do you enjoy cooking?`
+        : topic === "Movies & TV" ? `Hey ${firstName}! I'm ${tutorName}. Let's talk about movies and TV. Watched anything good lately?`
+        : topic === "Work & Career" ? `Good day ${firstName}! I'm ${tutorName}. Let's practice work-related English. Tell me about your job!`
+        : `Hey ${firstName}! This is ${tutorName}, your English tutor. How are you doing today?`;
 
       addMessage({ role: "assistant", content: greeting });
       speak(greeting);
@@ -263,9 +264,15 @@ export default function Home() {
             <button onClick={() => setView("home")} className="absolute top-4 left-4 text-gray-500 hover:text-gray-300 text-sm">← 뒤로</button>
           )}
 
-          <div className="w-20 h-20 bg-green-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-3">🎓</div>
-          <h1 className="text-white text-lg font-semibold">Alex</h1>
-          <p className="text-gray-400 text-sm">AI English Tutor</p>
+          <div className="w-20 h-20 bg-green-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-3">
+            {profile?.tutor === "rachel" ? "🌸" : "🎓"}
+          </div>
+          <h1 className="text-white text-lg font-semibold">
+            {profile?.tutor === "rachel" ? "Rachel" : "Alex"}
+          </h1>
+          <p className="text-gray-400 text-sm">
+            {profile?.tutor === "rachel" ? "Warm & Patient" : "Friendly & Encouraging"}
+          </p>
           {profile && callState === "idle" && view === "home" && (
             <p className="text-green-400 text-xs mt-1">안녕하세요, {profile.name}님 👋</p>
           )}

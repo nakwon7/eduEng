@@ -14,13 +14,19 @@ const LEVELS = [
   { id: "advanced", label: "고급", desc: "자유로운 대화, 뉘앙스 학습" },
 ] as const;
 
+const TUTORS = [
+  { id: "alex", emoji: "🎓", label: "Alex", desc: "Friendly & Encouraging" },
+  { id: "rachel", emoji: "🌸", label: "Rachel", desc: "Warm & Patient" },
+] as const;
+
 export default function UserSetup({ onComplete, existing }: UserSetupProps) {
   const [name, setName] = useState(existing?.name || "");
   const [level, setLevel] = useState<UserProfile["level"]>(existing?.level || "intermediate");
+  const [tutor, setTutor] = useState<UserProfile["tutor"]>(existing?.tutor || "alex");
 
   const handleSubmit = () => {
     if (!name.trim()) return;
-    onComplete({ name: name.trim(), level });
+    onComplete({ name: name.trim(), level, tutor });
   };
 
   return (
@@ -41,6 +47,25 @@ export default function UserSetup({ onComplete, existing }: UserSetupProps) {
         />
       </div>
 
+      <div className="mb-5">
+        <label className="text-gray-400 text-xs mb-2 block">AI 튜터</label>
+        <div className="grid grid-cols-2 gap-2">
+          {TUTORS.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setTutor(t.id)}
+              className={`px-4 py-3 rounded-xl text-center transition-all ${
+                tutor === t.id ? "bg-green-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+              }`}
+            >
+              <div className="text-2xl mb-1">{t.emoji}</div>
+              <div className="font-medium text-sm">{t.label}</div>
+              <div className="text-xs opacity-70">{t.desc}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="mb-6">
         <label className="text-gray-400 text-xs mb-2 block">영어 레벨</label>
         <div className="space-y-2">
@@ -49,9 +74,7 @@ export default function UserSetup({ onComplete, existing }: UserSetupProps) {
               key={l.id}
               onClick={() => setLevel(l.id)}
               className={`w-full px-4 py-3 rounded-xl text-left transition-all ${
-                level === l.id
-                  ? "bg-green-600 text-white"
-                  : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                level === l.id ? "bg-green-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"
               }`}
             >
               <span className="font-medium text-sm">{l.label}</span>
