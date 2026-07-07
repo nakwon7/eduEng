@@ -75,6 +75,17 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
     setBusy(null);
   };
 
+  const handleResetTrial = async (targetId: string) => {
+    setBusy(targetId + "_trial");
+    await fetch("/api/admin/reset-trial", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, sessionToken, targetId }),
+    });
+    await fetchUsers();
+    setBusy(null);
+  };
+
   return (
     <div className="flex-1 flex flex-col px-2 py-4 overflow-y-auto">
       <h2 className="text-white text-sm font-bold mb-4 text-center">회원 관리</h2>
@@ -109,7 +120,7 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                     disabled={busy === u.id + "_approve"}
                     className="flex-1 py-1.5 bg-green-700 hover:bg-green-600 disabled:bg-gray-700 text-white text-xs rounded-xl transition-all"
                   >
-                    {busy === u.id + "_approve" ? "처리 중..." : "+30일"}
+                    {busy === u.id + "_approve" ? "..." : "+30일"}
                   </button>
                   <button
                     onClick={() => handleToggleUnlimited(u.id, u.unlimited)}
@@ -118,7 +129,14 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                       u.unlimited ? "bg-purple-700 hover:bg-purple-600" : "bg-gray-600 hover:bg-gray-500"
                     }`}
                   >
-                    {busy === u.id + "_unlimited" ? "처리 중..." : u.unlimited ? "무제한 해제" : "무제한"}
+                    {busy === u.id + "_unlimited" ? "..." : u.unlimited ? "무제한 해제" : "무제한"}
+                  </button>
+                  <button
+                    onClick={() => handleResetTrial(u.id)}
+                    disabled={busy === u.id + "_trial"}
+                    className="flex-1 py-1.5 bg-yellow-700 hover:bg-yellow-600 disabled:bg-gray-700 text-white text-xs rounded-xl transition-all"
+                  >
+                    {busy === u.id + "_trial" ? "..." : "체험초기화"}
                   </button>
                 </div>
               </div>
