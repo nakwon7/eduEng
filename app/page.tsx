@@ -1,4 +1,22 @@
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+
 export default function LandingPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const check = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session && localStorage.getItem("edueng_session")) {
+        router.replace("/app");
+      }
+    };
+    check();
+  }, [router]);
+
   return (
     <main className="min-h-screen bg-gray-950 text-white">
       {/* Hero */}
