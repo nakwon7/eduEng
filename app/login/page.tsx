@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -17,25 +17,24 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // 이름으로 이메일 조회
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("id, email, approved")
-        .eq("name", name)
-        .single();
+      // 서버에서 아이디로 이메일 조회 (RLS 우회)
+      const res = await fetch("/api/auth/lookup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username }),
+      });
 
-      if (profileError || !profile) throw new Error("아이디 또는 비밀번호가 올바르지 않습니다");
+      if (!res.ok) throw new Error("아이디 또는 비밀번호가 올바르지 않습니다");
 
-      if (!profile.approved) {
+      const { email, approved } = await res.json();
+
+      if (!approved) {
         setError("아직 승인 대기 중입니다. 승인 후 이용 가능합니다.");
         setLoading(false);
         return;
       }
 
-      const { data, error: authError } = await supabase.auth.signInWithPassword({
-        email: profile.email,
-        password,
-      });
+      const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
       if (authError) throw new Error("아이디 또는 비밀번호가 올바르지 않습니다");
 
       const userId = data.user?.id;
@@ -67,14 +66,14 @@ export default function LoginPage() {
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="text-gray-400 text-xs mb-1 block">영어 이름 (아이디)</label>
+            <label className="text-gray-400 text-xs mb-1 block">아이디</label>
             <input
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
               className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="e.g. Minjun"
+              placeholder="아이디 입력"
             />
           </div>
           <div>

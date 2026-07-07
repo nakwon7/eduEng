@@ -9,11 +9,12 @@ const LEVELS = [
   { id: "advanced", label: "고급", desc: "자유로운 대화, 뉘앙스 학습" },
 ] as const;
 
-const NAME_REGEX = /^[A-Za-z][A-Za-z0-9]{1,19}$/;
+const USERNAME_REGEX = /^[A-Za-z][A-Za-z0-9]{1,19}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function SignupPage() {
   const [step, setStep] = useState<"form" | "done">("form");
+  const [username, setUsername] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,7 +22,7 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const nameError = name && !NAME_REGEX.test(name)
+  const usernameError = username && !USERNAME_REGEX.test(username)
     ? "영문자로 시작, 영문+숫자 2~20자"
     : "";
   const emailError = email && !EMAIL_REGEX.test(email)
@@ -30,18 +31,18 @@ export default function SignupPage() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (nameError || emailError) return;
+    if (usernameError || emailError) return;
     setError("");
     setLoading(true);
 
     try {
-      // 이름 중복 확인
+      // 아이디 중복 확인
       const { data: existing } = await supabase
         .from("profiles")
         .select("id")
-        .eq("name", name)
+        .eq("username", username)
         .single();
-      if (existing) throw new Error("이미 사용 중인 이름입니다");
+      if (existing) throw new Error("이미 사용 중인 아이디입니다");
 
       const { data, error: authError } = await supabase.auth.signUp({ email, password });
       if (authError) throw authError;
@@ -52,6 +53,7 @@ export default function SignupPage() {
       const { error: profileError } = await supabase.from("profiles").insert({
         id: userId,
         email,
+        username,
         name,
         level,
         approved: false,
@@ -78,10 +80,7 @@ export default function SignupPage() {
             관리자 승인 후 로그인 가능합니다.<br />
             승인이 완료되면 별도로 안내드릴게요.
           </p>
-          <a
-            href="/login"
-            className="mt-6 inline-block text-green-400 hover:text-green-300 text-sm"
-          >
+          <a href="/login" className="mt-6 inline-block text-green-400 hover:text-green-300 text-sm">
             로그인 페이지로 →
           </a>
         </div>
@@ -102,8 +101,20 @@ export default function SignupPage() {
 
         <form onSubmit={handleSignup} className="space-y-4">
           <div>
+            <label className="text-gray-400 text-xs mb-1 block">아이디</label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              placeholder="영문자로 시작, 영문+숫자 2~20자"
+              className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
+            />
+            {usernameError && <p className="text-red-400 text-xs mt-1">{usernameError}</p>}
+          </div>
+          <div>
             <label className="text-gray-400 text-xs mb-1 block">
-              영어 이름 <span className="text-gray-600">(AI 튜터가 부르는 이름 · 로그인 아이디)</span>
+              영어 이름 <span className="text-gray-600">(AI 튜터가 부르는 이름)</span>
             </label>
             <input
               type="text"
@@ -113,7 +124,6 @@ export default function SignupPage() {
               placeholder="e.g. Minjun"
               className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
             />
-            {nameError && <p className="text-red-400 text-xs mt-1">{nameError}</p>}
           </div>
           <div>
             <label className="text-gray-400 text-xs mb-1 block">이메일</label>
@@ -162,7 +172,7 @@ export default function SignupPage() {
 
           <button
             type="submit"
-            disabled={loading || !!nameError || !!emailError}
+            disabled={loading || !!usernameError || !!emailError}
             className="w-full py-3 bg-green-600 hover:bg-green-500 disabled:bg-gray-700 text-white rounded-xl font-semibold transition-all"
           >
             {loading ? "가입 중..." : "가입하기"}

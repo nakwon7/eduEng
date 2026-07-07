@@ -12,6 +12,7 @@ export const supabaseAdmin = () =>
 export type Profile = {
   id: string;
   email: string;
+  username: string;
   name: string;
   level: "beginner" | "intermediate" | "advanced";
   approved: boolean;
