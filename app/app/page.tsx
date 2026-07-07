@@ -30,6 +30,7 @@ export default function Home() {
   const [trialMinutes, setTrialMinutes] = useState<number>(30);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [unlimited, setUnlimited] = useState(false);
+  const [blocked, setBlocked] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const isTrialCallRef = useRef(false);
 
@@ -50,7 +51,7 @@ export default function Home() {
       const storedToken = localStorage.getItem("edueng_session");
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("name, level, tutor, username, session_token, trial_calls, trial_minutes, expires_at, unlimited")
+        .select("name, level, tutor, username, session_token, trial_calls, trial_minutes, expires_at, unlimited, blocked")
         .eq("id", session.user.id)
         .single();
 
@@ -69,6 +70,7 @@ export default function Home() {
       setTrialMinutes(profileData.trial_minutes ?? 30);
       setExpiresAt(profileData.expires_at ?? null);
       setUnlimited(profileData.unlimited ?? false);
+      setBlocked(profileData.blocked ?? false);
       setLoaded(true);
     };
     init();
@@ -308,7 +310,15 @@ export default function Home() {
         {/* Controls */}
         <div className="px-6 pb-8 pt-4">
           {callState === "idle" && view === "home" && (
-            canMakeCall ? (
+            blocked ? (
+              <div className="text-center space-y-2 py-4">
+                <p className="text-red-400 text-sm font-medium">이용이 제한된 계정입니다</p>
+                <p className="text-gray-500 text-xs">관리자에게 문의해 주세요</p>
+                <a href="https://open.kakao.com/o/sPanl0Ci" target="_blank" rel="noopener noreferrer" className="block text-yellow-400 hover:text-yellow-300 text-xs">
+                  카카오톡 문의 →
+                </a>
+              </div>
+            ) : canMakeCall ? (
               <div>
                 {!isPaid && !isUnlimited && (
                   <p className="text-yellow-400 text-xs text-center mb-2">

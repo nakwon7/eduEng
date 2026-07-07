@@ -12,7 +12,5 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (error || !data) return NextResponse.json({ error: "not found" }, { status: 404 });
-  if (data.blocked) return NextResponse.json({ error: "blocked" }, { status: 403 });
-
   return NextResponse.json({ email: data.email, approved: data.approved });
 }
