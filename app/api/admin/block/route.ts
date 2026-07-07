@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export async function POST(req: NextRequest) {
-  const { userId, sessionToken } = await req.json();
+  const { userId, sessionToken, targetId, blocked } = await req.json();
 
   const admin = supabaseAdmin();
 
@@ -16,13 +16,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
-  const { data, error } = await admin
+  const { error } = await admin
     .from("profiles")
-    .select("id, username, name, email, level, trial_calls, expires_at, unlimited, blocked, total_seconds, created_at")
-    .neq("username", "gooster")
-    .order("created_at", { ascending: false });
+    .update({ blocked })
+    .eq("id", targetId);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  return NextResponse.json({ users: data });
+  return NextResponse.json({ ok: true });
 }

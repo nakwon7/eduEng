@@ -7,11 +7,12 @@ export async function POST(req: NextRequest) {
 
   const { data, error } = await supabaseAdmin()
     .from("profiles")
-    .select("email, approved")
+    .select("email, approved, blocked")
     .eq("username", username)
     .single();
 
   if (error || !data) return NextResponse.json({ error: "not found" }, { status: 404 });
+  if (data.blocked) return NextResponse.json({ error: "blocked" }, { status: 403 });
 
   return NextResponse.json({ email: data.email, approved: data.approved });
 }

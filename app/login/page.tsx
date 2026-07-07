@@ -34,6 +34,7 @@ export default function LoginPage() {
         body: JSON.stringify({ username }),
       });
 
+      if (res.status === 403) throw new Error("이용이 제한된 계정입니다. 관리자에게 문의해 주세요.");
       if (!res.ok) throw new Error("아이디 또는 비밀번호가 올바르지 않습니다");
 
       const { email, approved } = await res.json();

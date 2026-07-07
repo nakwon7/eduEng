@@ -11,6 +11,7 @@ interface User {
   trial_calls: number;
   expires_at: string | null;
   unlimited: boolean;
+  blocked: boolean;
   total_seconds: number;
   created_at: string;
 }
@@ -72,6 +73,17 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
     setBusy(null);
   };
 
+  const handleBlock = async (targetId: string, current: boolean) => {
+    setBusy(targetId + "_block");
+    await fetch("/api/admin/block", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, sessionToken, targetId, blocked: !current }),
+    });
+    await fetchUsers();
+    setBusy(null);
+  };
+
   const handleToggleUnlimited = async (targetId: string, current: boolean) => {
     setBusy(targetId + "_unlimited");
     await fetch("/api/admin/toggle-unlimited", {
@@ -125,31 +137,47 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                   누적 사용: {u.total_seconds > 0 ? formatTime(u.total_seconds) : "없음"}
                 </p>
 
-                <div className="flex gap-2 pt-1">
-                  <button
-                    onClick={() => handleApprove(u.id)}
-                    disabled={busy === u.id + "_approve"}
-                    className="flex-1 py-1.5 bg-green-700 hover:bg-green-600 disabled:bg-gray-700 text-white text-xs rounded-xl transition-all"
-                  >
-                    {busy === u.id + "_approve" ? "..." : "+30일"}
-                  </button>
-                  <button
-                    onClick={() => handleToggleUnlimited(u.id, u.unlimited)}
-                    disabled={busy === u.id + "_unlimited"}
-                    className={`flex-1 py-1.5 text-white text-xs rounded-xl transition-all disabled:bg-gray-700 ${
-                      u.unlimited ? "bg-purple-700 hover:bg-purple-600" : "bg-gray-600 hover:bg-gray-500"
-                    }`}
-                  >
-                    {busy === u.id + "_unlimited" ? "..." : u.unlimited ? "무제한 해제" : "무제한"}
-                  </button>
-                  <button
-                    onClick={() => handleResetTrial(u.id)}
-                    disabled={busy === u.id + "_trial"}
-                    className="flex-1 py-1.5 bg-yellow-700 hover:bg-yellow-600 disabled:bg-gray-700 text-white text-xs rounded-xl transition-all"
-                  >
-                    {busy === u.id + "_trial" ? "..." : "체험초기화"}
-                  </button>
-                </div>
+                {(() => {
+                  const hasActiveMembership = !!u.expires_at && new Date(u.expires_at) > new Date();
+                  return (
+                    <div className="space-y-2 pt-1">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleApprove(u.id)}
+                          disabled={!!busy || u.blocked}
+                          className="flex-1 py-1.5 bg-green-700 hover:bg-green-600 disabled:bg-gray-700 disabled:opacity-50 text-white text-xs rounded-xl transition-all"
+                        >
+                          {busy === u.id + "_approve" ? "..." : "+30일"}
+                        </button>
+                        <button
+                          onClick={() => handleToggleUnlimited(u.id, u.unlimited)}
+                          disabled={!!busy || hasActiveMembership || u.blocked}
+                          className={`flex-1 py-1.5 text-white text-xs rounded-xl transition-all disabled:bg-gray-700 disabled:opacity-50 ${
+                            u.unlimited ? "bg-purple-700 hover:bg-purple-600" : "bg-gray-600 hover:bg-gray-500"
+                          }`}
+                        >
+                          {busy === u.id + "_unlimited" ? "..." : u.unlimited ? "무제한 해제" : "무제한"}
+                        </button>
+                        <button
+                          onClick={() => handleResetTrial(u.id)}
+                          disabled={!!busy || hasActiveMembership || u.blocked}
+                          className="flex-1 py-1.5 bg-yellow-700 hover:bg-yellow-600 disabled:bg-gray-700 disabled:opacity-50 text-white text-xs rounded-xl transition-all"
+                        >
+                          {busy === u.id + "_trial" ? "..." : "체험초기화"}
+                        </button>
+                      </div>
+                      <button
+                        onClick={() => handleBlock(u.id, u.blocked)}
+                        disabled={!!busy}
+                        className={`w-full py-1.5 text-white text-xs rounded-xl transition-all disabled:opacity-50 ${
+                          u.blocked ? "bg-gray-600 hover:bg-gray-500" : "bg-red-800 hover:bg-red-700"
+                        }`}
+                      >
+                        {busy === u.id + "_block" ? "..." : u.blocked ? "차단 해제" : "차단"}
+                      </button>
+                    </div>
+                  );
+                })()}
               </div>
             );
           })}
