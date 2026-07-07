@@ -9,9 +9,10 @@ import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
 import { supabase } from "@/lib/supabase";
 import { UserProfile } from "@/hooks/useUserProfile";
+import AdminPanel from "@/components/AdminPanel";
 
 type CallState = "idle" | "calling" | "active";
-type View = "home" | "settings";
+type View = "home" | "settings" | "admin";
 
 export default function Home() {
   const router = useRouter();
@@ -23,6 +24,8 @@ export default function Home() {
   const [view, setView] = useState<View>("home");
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -42,7 +45,7 @@ export default function Home() {
       const storedToken = localStorage.getItem("edueng_session");
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("name, level, session_token")
+        .select("name, level, username, session_token")
         .eq("id", session.user.id)
         .single();
 
@@ -54,6 +57,8 @@ export default function Home() {
       }
 
       setUserId(session.user.id);
+      setSessionToken(storedToken);
+      setUsername(profileData.username);
       setProfile({ name: profileData.name, level: profileData.level });
       setLoaded(true);
     };
@@ -141,10 +146,23 @@ export default function Home() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: apiMessages, topic, profile }),
+        body: JSON.stringify({ messages: apiMessages, topic, profile, userId, sessionToken }),
       });
 
-      if (!res.ok) throw new Error("API error");
+      if (!res.ok) {
+        const err = await res.json();
+        if (err.error === "SUBSCRIPTION_EXPIRED") {
+          endCall();
+          alert("이용 기간이 만료됐습니다. 관리자에게 문의해 주세요.");
+          return;
+        }
+        if (err.error === "SESSION_EXPIRED") {
+          await supabase.auth.signOut();
+          router.push("/login");
+          return;
+        }
+        throw new Error("API error");
+      }
 
       const reader = res.body!.getReader();
       const decoder = new TextDecoder();
@@ -199,9 +217,12 @@ export default function Home() {
             <>
               <button onClick={() => setView("settings")} className="absolute top-4 right-4 text-gray-500 hover:text-gray-300 text-xl">⚙️</button>
               <button onClick={handleLogout} className="absolute top-4 left-4 text-gray-500 hover:text-gray-300 text-xs">로그아웃</button>
+              {username === "gooster" && (
+                <button onClick={() => setView("admin")} className="absolute top-8 left-4 text-yellow-500 hover:text-yellow-400 text-xs">관리자</button>
+              )}
             </>
           )}
-          {view === "settings" && (
+          {(view === "settings" || view === "admin") && (
             <button onClick={() => setView("home")} className="absolute top-4 left-4 text-gray-500 hover:text-gray-300 text-sm">← 뒤로</button>
           )}
 
@@ -217,7 +238,9 @@ export default function Home() {
 
         {/* Body */}
         <div className="flex-1 flex flex-col px-4 py-4 min-h-0">
-          {view === "settings" ? (
+          {view === "admin" && userId && sessionToken ? (
+            <AdminPanel userId={userId} sessionToken={sessionToken} />
+          ) : view === "settings" ? (
             <UserSetup existing={profile || undefined} onComplete={saveProfile} />
           ) : callState === "idle" ? (
             <div className="flex-1 flex flex-col justify-between">

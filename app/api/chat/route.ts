@@ -30,6 +30,17 @@ export async function POST(req: NextRequest) {
       if (data?.session_token !== sessionToken) {
         return NextResponse.json({ error: "SESSION_EXPIRED" }, { status: 401 });
       }
+
+      // 이용 기간 만료 확인
+      const { data: profile } = await admin
+        .from("profiles")
+        .select("expires_at, username")
+        .eq("id", userId)
+        .single();
+
+      if (profile?.username !== "gooster" && profile?.expires_at && new Date(profile.expires_at) < new Date()) {
+        return NextResponse.json({ error: "SUBSCRIPTION_EXPIRED" }, { status: 403 });
+      }
     }
 
     const levelGuide =
