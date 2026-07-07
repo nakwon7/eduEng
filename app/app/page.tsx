@@ -12,7 +12,7 @@ import { UserProfile } from "@/hooks/useUserProfile";
 import AdminPanel from "@/components/AdminPanel";
 
 type CallState = "idle" | "calling" | "active";
-type View = "home" | "settings" | "admin";
+type View = "home" | "settings" | "admin" | "help";
 
 export default function Home() {
   const router = useRouter();
@@ -272,7 +272,10 @@ export default function Home() {
         <div className="bg-gray-800 px-6 pt-8 pb-6 text-center relative">
           {callState === "idle" && view === "home" && (
             <>
-              <button onClick={() => setView("settings")} className="absolute top-4 right-4 text-gray-500 hover:text-gray-300 text-xl">⚙️</button>
+              <div className="absolute top-4 right-4 flex flex-col gap-2 items-end">
+                <button onClick={() => setView("settings")} className="text-gray-500 hover:text-gray-300 text-xl">⚙️</button>
+                <button onClick={() => setView("help")} className="text-gray-500 hover:text-gray-300 text-sm font-bold">?</button>
+              </div>
               {username === "gooster" ? (
                 <div className="absolute top-4 left-4 flex flex-col gap-2">
                   <button onClick={() => setView("admin")} className="text-yellow-500 hover:text-yellow-400 text-xs">관리자</button>
@@ -283,7 +286,7 @@ export default function Home() {
               )}
             </>
           )}
-          {(view === "settings" || view === "admin") && (
+          {(view === "settings" || view === "admin" || view === "help") && (
             <button onClick={() => setView("home")} className="absolute top-4 left-4 text-gray-500 hover:text-gray-300 text-sm">← 뒤로</button>
           )}
 
@@ -305,7 +308,28 @@ export default function Home() {
 
         {/* Body */}
         <div className="flex-1 flex flex-col px-4 py-4 min-h-0">
-          {view === "admin" && userId && sessionToken ? (
+          {view === "help" ? (
+            <div className="flex-1 overflow-y-auto px-2 py-4 space-y-4">
+              <h2 className="text-white text-sm font-bold text-center mb-2">사용 방법</h2>
+              {[
+                { emoji: "📞", title: "통화 시작", desc: "홈 화면에서 주제를 선택하고 '통화 시작' 버튼을 누르세요." },
+                { emoji: "🎤", title: "말하기", desc: "마이크 버튼을 누르고 있는 동안 영어로 말하세요. 손을 떼면 AI가 인식합니다." },
+                { emoji: "🔊", title: "AI 응답", desc: "Alex 또는 Rachel이 음성으로 답변합니다. AI가 말하는 중엔 마이크가 비활성화돼요." },
+                { emoji: "✍️", title: "문법 교정", desc: "틀린 표현이 있으면 대화 말미에 'Quick tip:' 으로 부드럽게 알려줘요." },
+                { emoji: "📵", title: "통화 종료", desc: "빨간 버튼을 누르면 통화가 종료됩니다." },
+                { emoji: "⚙️", title: "설정", desc: "우측 상단 설정에서 이름, AI 튜터, 영어 레벨을 변경할 수 있어요." },
+                { emoji: "🌐", title: "권장 브라우저", desc: "Chrome 또는 Samsung 브라우저를 사용하세요. 다른 브라우저는 음성 인식이 불안정할 수 있어요." },
+              ].map((item) => (
+                <div key={item.title} className="flex gap-3 bg-gray-800 rounded-2xl p-4">
+                  <span className="text-2xl">{item.emoji}</span>
+                  <div>
+                    <p className="text-white text-sm font-medium">{item.title}</p>
+                    <p className="text-gray-400 text-xs mt-0.5 leading-relaxed">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : view === "admin" && userId && sessionToken ? (
             <AdminPanel userId={userId} sessionToken={sessionToken} />
           ) : view === "settings" ? (
             <UserSetup existing={profile || undefined} onComplete={saveProfile} />
