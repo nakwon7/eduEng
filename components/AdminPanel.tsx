@@ -11,6 +11,7 @@ interface User {
   trial_calls: number;
   expires_at: string | null;
   unlimited: boolean;
+  total_seconds: number;
   created_at: string;
 }
 
@@ -24,6 +25,13 @@ const LEVEL_LABEL: Record<string, string> = {
   intermediate: "중급",
   advanced: "고급",
 };
+
+function formatTime(seconds: number) {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  if (h > 0) return `${h}시간 ${m}분`;
+  return `${m}분`;
+}
 
 function statusLabel(u: User) {
   if (u.unlimited) return { text: "무제한", color: "text-purple-400" };
@@ -113,6 +121,9 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                     만료: {new Date(u.expires_at).toLocaleDateString("ko-KR")}
                   </p>
                 )}
+                <p className="text-gray-600 text-xs">
+                  누적 사용: {u.total_seconds > 0 ? formatTime(u.total_seconds) : "없음"}
+                </p>
 
                 <div className="flex gap-2 pt-1">
                   <button

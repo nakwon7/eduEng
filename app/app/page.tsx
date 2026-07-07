@@ -101,10 +101,20 @@ export default function Home() {
     stopSpeaking();
     const wasTrial = isTrialCallRef.current;
     isTrialCallRef.current = false;
+
+    const duration = callDuration;
     setCallState("idle");
     setMessages([]);
     messagesRef.current = [];
     setCallDuration(0);
+
+    if (userId && sessionToken && duration > 0) {
+      fetch("/api/call/end", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, sessionToken, seconds: duration }),
+      });
+    }
 
     if (wasTrial && userId && sessionToken) {
       const res = await fetch("/api/trial/use", {
@@ -117,7 +127,7 @@ export default function Home() {
         setTrialCalls(data.trial_calls);
       }
     }
-  }, [stopSpeaking, userId, sessionToken]);
+  }, [stopSpeaking, userId, sessionToken, callDuration]);
 
   // 30분 자동 종료 (체험 통화)
   useEffect(() => {
