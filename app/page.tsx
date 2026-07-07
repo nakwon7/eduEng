@@ -313,7 +313,14 @@ export default function Home() {
                 <div className="bg-gray-800 rounded-xl p-3 text-xs text-gray-300 space-y-1">
                   <p>토스 1000-4983-0654</p>
                   <p>예금주: 최귀송</p>
-                  <p className="text-gray-500 pt-1">입금 후 카카오톡으로 아이디를 알려주세요</p>
+                  <a
+                    href="https://open.kakao.com/o/sPanl0Ci"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-yellow-400 hover:text-yellow-300 pt-1"
+                  >
+                    입금 후 카카오톡으로 아이디 알려주기 →
+                  </a>
                 </div>
               </div>
             )
