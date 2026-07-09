@@ -308,7 +308,7 @@ export default function Home() {
     <main className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-[700px]">
         {/* Header */}
-        <div className="bg-gray-800 px-6 pt-8 pb-6 text-center relative">
+        <div className="bg-gray-800 px-6 pt-14 pb-6 text-center relative">
           {callState === "idle" && view === "home" && (
             <>
               <div className="absolute top-4 right-4 flex gap-2">
@@ -458,6 +458,26 @@ export default function Home() {
 
           {callState === "active" && <p className="text-gray-500 text-xs text-center mt-3">{micStatus}</p>}
         </div>
+
+        {/* 문의하기 */}
+        {callState === "idle" && view === "home" && (
+          <div className="flex justify-center gap-3 pb-5">
+            <a
+              href="https://open.kakao.com/o/sPanl0Ci"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-yellow-400 hover:bg-yellow-300 text-gray-900 text-xs font-medium rounded-xl transition-all"
+            >
+              💬 카카오톡
+            </a>
+            <a
+              href="mailto:mariuss@naver.com"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-medium rounded-xl transition-all"
+            >
+              ✉️ 이메일
+            </a>
+          </div>
+        )}
       </div>
     </main>
   );
