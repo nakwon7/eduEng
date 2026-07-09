@@ -27,7 +27,7 @@ export default function LandingPage() {
         <h1 className="text-3xl font-bold mb-2">에듀잉</h1>
         <p className="text-green-400 text-lg font-medium mb-4">AI 전화영어</p>
         <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
-          원어민 AI 튜터 Alex와 실시간 영어 대화.<br />
+          원어민 AI 튜터 Alex · Rachel과 실시간 영어 대화.<br />
           언제 어디서나 스마트폰으로 전화영어를 경험하세요.
         </p>
       </div>
@@ -35,7 +35,7 @@ export default function LandingPage() {
       {/* Features */}
       <div className="px-6 pb-10 max-w-sm mx-auto space-y-3">
         {[
-          { icon: "📞", title: "실시간 AI 전화영어", desc: "AI 튜터 Alex와 실제 전화 통화처럼 대화" },
+          { icon: "📞", title: "실시간 AI 전화영어", desc: "AI 튜터 Alex · Rachel과 실제 전화 통화처럼 대화" },
           { icon: "🎙️", title: "음성 인식", desc: "말하면 바로 인식, 자연스러운 대화 흐름" },
           { icon: "✍️", title: "문법 교정", desc: "틀린 표현을 부드럽게 교정해 드려요" },
           { icon: "📚", title: "다양한 주제", desc: "일상, 비즈니스, 여행 등 상황별 대화" },

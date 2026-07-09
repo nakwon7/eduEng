@@ -205,7 +205,8 @@ export default function Home() {
       const firstName = profile?.name || "there";
       const tutorName = profile?.tutor === "rachel" ? "Rachel" : "Alex";
       const greeting =
-        topic === "Self Introduction" ? `Hello ${firstName}! I'm ${tutorName}. Let's practice self-introductions. Could you tell me a bit about yourself?`
+        topic === "Word Description" ? `Hey ${firstName}! I'm ${tutorName}. Let's play Word Description! I'll give you a word, and you explain what it means in English. Ready? Here's your first word!`
+        : topic === "Self Introduction" ? `Hello ${firstName}! I'm ${tutorName}. Let's practice self-introductions. Could you tell me a bit about yourself?`
         : topic === "Business English" ? `Good day ${firstName}! I'm ${tutorName}. Let's practice business English. How would you introduce yourself to a new colleague?`
         : topic === "Travel" ? `Hi ${firstName}! I'm ${tutorName}. Let's talk about travel. Have you been anywhere interesting lately?`
         : topic === "Health & Fitness" ? `Hey ${firstName}! I'm ${tutorName}. Let's talk about health and fitness. Do you exercise regularly?`

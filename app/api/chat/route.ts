@@ -68,7 +68,16 @@ export async function POST(req: NextRequest) {
       : "";
 
     const basePrompt = SYSTEM_PROMPTS[profile?.tutor || "alex"] || SYSTEM_PROMPTS.alex;
-    const systemPrompt = `${basePrompt}${profileInfo}\n\nToday's topic: ${topic || "General Conversation"}`;
+
+    const topicPrompt = topic === "Word Description"
+      ? `\n\nToday's mode: Word Description Practice
+- Pick ONE random English word suitable for a ${profile?.level || "intermediate"} level student
+- Present it clearly: e.g. "Here's your word: [WORD]. Can you explain what it means in English?"
+- After the student explains, give brief encouraging feedback, gently correct if needed, then offer another word
+- Keep words level-appropriate: beginner=everyday nouns/verbs, intermediate=abstract concepts, advanced=idioms/nuanced vocabulary`
+      : `\n\nToday's topic: ${topic || "General Conversation"}`;
+
+    const systemPrompt = `${basePrompt}${profileInfo}${topicPrompt}`;
 
     const recentMessages = messages.slice(-10);
 

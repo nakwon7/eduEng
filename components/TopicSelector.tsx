@@ -1,6 +1,7 @@
 "use client";
 
 export const TOPICS = [
+  { id: "word-desc", label: "단어 설명하기", emoji: "📖", en: "Word Description", isNew: true },
   { id: "self-intro", label: "자기소개", emoji: "👋", en: "Self Introduction" },
   { id: "daily", label: "일상대화", emoji: "☕", en: "Daily Conversation" },
   { id: "business", label: "비즈니스", emoji: "💼", en: "Business English" },
@@ -39,12 +40,19 @@ export default function TopicSelector({ selected, onSelect }: TopicSelectorProps
           <button
             key={topic.id}
             onClick={() => onSelect(topic.en)}
-            className={`p-3 rounded-xl text-left transition-all ${
+            className={`p-3 rounded-xl text-left transition-all relative ${
               selected === topic.en
                 ? "bg-green-600 text-white"
+                : topic.isNew
+                ? "bg-gray-800 text-gray-300 hover:bg-gray-700 ring-2 ring-yellow-400 ring-opacity-70"
                 : "bg-gray-800 text-gray-300 hover:bg-gray-700"
             }`}
           >
+            {topic.isNew && (
+              <span className="absolute top-2 right-2 bg-yellow-400 text-gray-900 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                NEW
+              </span>
+            )}
             <span className="text-xl">{topic.emoji}</span>
             <p className="text-sm font-medium mt-1">{topic.label}</p>
             <p className="text-xs opacity-70">{topic.en}</p>
