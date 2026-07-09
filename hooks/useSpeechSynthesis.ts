@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 
 interface UseSpeechSynthesisReturn {
-  speak: (text: string) => void;
+  speak: (text: string, gender?: "male" | "female") => void;
   stop: () => void;
   unlock: () => void;
   isSpeaking: boolean;
