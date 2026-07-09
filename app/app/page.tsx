@@ -215,7 +215,7 @@ export default function Home() {
         : `Hey ${firstName}! This is ${tutorName}, your English tutor. How are you doing today?`;
 
       addMessage({ role: "assistant", content: greeting });
-      speak(greeting);
+      speak(greeting, profile?.tutor === "rachel" ? "female" : "male");
     }, 1500);
   }, [topic, addMessage, speak, profile, unlockTTS, canMakeCall, isPaid, username]);
 
@@ -275,7 +275,7 @@ export default function Home() {
         setMessages([...messagesRef.current]);
       }
 
-      speak(aiText);
+      speak(aiText, profile?.tutor === "rachel" ? "female" : "male");
     } catch {
       setIsAiTyping(false);
       addMessage({ role: "assistant", content: "Sorry, I had a little trouble there. Could you say that again?" });

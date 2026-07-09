@@ -53,7 +53,7 @@ export function useSpeechSynthesis(): UseSpeechSynthesisReturn {
   }, [isSupported]);
 
   const speak = useCallback(
-    (text: string) => {
+    (text: string, gender: "male" | "female" = "female") => {
       if (!isSupported || !text.trim()) return;
 
       clearFallback();
@@ -63,14 +63,22 @@ export function useSpeechSynthesis(): UseSpeechSynthesisReturn {
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = "en-US";
         utterance.rate = 0.9;
-        utterance.pitch = 1.0;
+        utterance.pitch = gender === "male" ? 0.8 : 1.1;
         utterance.volume = 1.0;
 
         const voices = window.speechSynthesis.getVoices();
+        const enVoices = voices.filter((v) => v.lang.startsWith("en"));
+
+        const maleHints = ["male", "david", "mark", "james", "daniel", "fred", "oliver", "guy", "rishi"];
+        const femaleHints = ["female", "zira", "samantha", "google us english", "susan", "victoria", "karen", "moira", "fiona"];
+        const hints = gender === "male" ? maleHints : femaleHints;
+
         const preferred =
+          voices.find((v) => v.lang === "en-US" && hints.some((h) => v.name.toLowerCase().includes(h))) ||
+          enVoices.find((v) => hints.some((h) => v.name.toLowerCase().includes(h))) ||
           voices.find((v) => v.lang === "en-US" && v.name.includes("Google")) ||
-          voices.find((v) => v.lang.startsWith("en-US")) ||
-          voices.find((v) => v.lang.startsWith("en"));
+          voices.find((v) => v.lang === "en-US") ||
+          enVoices[0];
         if (preferred) utterance.voice = preferred;
 
         const done = () => {
