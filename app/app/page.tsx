@@ -33,12 +33,18 @@ export default function Home() {
   const [blocked, setBlocked] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const isTrialCallRef = useRef(false);
+  const callDurationRef = useRef(0);
+  const lastSavedRef = useRef(0);
+  const callStateRef = useRef<CallState>("idle");
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const messagesRef = useRef<Message[]>([]);
 
   const { isRecording, isTranscribing, startRecording, stopRecording } = useAudioRecorder();
   const { speak, stop: stopSpeaking, unlock: unlockTTS, isSpeaking } = useSpeechSynthesis();
+
+  useEffect(() => { callDurationRef.current = callDuration; }, [callDuration]);
+  useEffect(() => { callStateRef.current = callState; }, [callState]);
 
   useEffect(() => {
     const loadProfile = async (session: { user: { id: string } }) => {
@@ -100,6 +106,18 @@ export default function Home() {
   const isUnlimited = username === "gooster" || unlimited;
   const canMakeCall = isUnlimited || isPaid || trialCalls > 0;
 
+  const saveElapsed = useCallback(() => {
+    if (!userId || !sessionToken || callStateRef.current !== "active") return;
+    const unsaved = callDurationRef.current - lastSavedRef.current;
+    if (unsaved <= 0) return;
+    lastSavedRef.current = callDurationRef.current;
+    fetch("/api/call/end", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, sessionToken, seconds: unsaved }),
+    });
+  }, [userId, sessionToken]);
+
   const addMessage = useCallback((msg: Message) => {
     messagesRef.current = [...messagesRef.current, msg];
     setMessages([...messagesRef.current]);
@@ -111,17 +129,19 @@ export default function Home() {
     const wasTrial = isTrialCallRef.current;
     isTrialCallRef.current = false;
 
-    const duration = callDuration;
+    const unsaved = callDurationRef.current - lastSavedRef.current;
+    lastSavedRef.current = 0;
+
     setCallState("idle");
     setMessages([]);
     messagesRef.current = [];
     setCallDuration(0);
 
-    if (userId && sessionToken && duration > 0) {
+    if (userId && sessionToken && unsaved > 0) {
       fetch("/api/call/end", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, sessionToken, seconds: duration }),
+        body: JSON.stringify({ userId, sessionToken, seconds: unsaved }),
       });
     }
 
@@ -136,7 +156,23 @@ export default function Home() {
         setTrialCalls(data.trial_calls);
       }
     }
-  }, [stopSpeaking, userId, sessionToken, callDuration]);
+  }, [stopSpeaking, userId, sessionToken]);
+
+  // 탭 전환/전화 착신 시 즉시 저장
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") saveElapsed();
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [saveElapsed]);
+
+  // 60초마다 주기적 저장
+  useEffect(() => {
+    if (callState !== "active") return;
+    const interval = setInterval(saveElapsed, 60000);
+    return () => clearInterval(interval);
+  }, [callState, saveElapsed]);
 
   // 30분 자동 종료 (체험 통화)
   useEffect(() => {
@@ -162,6 +198,8 @@ export default function Home() {
     setTimeout(() => {
       setCallState("active");
       setCallDuration(0);
+      callDurationRef.current = 0;
+      lastSavedRef.current = 0;
       timerRef.current = setInterval(() => setCallDuration((d) => d + 1), 1000);
 
       const firstName = profile?.name || "there";
