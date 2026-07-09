@@ -81,23 +81,14 @@ export default function LandingPage() {
       </div>
 
       <div className="text-center pb-8 space-y-3">
-        <p className="text-gray-600 text-xs">문의하기</p>
-        <div className="flex justify-center gap-3">
-          <a
-            href="https://open.kakao.com/o/sPanl0Ci"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-4 py-2 bg-yellow-400 hover:bg-yellow-300 text-gray-900 text-xs font-medium rounded-xl transition-all"
-          >
-            💬 카카오톡
-          </a>
-          <a
-            href="mailto:mariuss@naver.com"
-            className="flex items-center gap-1.5 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-medium rounded-xl transition-all"
-          >
-            ✉️ 이메일
-          </a>
-        </div>
+        <a
+          href="https://open.kakao.com/o/sPanl0Ci"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 px-4 py-2 bg-yellow-400 hover:bg-yellow-300 text-gray-900 text-xs font-medium rounded-xl transition-all"
+        >
+          💬 카카오톡 문의하기
+        </a>
         <p className="text-gray-600 text-xs">EduEng Beta v0.1 · Chrome / Samsung 브라우저 권장</p>
       </div>
     </main>

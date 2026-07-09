@@ -461,20 +461,14 @@ export default function Home() {
 
         {/* 문의하기 */}
         {callState === "idle" && view === "home" && (
-          <div className="flex justify-center gap-3 pb-5">
+          <div className="flex justify-center pb-5">
             <a
               href="https://open.kakao.com/o/sPanl0Ci"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 px-3 py-1.5 bg-yellow-400 hover:bg-yellow-300 text-gray-900 text-xs font-medium rounded-xl transition-all"
             >
-              💬 카카오톡
-            </a>
-            <a
-              href="mailto:mariuss@naver.com"
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-medium rounded-xl transition-all"
-            >
-              ✉️ 이메일
+              💬 카카오톡 문의하기
             </a>
           </div>
         )}
