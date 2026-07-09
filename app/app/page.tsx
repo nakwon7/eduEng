@@ -310,9 +310,13 @@ export default function Home() {
         <div className="bg-gray-800 px-6 pt-8 pb-6 text-center relative">
           {callState === "idle" && view === "home" && (
             <>
-              <div className="absolute top-4 right-4 flex flex-col gap-2 items-end">
-                <button onClick={() => setView("settings")} className="text-gray-500 hover:text-gray-300 text-xl">⚙️</button>
-                <button onClick={() => setView("help")} className="text-gray-500 hover:text-gray-300 text-sm font-bold">?</button>
+              <div className="absolute top-4 right-4 flex gap-2">
+                <button onClick={() => setView("help")} className="flex items-center gap-1 px-2.5 py-1.5 bg-gray-700 hover:bg-gray-600 rounded-xl text-gray-300 text-xs transition-all">
+                  <span>❓</span><span>도움말</span>
+                </button>
+                <button onClick={() => setView("settings")} className="flex items-center gap-1 px-2.5 py-1.5 bg-gray-700 hover:bg-gray-600 rounded-xl text-gray-300 text-xs transition-all">
+                  <span>⚙️</span><span>설정</span>
+                </button>
               </div>
               {username === "gooster" ? (
                 <div className="absolute top-4 left-4 flex flex-col gap-2">
@@ -357,12 +361,13 @@ export default function Home() {
                 { emoji: "📵", title: "통화 종료", desc: "빨간 버튼을 누르면 통화가 종료됩니다." },
                 { emoji: "⚙️", title: "설정", desc: "우측 상단 설정에서 이름, AI 튜터, 영어 레벨을 변경할 수 있어요." },
                 { emoji: "🌐", title: "권장 브라우저", desc: "Chrome 또는 Samsung 브라우저를 사용하세요. 다른 브라우저는 음성 인식이 불안정할 수 있어요." },
+                { emoji: "📲", title: "앱으로 설치하기", desc: "iPhone: Safari에서 접속 → 하단 공유(□↑) → 홈 화면에 추가\nAndroid: Chrome에서 접속 → 우상단 메뉴(⋮) → 홈 화면에 추가\nPC: 주소창 오른쪽 설치(+) 버튼 클릭" },
               ].map((item) => (
                 <div key={item.title} className="flex gap-3 bg-gray-800 rounded-2xl p-4">
                   <span className="text-2xl">{item.emoji}</span>
                   <div>
                     <p className="text-white text-sm font-medium">{item.title}</p>
-                    <p className="text-gray-400 text-xs mt-0.5 leading-relaxed">{item.desc}</p>
+                    <p className="text-gray-400 text-xs mt-0.5 leading-relaxed whitespace-pre-line">{item.desc}</p>
                   </div>
                 </div>
               ))}
