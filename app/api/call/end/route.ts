@@ -24,5 +24,25 @@ export async function POST(req: NextRequest) {
     .update({ total_seconds: (data.total_seconds || 0) + seconds })
     .eq("id", userId);
 
+  const today = new Date().toISOString().split("T")[0];
+  const { data: logData } = await admin
+    .from("call_logs")
+    .select("seconds")
+    .eq("user_id", userId)
+    .eq("date", today)
+    .single();
+
+  if (logData) {
+    await admin
+      .from("call_logs")
+      .update({ seconds: logData.seconds + seconds })
+      .eq("user_id", userId)
+      .eq("date", today);
+  } else {
+    await admin
+      .from("call_logs")
+      .insert({ user_id: userId, date: today, seconds });
+  }
+
   return NextResponse.json({ ok: true });
 }

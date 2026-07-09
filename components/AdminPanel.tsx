@@ -45,6 +45,8 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
+  const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
+  const [callLogs, setCallLogs] = useState<Record<string, { date: string; seconds: number }[]>>({});
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -95,6 +97,22 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
     setBusy(null);
   };
 
+  const handleToggleLogs = async (targetId: string) => {
+    if (expandedUserId === targetId) {
+      setExpandedUserId(null);
+      return;
+    }
+    setExpandedUserId(targetId);
+    if (callLogs[targetId]) return;
+    const res = await fetch("/api/admin/call-logs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, sessionToken, targetId }),
+    });
+    const data = await res.json();
+    setCallLogs((prev) => ({ ...prev, [targetId]: data.logs || [] }));
+  };
+
   const handleResetTrial = async (targetId: string) => {
     setBusy(targetId + "_trial");
     await fetch("/api/admin/reset-trial", {
@@ -133,9 +151,28 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                     만료: {new Date(u.expires_at).toLocaleDateString("ko-KR")}
                   </p>
                 )}
-                <p className="text-gray-600 text-xs">
-                  누적 사용: {u.total_seconds > 0 ? formatTime(u.total_seconds) : "없음"}
-                </p>
+                <button
+                  onClick={() => handleToggleLogs(u.id)}
+                  className="text-gray-500 hover:text-gray-300 text-xs text-left transition-colors"
+                >
+                  누적 사용: {u.total_seconds > 0 ? formatTime(u.total_seconds) : "없음"} {u.total_seconds > 0 ? (expandedUserId === u.id ? "▲" : "▼") : ""}
+                </button>
+                {expandedUserId === u.id && (
+                  <div className="bg-gray-900 rounded-xl p-2 space-y-1">
+                    {!callLogs[u.id] ? (
+                      <p className="text-gray-600 text-xs text-center">불러오는 중...</p>
+                    ) : callLogs[u.id].length === 0 ? (
+                      <p className="text-gray-600 text-xs text-center">기록 없음</p>
+                    ) : (
+                      callLogs[u.id].map((log) => (
+                        <div key={log.date} className="flex justify-between text-xs">
+                          <span className="text-gray-500">{log.date}</span>
+                          <span className="text-gray-300">{formatTime(log.seconds)}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
 
                 {(() => {
                   const hasActiveMembership = !!u.expires_at && new Date(u.expires_at) > new Date();
