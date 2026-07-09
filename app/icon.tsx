@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const size = { width: 32, height: 32 };
+export const size = { width: 512, height: 512 };
 export const contentType = "image/png";
 
 export default function Icon() {
@@ -11,21 +11,35 @@ export default function Icon() {
         width: "100%",
         height: "100%",
         display: "flex",
+        flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        borderRadius: "6px",
+        borderRadius: "96px",
       }}
     >
       <span
         style={{
           color: "white",
-          fontSize: 18,
+          fontSize: 220,
           fontWeight: 800,
-          letterSpacing: "-1px",
+          letterSpacing: "-8px",
           fontFamily: "sans-serif",
+          lineHeight: 1,
         }}
       >
         E
+      </span>
+      <span
+        style={{
+          color: "rgba(255,255,255,0.75)",
+          fontSize: 72,
+          fontWeight: 600,
+          fontFamily: "sans-serif",
+          marginTop: 12,
+          letterSpacing: "6px",
+        }}
+      >
+        EduEng
       </span>
     </div>,
     { ...size }
