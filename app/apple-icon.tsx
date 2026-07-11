@@ -27,7 +27,7 @@ export default function AppleIcon() {
           lineHeight: 1,
         }}
       >
-        E
+        T
       </span>
       <span
         style={{
@@ -39,7 +39,7 @@ export default function AppleIcon() {
           letterSpacing: "2px",
         }}
       >
-        EduEng
+        TuringCall
       </span>
     </div>,
     { ...size }

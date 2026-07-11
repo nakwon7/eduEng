@@ -13,10 +13,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "에듀잉 (EduEng) - AI 전화영어",
-  description: "AI 튜터 Alex와 함께하는 실시간 전화영어",
+  title: "튜링콜 - AI 전화영어",
+  description: "AI 튜터와 함께하는 실시간 전화영어",
   appleWebApp: {
-    title: "에듀잉",
+    title: "튜링콜",
   },
 };
 

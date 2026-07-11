@@ -10,7 +10,7 @@ export default function LandingPage() {
   useEffect(() => {
     const check = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session && localStorage.getItem("edueng_session")) {
+      if (session && localStorage.getItem("turingcall_session")) {
         router.replace("/app");
       }
     };
@@ -24,7 +24,7 @@ export default function LandingPage() {
         <div className="w-24 h-24 bg-green-600 rounded-full flex items-center justify-center text-5xl mb-5 shadow-lg">
           🎓
         </div>
-        <h1 className="text-3xl font-bold mb-2">에듀잉</h1>
+        <h1 className="text-3xl font-bold mb-2">튜링콜</h1>
         <p className="text-green-400 text-lg font-medium mb-4">AI 전화영어</p>
         <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
           원어민 AI 튜터 Alex · Rachel과 실시간 영어 대화.<br />
@@ -89,7 +89,7 @@ export default function LandingPage() {
         >
           💬 카카오톡 문의하기
         </a>
-        <p className="text-gray-600 text-xs">EduEng Beta v0.1 · Chrome / Samsung 브라우저 권장</p>
+        <p className="text-gray-600 text-xs">TuringCall Beta v0.1 · Chrome / Samsung 브라우저 권장</p>
       </div>
     </main>
   );

@@ -20,7 +20,7 @@ export default function SignupPage() {
   useEffect(() => {
     const check = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session && localStorage.getItem("edueng_session")) {
+      if (session && localStorage.getItem("turingcall_session")) {
         router.replace("/app");
       } else {
         setChecking(false);

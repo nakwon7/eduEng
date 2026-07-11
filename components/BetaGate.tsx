@@ -10,7 +10,7 @@ export default function BetaGate({ onConfirm }: BetaGateProps) {
       <div className="text-center mb-6">
         <div className="text-4xl mb-3">🧪</div>
         <h2 className="text-white text-lg font-bold">베타 테스트</h2>
-        <p className="text-gray-400 text-xs mt-1">EduEng Beta v0.1</p>
+        <p className="text-gray-400 text-xs mt-1">TuringCall Beta v0.1</p>
       </div>
 
       <div className="bg-gray-800 rounded-2xl p-4 mb-6 space-y-2 text-gray-300 text-sm">

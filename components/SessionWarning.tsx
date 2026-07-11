@@ -15,7 +15,7 @@ export default function SessionWarning({ onRelogin }: SessionWarningProps) {
   const handleRelogin = async () => {
     setLoading(true);
     await supabase.auth.signOut();
-    localStorage.removeItem("edueng_session");
+    localStorage.removeItem("turingcall_session");
     router.push("/login");
   };
 
@@ -26,7 +26,7 @@ export default function SessionWarning({ onRelogin }: SessionWarningProps) {
         <h2 className="text-white text-lg font-bold mb-2">다른 기기에서 로그인됨</h2>
         <p className="text-gray-400 text-sm leading-relaxed mb-6">
           다른 기기에서 이 계정으로 로그인했습니다.<br />
-          에듀잉은 1인 1기기만 지원합니다.<br />
+          튜링콜은 1인 1기기만 지원합니다.<br />
           이 기기에서 계속하려면 다시 로그인하세요.
         </p>
         <button

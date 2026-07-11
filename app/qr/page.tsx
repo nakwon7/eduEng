@@ -2,14 +2,14 @@
 
 import { QRCodeSVG } from "qrcode.react";
 
-const APP_URL = "https://edu-eng-ten.vercel.app";
+const APP_URL = "https://turingcall.vercel.app";
 
 export default function QRPage() {
   return (
     <main className="min-h-screen bg-gray-950 flex items-center justify-center p-6">
       <div className="flex flex-col items-center gap-6 text-center">
         <div>
-          <h1 className="text-white text-2xl font-bold">에듀잉</h1>
+          <h1 className="text-white text-2xl font-bold">튜링콜</h1>
           <p className="text-green-400 text-sm mt-1">AI 전화영어</p>
         </div>
 

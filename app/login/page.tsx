@@ -9,7 +9,7 @@ export default function LoginPage() {
   useEffect(() => {
     const check = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session && localStorage.getItem("edueng_session")) {
+      if (session && localStorage.getItem("turingcall_session")) {
         router.replace("/app");
       } else {
         setChecking(false);
@@ -56,7 +56,7 @@ export default function LoginPage() {
       // 세션 토큰 발급 (중복 로그인 차단)
       const sessionToken = crypto.randomUUID();
       await supabase.from("profiles").update({ session_token: sessionToken }).eq("id", userId);
-      localStorage.setItem("edueng_session", sessionToken);
+      localStorage.setItem("turingcall_session", sessionToken);
 
       router.replace("/app");
     } catch (err: unknown) {
@@ -81,7 +81,7 @@ export default function LoginPage() {
           <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-3">
             🎓
           </div>
-          <h1 className="text-white text-xl font-bold">에듀잉</h1>
+          <h1 className="text-white text-xl font-bold">튜링콜</h1>
           <p className="text-gray-400 text-sm mt-1">AI 전화영어</p>
         </div>
 
