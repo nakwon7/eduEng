@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+import Groq from "groq-sdk";
 import { NextRequest, NextResponse } from "next/server";
 
 const LANGUAGE_LOCK = `ABSOLUTE RULE — READ THIS FIRST:
@@ -91,7 +91,7 @@ Korean number system rules (CRITICAL — common foreigner mistakes):
 };
 
 export async function POST(req: NextRequest) {
-  const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
   try {
     const { messages, topic, profile } = await req.json();
 
@@ -120,7 +120,7 @@ export async function POST(req: NextRequest) {
     const recentMessages = messages.slice(-10);
 
     const stream = await client.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "llama-3.3-70b-versatile",
       max_tokens: 300,
       stream: true,
       messages: [{ role: "system", content: systemPrompt }, ...recentMessages],
