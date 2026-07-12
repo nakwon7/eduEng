@@ -96,6 +96,15 @@ export function useSpeechSynthesis(): UseSpeechSynthesisReturn {
 
         if (preferred) utterance.voice = preferred;
 
+        // 남성 보이스를 못 찾았거나 여성 보이스로 폴백된 경우 pitch를 더 낮춤
+        if (gender === "male" && preferred) {
+          const isActuallyMale = maleHints.some((h) => preferred!.name.toLowerCase().includes(h));
+          if (!isActuallyMale) {
+            utterance.pitch = 0.4;
+            utterance.rate = 0.85;
+          }
+        }
+
         const done = () => {
           clearFallback();
           setIsSpeaking(false);
