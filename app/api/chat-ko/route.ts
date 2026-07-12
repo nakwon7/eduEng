@@ -158,7 +158,8 @@ export async function POST(req: NextRequest) {
       headers: { "Content-Type": "text/plain; charset=utf-8" },
     });
   } catch (error) {
-    console.error("Chat-ko API error:", error);
-    return NextResponse.json({ error: "Failed to get response" }, { status: 500 });
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error("Chat-ko API error:", msg);
+    return NextResponse.json({ error: "Failed to get response", detail: msg }, { status: 500 });
   }
 }
