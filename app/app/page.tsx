@@ -49,6 +49,7 @@ export default function Home() {
   useEffect(() => { callDurationRef.current = callDuration; }, [callDuration]);
   useEffect(() => { callStateRef.current = callState; }, [callState]);
 
+  const isAndroid = typeof navigator !== "undefined" && /Android/i.test(navigator.userAgent);
 
   useEffect(() => {
     const loadProfile = async (session: { user: { id: string } }) => {
@@ -369,6 +370,9 @@ export default function Home() {
           </p>
           {profile && callState === "idle" && view === "home" && (
             <p className="text-green-400 text-xs mt-1">안녕하세요, {profile.name}님 👋</p>
+          )}
+          {isAndroid && profile?.tutor !== "rachel" && callState === "idle" && view === "home" && (
+            <p className="text-gray-600 text-xs mt-1">Alex 목소리는 PC에서 더 자연스럽게 들려요</p>
           )}
           {callState === "active" && <p className="text-green-400 text-sm mt-1 font-mono">{formatTime(callDuration)}</p>}
           {callState === "calling" && <p className="text-yellow-400 text-sm mt-1 animate-pulse">연결 중...</p>}
