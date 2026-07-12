@@ -35,6 +35,7 @@ export default function Home() {
   const [loaded, setLoaded] = useState(false);
   const [feedback, setFeedback] = useState<FeedbackData | null>(null);
   const [isFetchingFeedback, setIsFetchingFeedback] = useState(false);
+  const [showVoiceTip, setShowVoiceTip] = useState(false);
   const isTrialCallRef = useRef(false);
   const callDurationRef = useRef(0);
   const lastSavedRef = useRef(0);
@@ -48,6 +49,16 @@ export default function Home() {
 
   useEffect(() => { callDurationRef.current = callDuration; }, [callDuration]);
   useEffect(() => { callStateRef.current = callState; }, [callState]);
+
+  useEffect(() => {
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    const dismissed = localStorage.getItem("voice_tip_dismissed");
+    if (isAndroid && !dismissed && profile?.tutor !== "rachel") {
+      const hasMaleVoice = window.speechSynthesis.getVoices()
+        .some((v) => v.lang.startsWith("en") && /male/i.test(v.name));
+      if (!hasMaleVoice) setShowVoiceTip(true);
+    }
+  }, [profile]);
 
   useEffect(() => {
     const loadProfile = async (session: { user: { id: string } }) => {
@@ -371,6 +382,20 @@ export default function Home() {
           )}
           {callState === "active" && <p className="text-green-400 text-sm mt-1 font-mono">{formatTime(callDuration)}</p>}
           {callState === "calling" && <p className="text-yellow-400 text-sm mt-1 animate-pulse">연결 중...</p>}
+          {showVoiceTip && callState === "idle" && (
+            <div className="mt-3 mx-4 bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-left">
+              <div className="flex justify-between items-start gap-2">
+                <p className="text-gray-300 text-xs leading-relaxed">
+                  🔊 Alex 남성 목소리를 들으려면<br />
+                  <strong className="text-white">설정 → 일반 → 접근성 → 텍스트 음성 변환 → Google TTS → 언어 설치 → English (UK) Male</strong> 다운로드
+                </p>
+                <button
+                  onClick={() => { localStorage.setItem("voice_tip_dismissed", "1"); setShowVoiceTip(false); }}
+                  className="text-gray-500 hover:text-gray-300 text-lg leading-none shrink-0"
+                >×</button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Body */}
