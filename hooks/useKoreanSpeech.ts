@@ -72,6 +72,15 @@ export function useKoreanSpeech(): UseKoreanSpeechReturn {
           voices.find((v) => v.lang.startsWith("ko"));
         if (preferred) utterance.voice = preferred;
 
+        // 남성 음성 못 찾아 여성 음성으로 폴백된 경우 pitch 조정
+        if (gender === "male" && preferred) {
+          const isActuallyMale = maleHints.some((h) => preferred!.name.toLowerCase().includes(h));
+          if (!isActuallyMale) {
+            utterance.pitch = 0.5;
+            utterance.rate = 0.85;
+          }
+        }
+
         const done = () => { clearFallback(); setIsSpeaking(false); };
         utterance.onstart = () => setIsSpeaking(true);
         utterance.onend = done;

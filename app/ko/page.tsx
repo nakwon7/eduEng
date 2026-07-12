@@ -224,6 +224,9 @@ export default function KoPage() {
           {callState === "calling" && (
             <p className="text-yellow-400 text-sm mt-1 animate-pulse">Connecting...</p>
           )}
+          {/Android/i.test(typeof navigator !== "undefined" ? navigator.userAgent : "") && profile.tutor === "minjun" && callState === "idle" && (
+            <p className="text-gray-600 text-xs mt-1">민준 목소리는 PC에서 더 자연스럽게 들려요</p>
+          )}
         </div>
 
         {/* Body */}
