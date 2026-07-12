@@ -69,7 +69,7 @@ export function useSpeechSynthesis(): UseSpeechSynthesisReturn {
         const voices = window.speechSynthesis.getVoices();
         const enVoices = voices.filter((v) => v.lang.startsWith("en"));
 
-        const maleHints = ["male", "david", "mark", "james", "daniel", "fred", "oliver", "guy", "rishi"];
+        const maleHints = ["male", "david", "mark", "james", "daniel", "fred", "oliver", "guy", "rishi", "alex"];
         const femaleHints = ["female", "zira", "samantha", "google us english", "susan", "victoria", "karen", "moira", "fiona"];
 
         let preferred: SpeechSynthesisVoice | undefined;
