@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import TopicSelector from "@/components/TopicSelector";
 import TranscriptBox, { Message } from "@/components/TranscriptBox";
 import UserSetup from "@/components/UserSetup";
+import CallFeedback, { FeedbackData } from "@/components/CallFeedback";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
 import { supabase } from "@/lib/supabase";
@@ -32,6 +33,8 @@ export default function Home() {
   const [unlimited, setUnlimited] = useState(false);
   const [blocked, setBlocked] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [feedback, setFeedback] = useState<FeedbackData | null>(null);
+  const [isFetchingFeedback, setIsFetchingFeedback] = useState(false);
   const isTrialCallRef = useRef(false);
   const callDurationRef = useRef(0);
   const lastSavedRef = useRef(0);
@@ -129,6 +132,11 @@ export default function Home() {
     const wasTrial = isTrialCallRef.current;
     isTrialCallRef.current = false;
 
+    // Capture messages before clearing
+    const capturedMessages = [...messagesRef.current];
+    const capturedTopic = topic;
+    const capturedProfile = profile;
+
     const unsaved = callDurationRef.current - lastSavedRef.current;
     lastSavedRef.current = 0;
 
@@ -156,7 +164,22 @@ export default function Home() {
         setTrialCalls(data.trial_calls);
       }
     }
-  }, [stopSpeaking, userId, sessionToken]);
+
+    // Generate feedback if there were at least 2 user turns
+    const userTurns = capturedMessages.filter((m) => m.role === "user").length;
+    if (userTurns >= 2 && capturedProfile) {
+      setFeedback(null);
+      setIsFetchingFeedback(true);
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: capturedMessages, topic: capturedTopic, profile: capturedProfile }),
+      })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => { if (data && !data.error) setFeedback(data); })
+        .finally(() => setIsFetchingFeedback(false));
+    }
+  }, [stopSpeaking, userId, sessionToken, topic, profile]);
 
   // 탭 전환/전화 착신 시 즉시 저장
   useEffect(() => {
@@ -322,6 +345,7 @@ export default function Home() {
               {username === "gooster" ? (
                 <div className="absolute top-4 left-4 flex flex-col gap-2">
                   <button onClick={() => setView("admin")} className="text-yellow-500 hover:text-yellow-400 text-xs">관리자</button>
+                  <button onClick={() => router.push("/ko")} className="text-blue-400 hover:text-blue-300 text-xs">🇰🇷 한국어판</button>
                   <button onClick={handleLogout} className="text-gray-500 hover:text-gray-300 text-xs">로그아웃</button>
                 </div>
               ) : (
@@ -377,6 +401,12 @@ export default function Home() {
             <AdminPanel userId={userId} sessionToken={sessionToken} />
           ) : view === "settings" ? (
             <UserSetup existing={profile || undefined} onComplete={saveProfile} />
+          ) : callState === "idle" && (isFetchingFeedback || feedback) ? (
+            <CallFeedback
+              feedback={feedback}
+              isLoading={isFetchingFeedback}
+              onDismiss={() => { setFeedback(null); setIsFetchingFeedback(false); }}
+            />
           ) : callState === "idle" ? (
             <div className="flex-1 flex flex-col justify-between">
               <TopicSelector selected={topic} onSelect={setTopic} />
@@ -388,7 +418,7 @@ export default function Home() {
 
         {/* Controls */}
         <div className="px-6 pb-8 pt-4">
-          {callState === "idle" && view === "home" && (
+          {callState === "idle" && view === "home" && !feedback && !isFetchingFeedback && (
             blocked ? (
               <div className="text-center space-y-2 py-4">
                 <p className="text-red-400 text-sm font-medium">이용이 제한된 계정입니다</p>
@@ -460,7 +490,7 @@ export default function Home() {
         </div>
 
         {/* 문의하기 */}
-        {callState === "idle" && view === "home" && (
+        {callState === "idle" && view === "home" && !feedback && !isFetchingFeedback && (
           <div className="flex justify-center pb-5">
             <a
               href="https://open.kakao.com/o/sPanl0Ci"
