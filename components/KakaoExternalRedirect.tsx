@@ -2,30 +2,17 @@
 
 import { useEffect, useState } from "react";
 
-const DEBUG = process.env.NODE_ENV === "development" || process.env.NEXT_PUBLIC_UA_DEBUG === "1";
-
 export default function KakaoExternalRedirect() {
   const [show, setShow] = useState(false);
   const [isAndroid, setIsAndroid] = useState(false);
   const [intentUrl, setIntentUrl] = useState("");
-  const [ua, setUa] = useState("");
 
   useEffect(() => {
-    const userAgent = navigator.userAgent;
-    setUa(userAgent);
-
-    const isKakao = /KAKAOTALK/i.test(userAgent) || /KAKAO/i.test(userAgent);
-
-    if (DEBUG) {
-      // 디버그 모드: 항상 배너 표시해서 UA 확인
-      setIsAndroid(/Android/i.test(userAgent));
-      setShow(true);
-      return;
-    }
-
+    const ua = navigator.userAgent;
+    const isKakao = /KAKAOTALK/i.test(ua) || /KAKAO/i.test(ua);
     if (!isKakao) return;
 
-    const android = /Android/i.test(userAgent);
+    const android = /Android/i.test(ua);
     setIsAndroid(android);
 
     if (android) {
@@ -69,16 +56,6 @@ export default function KakaoExternalRedirect() {
       <p className="text-gray-600 text-xs mt-5">
         또는 우측 하단 <strong className="text-gray-500">···</strong> → 다른 브라우저로 열기
       </p>
-
-      {DEBUG && (
-        <div className="mt-6 w-full max-w-xs bg-gray-900 rounded-xl p-3 text-left">
-          <p className="text-yellow-400 text-xs font-mono font-bold mb-1">UA DEBUG</p>
-          <p className="text-gray-400 text-xs font-mono break-all">{ua}</p>
-          <p className="text-gray-500 text-xs mt-2">
-            isKakao: <span className="text-white">{String(/KAKAOTALK/i.test(ua) || /KAKAO/i.test(ua))}</span>
-          </p>
-        </div>
-      )}
     </div>
   );
 }
