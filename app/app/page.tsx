@@ -387,7 +387,7 @@ export default function Home() {
               <div className="flex justify-between items-start gap-2">
                 <p className="text-gray-300 text-xs leading-relaxed">
                   🔊 Alex 남성 목소리를 들으려면<br />
-                  <strong className="text-white">설정 → 일반 → 접근성 → 텍스트 음성 변환 → Google TTS → 언어 설치 → English (UK) Male</strong> 다운로드
+                  <strong className="text-white">설정 → 일반 관리 → 텍스트 음성 변환 → Google TTS 엔진 설정(⚙️) → 언어 → English (United Kingdom) 설치</strong>
                 </p>
                 <button
                   onClick={() => { localStorage.setItem("voice_tip_dismissed", "1"); setShowVoiceTip(false); }}
