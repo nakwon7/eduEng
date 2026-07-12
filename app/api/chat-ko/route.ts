@@ -1,8 +1,6 @@
 import OpenAI from "openai";
 import { NextRequest, NextResponse } from "next/server";
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
 const LANGUAGE_LOCK = `ABSOLUTE RULE — READ THIS FIRST:
 Your output must contain ONLY Korean (한글) and English letters/numbers.
 NEVER write any Hindi, Spanish, Russian, Chinese, Japanese, Arabic, or any other script.
@@ -93,6 +91,7 @@ Korean number system rules (CRITICAL — common foreigner mistakes):
 };
 
 export async function POST(req: NextRequest) {
+  const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   try {
     const { messages, topic, profile } = await req.json();
 

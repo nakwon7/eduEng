@@ -1,9 +1,8 @@
 import Groq from "groq-sdk";
 import { NextRequest, NextResponse } from "next/server";
 
-const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
-
 export async function POST(req: NextRequest) {
+  const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File;
