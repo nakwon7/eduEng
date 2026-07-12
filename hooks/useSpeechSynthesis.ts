@@ -71,14 +71,29 @@ export function useSpeechSynthesis(): UseSpeechSynthesisReturn {
 
         const maleHints = ["male", "david", "mark", "james", "daniel", "fred", "oliver", "guy", "rishi"];
         const femaleHints = ["female", "zira", "samantha", "google us english", "susan", "victoria", "karen", "moira", "fiona"];
-        const hints = gender === "male" ? maleHints : femaleHints;
 
-        const preferred =
-          voices.find((v) => v.lang === "en-US" && hints.some((h) => v.name.toLowerCase().includes(h))) ||
-          enVoices.find((v) => hints.some((h) => v.name.toLowerCase().includes(h))) ||
-          voices.find((v) => v.lang === "en-US" && v.name.includes("Google")) ||
-          voices.find((v) => v.lang === "en-US") ||
-          enVoices[0];
+        let preferred: SpeechSynthesisVoice | undefined;
+
+        if (gender === "male") {
+          preferred =
+            // 1. en-US 중 남성 힌트 포함
+            voices.find((v) => v.lang === "en-US" && maleHints.some((h) => v.name.toLowerCase().includes(h))) ||
+            // 2. 모든 영어 중 남성 힌트 포함 (en-GB "Google UK English Male" 등)
+            enVoices.find((v) => maleHints.some((h) => v.name.toLowerCase().includes(h))) ||
+            // 3. 여성 힌트가 없는 en-US 보이스
+            voices.find((v) => v.lang === "en-US" && !femaleHints.some((h) => v.name.toLowerCase().includes(h))) ||
+            // 4. 여성 힌트가 없는 영어 보이스
+            enVoices.find((v) => !femaleHints.some((h) => v.name.toLowerCase().includes(h))) ||
+            enVoices[0];
+        } else {
+          preferred =
+            voices.find((v) => v.lang === "en-US" && femaleHints.some((h) => v.name.toLowerCase().includes(h))) ||
+            enVoices.find((v) => femaleHints.some((h) => v.name.toLowerCase().includes(h))) ||
+            voices.find((v) => v.lang === "en-US" && v.name.includes("Google")) ||
+            voices.find((v) => v.lang === "en-US") ||
+            enVoices[0];
+        }
+
         if (preferred) utterance.voice = preferred;
 
         const done = () => {
