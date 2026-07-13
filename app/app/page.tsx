@@ -110,7 +110,7 @@ export default function Home() {
   };
 
   const isPaid = !!expiresAt && new Date(expiresAt) > new Date();
-  const isUnlimited = username === "gooster" || unlimited;
+  const isUnlimited = unlimited;
   const canMakeCall = isUnlimited || isPaid || trialCalls > 0;
 
   const saveElapsed = useCallback(() => {
