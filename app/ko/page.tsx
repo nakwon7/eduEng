@@ -35,6 +35,8 @@ export default function KoPage() {
   const [callDuration, setCallDuration] = useState(0);
   const [profile, setProfile] = useState<KoProfile>({ name: "Student", level: "beginner", tutor: "minjun" });
   const [username, setUsername] = useState<string | null>(null);
+  const [expiresAt, setExpiresAt] = useState<string | null>(null);
+  const [unlimited, setUnlimited] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [showSetup, setShowSetup] = useState(false);
 
@@ -57,7 +59,7 @@ export default function KoPage() {
         const storedToken = localStorage.getItem("turingcall_session");
         const { data: profileData } = await supabase
           .from("profiles")
-          .select("username, session_token")
+          .select("username, session_token, expires_at, unlimited")
           .eq("id", session.user.id)
           .single();
 
@@ -68,6 +70,8 @@ export default function KoPage() {
         }
 
         setUsername(profileData.username);
+        setExpiresAt(profileData.expires_at ?? null);
+        setUnlimited(profileData.unlimited ?? false);
         setLoaded(true);
       } else if (event === "SIGNED_OUT") {
         router.push("/login");
@@ -349,12 +353,20 @@ export default function KoPage() {
         {/* Controls */}
         <div className="px-6 pb-8 pt-4">
           {callState === "idle" && !showSetup && (
-            <button
-              onClick={startCall}
-              className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-semibold text-lg transition-all active:scale-95 shadow-lg"
-            >
-              📞 Start Call
-            </button>
+            <>
+              {!unlimited && expiresAt && new Date(expiresAt) > new Date() && (
+                <div className="bg-gray-800 rounded-xl px-4 py-2 mb-2 text-center">
+                  <p className="text-blue-400 text-xs font-medium">멤버십 이용 중</p>
+                  <p className="text-gray-300 text-xs mt-0.5">{new Date(expiresAt).toLocaleDateString("ko-KR")}까지</p>
+                </div>
+              )}
+              <button
+                onClick={startCall}
+                className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-semibold text-lg transition-all active:scale-95 shadow-lg"
+              >
+                📞 Start Call
+              </button>
+            </>
           )}
 
           {callState !== "idle" && (
