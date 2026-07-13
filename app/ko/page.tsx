@@ -48,6 +48,9 @@ export default function KoPage() {
   const { isRecording, isTranscribing, startRecording, stopRecording } = useAudioRecorderKo();
   const { speak, stop: stopSpeaking, unlock: unlockTTS, isSpeaking } = useKoreanSpeech();
 
+  const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const effectiveTutor = isMobile ? "jia" : profile.tutor;
+
   useEffect(() => { callDurationRef.current = callDuration; }, [callDuration]);
   useEffect(() => { callStateRef.current = callState; }, [callState]);
 
@@ -176,8 +179,6 @@ export default function KoPage() {
   };
 
   const isBusy = isTranscribing || isAiTyping || isSpeaking;
-  const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  const effectiveTutor = isMobile ? "jia" : profile.tutor;
   const tutorName = effectiveTutor === "jia" ? "Jia (지아)" : "MinJun (민준)";
 
   if (!loaded) {
