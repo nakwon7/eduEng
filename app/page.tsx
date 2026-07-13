@@ -91,6 +91,12 @@ export default function LandingPage() {
         </a>
         <p className="text-gray-600 text-xs">TuringCall Beta v0.1 · Chrome / Samsung 브라우저 권장</p>
       </div>
+
+      {/* Footer */}
+      <div className="border-t border-gray-900 px-6 py-6 text-center space-y-1.5">
+        <p className="text-gray-700 text-xs">송랩 | 사업자등록번호: 857-28-01961</p>
+        <a href="/terms" className="text-gray-600 text-xs hover:text-gray-400 underline">이용약관 · 개인정보처리방침</a>
+      </div>
     </main>
   );
 }

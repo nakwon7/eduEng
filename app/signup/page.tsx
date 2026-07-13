@@ -37,6 +37,7 @@ export default function SignupPage() {
   const [level, setLevel] = useState<"beginner" | "intermediate" | "advanced">("intermediate");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [agreedTerms, setAgreedTerms] = useState(false);
 
   const usernameError = username && !USERNAME_REGEX.test(username)
     ? "영문자로 시작, 영문+숫자 2~20자"
@@ -47,7 +48,7 @@ export default function SignupPage() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (usernameError || emailError) return;
+    if (usernameError || emailError || !agreedTerms) return;
     setError("");
     setLoading(true);
 
@@ -192,11 +193,23 @@ export default function SignupPage() {
             </div>
           </div>
 
+          <label className="flex items-start gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={agreedTerms}
+              onChange={(e) => setAgreedTerms(e.target.checked)}
+              className="mt-0.5 w-4 h-4 accent-green-500 shrink-0"
+            />
+            <span className="text-gray-400 text-xs leading-relaxed">
+              <a href="/terms" target="_blank" className="text-green-400 underline hover:text-green-300">이용약관 및 개인정보처리방침</a>에 동의합니다 (필수)
+            </span>
+          </label>
+
           {error && <p className="text-red-400 text-xs text-center">{error}</p>}
 
           <button
             type="submit"
-            disabled={loading || !!usernameError || !!emailError}
+            disabled={loading || !!usernameError || !!emailError || !agreedTerms}
             className="w-full py-3 bg-green-600 hover:bg-green-500 disabled:bg-gray-700 text-white rounded-xl font-semibold transition-all"
           >
             {loading ? "가입 중..." : "가입하기"}
