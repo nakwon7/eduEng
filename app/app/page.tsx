@@ -445,9 +445,10 @@ export default function Home() {
                   </p>
                 )}
                 {isPaid && expiresAt && (
-                  <p className="text-gray-500 text-xs text-center mb-2">
-                    이용 기간 {new Date(expiresAt).toLocaleDateString("ko-KR")}까지
-                  </p>
+                  <div className="bg-gray-800 rounded-xl px-4 py-2 mb-2 text-center">
+                    <p className="text-green-400 text-xs font-medium">멤버십 이용 중</p>
+                    <p className="text-gray-300 text-xs mt-0.5">{new Date(expiresAt).toLocaleDateString("ko-KR")}까지</p>
+                  </div>
                 )}
                 <button onClick={startCall} className="w-full py-4 bg-green-600 hover:bg-green-500 text-white rounded-2xl font-semibold text-lg transition-all active:scale-95 shadow-lg">
                   📞 통화 시작
