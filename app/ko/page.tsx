@@ -105,8 +105,8 @@ export default function KoPage() {
       callDurationRef.current = 0;
       timerRef.current = setInterval(() => setCallDuration((d) => d + 1), 1000);
 
-      const tutorName = profile.tutor === "jia" ? "지아" : "민준";
-      const tutorCopula = profile.tutor === "jia" ? "지아예요" : "민준이에요";
+      const tutorName = effectiveTutor === "jia" ? "지아" : "민준";
+      const tutorCopula = effectiveTutor === "jia" ? "지아예요" : "민준이에요";
       const greeting =
         topic === "Word Practice"
           ? `안녕하세요, ${profile.name}! 저는 ${tutorCopula}. 오늘 단어 연습 해봐요! 준비됐어요?`
@@ -117,7 +117,7 @@ export default function KoPage() {
       addMessage({ role: "assistant", content: greeting });
       speak(greeting, effectiveTutor === "jia" ? "female" : "male");
     }, 1500);
-  }, [topic, addMessage, speak, profile, unlockTTS]);
+  }, [topic, addMessage, speak, profile, unlockTTS, effectiveTutor]);
 
   const handleMicPress = useCallback(async () => {
     if (isRecording || isSpeaking) return;
