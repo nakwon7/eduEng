@@ -177,7 +177,7 @@ export default function KoPage() {
 
   const isBusy = isTranscribing || isAiTyping || isSpeaking;
   const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  const effectiveTutor = isMobile ? "minjun" : profile.tutor;
+  const effectiveTutor = isMobile ? "jia" : profile.tutor;
   const tutorName = effectiveTutor === "jia" ? "Jia (지아)" : "MinJun (민준)";
 
   if (!loaded) {
@@ -272,7 +272,7 @@ export default function KoPage() {
                 <label className="text-gray-400 text-xs mb-1 block">Tutor</label>
                 {isMobile ? (
                   <div className="bg-gray-800 rounded-xl px-4 py-3 text-xs text-gray-400">
-                    튜터 선택은 PC에서 가능해요. 모바일에서는 MinJun과 대화해요.
+                    튜터 선택은 PC에서 가능해요. 모바일에서는 Jia(지아)와 대화해요.
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 gap-2">
