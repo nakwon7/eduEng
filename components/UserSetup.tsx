@@ -27,7 +27,8 @@ export default function UserSetup({ onComplete, existing }: UserSetupProps) {
 
   const handleSubmit = () => {
     if (!name.trim()) return;
-    onComplete({ name: name.trim(), level, tutor });
+    // 모바일에서는 tutor를 변경하지 않고 기존 값 유지 (화면은 항상 Rachel이지만 DB는 PC 선택 보존)
+    onComplete({ name: name.trim(), level, tutor: isMobile ? (existing?.tutor || "alex") : tutor });
   };
 
   return (
