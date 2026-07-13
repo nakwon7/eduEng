@@ -50,6 +50,8 @@ export default function Home() {
   useEffect(() => { callStateRef.current = callState; }, [callState]);
 
   const isAndroid = typeof navigator !== "undefined" && /Android/i.test(navigator.userAgent);
+  const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const effectiveTutor = isMobile ? "rachel" : (profile?.tutor ?? "alex");
 
   useEffect(() => {
     const loadProfile = async (session: { user: { id: string } }) => {
@@ -228,7 +230,7 @@ export default function Home() {
       timerRef.current = setInterval(() => setCallDuration((d) => d + 1), 1000);
 
       const firstName = profile?.name || "there";
-      const tutorName = profile?.tutor === "rachel" ? "Rachel" : "Alex";
+      const tutorName = effectiveTutor === "rachel" ? "Rachel" : "Alex";
       const greeting =
         topic === "Word Description" ? `Hey ${firstName}! I'm ${tutorName}. Let's play Word Description! I'll give you a word, and you explain what it means in English. Ready? Here's your first word!`
         : topic === "Self Introduction" ? `Hello ${firstName}! I'm ${tutorName}. Let's practice self-introductions. Could you tell me a bit about yourself?`
@@ -241,7 +243,7 @@ export default function Home() {
         : `Hey ${firstName}! This is ${tutorName}, your English tutor. How are you doing today?`;
 
       addMessage({ role: "assistant", content: greeting });
-      speak(greeting, profile?.tutor === "rachel" ? "female" : "male");
+      speak(greeting, effectiveTutor === "rachel" ? "female" : "male");
     }, 1500);
   }, [topic, addMessage, speak, profile, unlockTTS, canMakeCall, isPaid, username]);
 
@@ -301,7 +303,7 @@ export default function Home() {
         setMessages([...messagesRef.current]);
       }
 
-      speak(aiText, profile?.tutor === "rachel" ? "female" : "male");
+      speak(aiText, effectiveTutor === "rachel" ? "female" : "male");
     } catch {
       setIsAiTyping(false);
       addMessage({ role: "assistant", content: "Sorry, I had a little trouble there. Could you say that again?" });
@@ -365,19 +367,16 @@ export default function Home() {
           )}
 
           <div className="w-20 h-20 bg-green-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-3">
-            {profile?.tutor === "rachel" ? "🌸" : "🎓"}
+            {effectiveTutor === "rachel" ? "🌸" : "🎓"}
           </div>
           <h1 className="text-white text-lg font-semibold">
-            {profile?.tutor === "rachel" ? "Rachel" : "Alex"}
+            {effectiveTutor === "rachel" ? "Rachel" : "Alex"}
           </h1>
           <p className="text-gray-400 text-sm">
-            {profile?.tutor === "rachel" ? "Warm & Patient" : "Friendly & Encouraging"}
+            {effectiveTutor === "rachel" ? "Warm & Patient" : "Friendly & Encouraging"}
           </p>
           {profile && callState === "idle" && view === "home" && (
             <p className="text-green-400 text-xs mt-1">안녕하세요, {profile.name}님 👋</p>
-          )}
-          {isAndroid && profile?.tutor !== "rachel" && callState === "idle" && view === "home" && (
-            <p className="text-gray-600 text-xs mt-1">Alex 목소리는 PC에서 더 자연스럽게 들려요</p>
           )}
           {callState === "active" && <p className="text-green-400 text-sm mt-1 font-mono">{formatTime(callDuration)}</p>}
           {callState === "calling" && <p className="text-yellow-400 text-sm mt-1 animate-pulse">연결 중...</p>}

@@ -20,9 +20,10 @@ const TUTORS = [
 ] as const;
 
 export default function UserSetup({ onComplete, existing }: UserSetupProps) {
+  const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   const [name, setName] = useState(existing?.name || "");
   const [level, setLevel] = useState<UserProfile["level"]>(existing?.level || "intermediate");
-  const [tutor, setTutor] = useState<UserProfile["tutor"]>(existing?.tutor || "alex");
+  const [tutor, setTutor] = useState<UserProfile["tutor"]>(isMobile ? "rachel" : (existing?.tutor || "alex"));
 
   const handleSubmit = () => {
     if (!name.trim()) return;
@@ -47,24 +48,26 @@ export default function UserSetup({ onComplete, existing }: UserSetupProps) {
         />
       </div>
 
-      <div className="mb-5">
-        <label className="text-gray-400 text-xs mb-2 block">AI 튜터</label>
-        <div className="grid grid-cols-2 gap-2">
-          {TUTORS.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTutor(t.id)}
-              className={`px-4 py-3 rounded-xl text-center transition-all ${
-                tutor === t.id ? "bg-green-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-              }`}
-            >
-              <div className="text-2xl mb-1">{t.emoji}</div>
-              <div className="font-medium text-sm">{t.label}</div>
-              <div className="text-xs opacity-70">{t.desc}</div>
-            </button>
-          ))}
+      {!isMobile && (
+        <div className="mb-5">
+          <label className="text-gray-400 text-xs mb-2 block">AI 튜터</label>
+          <div className="grid grid-cols-2 gap-2">
+            {TUTORS.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setTutor(t.id)}
+                className={`px-4 py-3 rounded-xl text-center transition-all ${
+                  tutor === t.id ? "bg-green-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                }`}
+              >
+                <div className="text-2xl mb-1">{t.emoji}</div>
+                <div className="font-medium text-sm">{t.label}</div>
+                <div className="text-xs opacity-70">{t.desc}</div>
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="mb-6">
         <label className="text-gray-400 text-xs mb-2 block">영어 레벨</label>
