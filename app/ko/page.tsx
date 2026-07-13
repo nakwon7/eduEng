@@ -115,7 +115,7 @@ export default function KoPage() {
           : `안녕하세요, ${profile.name}! 저는 ${tutorCopula}. 오늘도 한국어 연습 해봐요!`;
 
       addMessage({ role: "assistant", content: greeting });
-      speak(greeting, profile.tutor === "jia" ? "female" : "male");
+      speak(greeting, effectiveTutor === "jia" ? "female" : "male");
     }, 1500);
   }, [topic, addMessage, speak, profile, unlockTTS]);
 
@@ -162,7 +162,7 @@ export default function KoPage() {
         setMessages([...messagesRef.current]);
       }
 
-      speak(aiText, profile.tutor === "jia" ? "female" : "male");
+      speak(aiText, effectiveTutor === "jia" ? "female" : "male");
     } catch {
       setIsAiTyping(false);
       addMessage({ role: "assistant", content: "죄송해요, 다시 말씀해 주세요." });
@@ -176,7 +176,9 @@ export default function KoPage() {
   };
 
   const isBusy = isTranscribing || isAiTyping || isSpeaking;
-  const tutorName = profile.tutor === "jia" ? "Jia (지아)" : "MinJun (민준)";
+  const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const effectiveTutor = isMobile ? "minjun" : profile.tutor;
+  const tutorName = effectiveTutor === "jia" ? "Jia (지아)" : "MinJun (민준)";
 
   if (!loaded) {
     return (
@@ -211,7 +213,7 @@ export default function KoPage() {
           )}
 
           <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-3">
-            {profile.tutor === "jia" ? "🌸" : "🎓"}
+            {effectiveTutor === "jia" ? "🌸" : "🎓"}
           </div>
           <h1 className="text-white text-lg font-semibold">{tutorName}</h1>
           <p className="text-gray-400 text-sm">Korean Tutor</p>
@@ -228,9 +230,6 @@ export default function KoPage() {
           )}
           {callState === "calling" && (
             <p className="text-yellow-400 text-sm mt-1 animate-pulse">Connecting...</p>
-          )}
-          {/Android/i.test(typeof navigator !== "undefined" ? navigator.userAgent : "") && profile.tutor === "minjun" && callState === "idle" && (
-            <p className="text-gray-600 text-xs mt-1">민준 목소리는 PC에서 더 자연스럽게 들려요</p>
           )}
         </div>
 
@@ -271,21 +270,27 @@ export default function KoPage() {
 
               <div>
                 <label className="text-gray-400 text-xs mb-1 block">Tutor</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {(["minjun", "jia"] as const).map((t) => (
-                    <button
-                      key={t}
-                      onClick={() => setProfile((p) => ({ ...p, tutor: t }))}
-                      className={`py-3 rounded-xl text-sm font-medium transition-all ${
-                        profile.tutor === t
-                          ? "bg-blue-600 text-white"
-                          : "bg-gray-800 text-gray-400 hover:bg-gray-700"
-                      }`}
-                    >
-                      {t === "jia" ? "🌸 Jia (지아)" : "🎓 MinJun (민준)"}
-                    </button>
-                  ))}
-                </div>
+                {isMobile ? (
+                  <div className="bg-gray-800 rounded-xl px-4 py-3 text-xs text-gray-400">
+                    튜터 선택은 PC에서 가능해요. 모바일에서는 MinJun과 대화해요.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    {(["minjun", "jia"] as const).map((t) => (
+                      <button
+                        key={t}
+                        onClick={() => setProfile((p) => ({ ...p, tutor: t }))}
+                        className={`py-3 rounded-xl text-sm font-medium transition-all ${
+                          profile.tutor === t
+                            ? "bg-blue-600 text-white"
+                            : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                        }`}
+                      >
+                        {t === "jia" ? "🌸 Jia (지아)" : "🎓 MinJun (민준)"}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <button

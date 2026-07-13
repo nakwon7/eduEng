@@ -394,7 +394,7 @@ export default function Home() {
                 { emoji: "🔊", title: "AI 응답", desc: "Alex 또는 Rachel이 음성으로 답변합니다. AI가 말하는 중엔 마이크가 비활성화돼요." },
                 { emoji: "✍️", title: "문법 교정", desc: "틀린 표현이 있으면 대화 말미에 'Quick tip:' 으로 부드럽게 알려줘요." },
                 { emoji: "📵", title: "통화 종료", desc: "빨간 버튼을 누르면 통화가 종료됩니다." },
-                { emoji: "⚙️", title: "설정", desc: "우측 상단 설정에서 이름, AI 튜터, 영어 레벨을 변경할 수 있어요." },
+                { emoji: "⚙️", title: "설정", desc: "우측 상단 설정에서 이름, AI 튜터, 영어 레벨을 변경할 수 있어요.\n📱 모바일에서는 Rachel이 고정돼요. Alex 선택은 PC에서 가능해요." },
                 { emoji: "🌐", title: "권장 브라우저", desc: "Chrome 또는 Samsung 브라우저를 사용하세요. 다른 브라우저는 음성 인식이 불안정할 수 있어요." },
                 { emoji: "📲", title: "앱으로 설치하기", desc: "iPhone: Safari에서 접속 → 하단 공유(□↑) → 홈 화면에 추가\nAndroid: Chrome에서 접속 → 우상단 메뉴(⋮) → 홈 화면에 추가\nPC: 주소창 오른쪽 설치(+) 버튼 클릭" },
               ].map((item) => (
