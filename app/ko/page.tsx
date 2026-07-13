@@ -197,7 +197,7 @@ export default function KoPage() {
           {callState === "idle" && (
             <>
               <button
-                onClick={() => router.push("/app")}
+                onClick={() => showSetup ? setShowSetup(false) : router.push("/app")}
                 className="absolute top-4 left-4 text-gray-500 hover:text-gray-300 text-xs"
               >
                 ← Back
