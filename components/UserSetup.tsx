@@ -49,6 +49,12 @@ export default function UserSetup({ onComplete, existing }: UserSetupProps) {
         />
       </div>
 
+      {isMobile && (
+        <div className="mb-5 bg-gray-800 rounded-xl px-4 py-3 text-xs text-gray-400">
+          튜터 선택은 PC에서 가능해요. 모바일에서는 Rachel과 대화해요.
+        </div>
+      )}
+
       {!isMobile && (
         <div className="mb-5">
           <label className="text-gray-400 text-xs mb-2 block">AI 튜터</label>
