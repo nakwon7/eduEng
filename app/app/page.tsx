@@ -317,10 +317,11 @@ export default function Home() {
   };
 
   const isBusy = isTranscribing || isAiTyping || isSpeaking;
+  const tutorDisplayName = effectiveTutor === "rachel" ? "Rachel" : "Alex";
   const micStatus = isRecording ? "듣는 중... 손을 떼면 전송"
     : isTranscribing ? "인식 중..."
-    : isAiTyping ? "Alex가 생각 중..."
-    : isSpeaking ? "Alex가 말하는 중..."
+    : isAiTyping ? `${tutorDisplayName}가 생각 중...`
+    : isSpeaking ? `${tutorDisplayName}가 말하는 중...`
     : "마이크 버튼을 누르고 말하세요";
 
   if (!loaded) {
