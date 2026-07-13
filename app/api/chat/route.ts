@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
         .eq("id", userId)
         .single();
 
-      const isUnlimited = profile?.username === "gooster" || profile?.unlimited;
+      const isUnlimited = profile?.unlimited;
       if (!isUnlimited && profile?.expires_at && new Date(profile.expires_at) < new Date()) {
         return NextResponse.json({ error: "SUBSCRIPTION_EXPIRED" }, { status: 403 });
       }
