@@ -61,7 +61,8 @@ export default function KoPage() {
           .eq("id", session.user.id)
           .single();
 
-        if (!profileData || profileData.session_token !== storedToken || profileData.username !== "gooster") {
+        const allowedUsers = ["gooster", "mh1104"];
+        if (!profileData || profileData.session_token !== storedToken || !allowedUsers.includes(profileData.username)) {
           router.push("/app");
           return;
         }
@@ -289,6 +290,15 @@ export default function KoPage() {
               >
                 Save
               </button>
+
+              <div className="mt-6">
+                <button
+                  onClick={async () => { await supabase.auth.signOut(); localStorage.removeItem("turingcall_session"); router.push("/login"); }}
+                  className="w-full py-3 bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-2xl text-sm"
+                >
+                  로그아웃
+                </button>
+              </div>
             </div>
           ) : callState === "idle" ? (
             <div className="flex-1 flex flex-col justify-between">
