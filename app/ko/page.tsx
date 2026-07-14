@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { useAudioRecorderKo } from "@/hooks/useAudioRecorderKo";
 import { useKoreanSpeech } from "@/hooks/useKoreanSpeech";
 import TranscriptBox, { Message } from "@/components/TranscriptBox";
+import TermsModal from "@/components/TermsModal";
 
 type CallState = "idle" | "calling" | "active";
 
@@ -40,6 +41,8 @@ export default function KoPage() {
   const [loaded, setLoaded] = useState(false);
   const [showSetup, setShowSetup] = useState(false);
   const [micError, setMicError] = useState(false);
+  const [micPermState, setMicPermState] = useState<PermissionState | null>(null);
+  const [showTerms, setShowTerms] = useState(false);
 
   const callDurationRef = useRef(0);
   const callStateRef = useRef<CallState>("idle");
@@ -106,6 +109,9 @@ export default function KoPage() {
       stream.getTracks().forEach((t) => t.stop());
     } catch {
       setMicError(true);
+      if (navigator.permissions) {
+        navigator.permissions.query({ name: "microphone" as PermissionName }).then((r) => setMicPermState(r.state));
+      }
       return;
     }
     unlockTTS();
@@ -310,7 +316,25 @@ export default function KoPage() {
                 Save
               </button>
 
-              <div className="mt-6">
+              <div className="mt-4 bg-gray-900 rounded-xl p-4 space-y-2">
+                <p className="text-gray-400 text-xs font-medium">멤버십 요금</p>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-white text-lg font-bold">9,900원</span>
+                  <span className="text-gray-500 text-xs">/ 월 · 무제한 이용</span>
+                </div>
+                <p className="text-gray-500 text-xs">무료 체험 3회(회당 최대 30분) 제공</p>
+                <p className="text-gray-500 text-xs">결제: 토스뱅크 1000-4983-0654 (송랩)</p>
+                <a
+                  href="https://open.kakao.com/o/sPanl0Ci"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block mt-1 text-yellow-400 text-xs hover:text-yellow-300"
+                >
+                  💬 가입 문의 (카카오톡)
+                </a>
+              </div>
+
+              <div className="mt-4">
                 <button
                   onClick={async () => { await supabase.auth.signOut(); localStorage.removeItem("turingcall_session"); router.push("/login"); }}
                   className="w-full py-3 bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-2xl text-sm"
@@ -376,9 +400,31 @@ export default function KoPage() {
                 </div>
               )}
               {micError && (
-                <p className="text-red-400 text-sm text-center mb-2">
-                  마이크 권한이 필요해요. 브라우저에서 마이크를 허용한 후 다시 눌러주세요.
-                </p>
+                <div className="bg-red-900/30 border border-red-800 rounded-xl px-4 py-3 mb-3 text-center space-y-2">
+                  <p className="text-red-400 text-sm">🎙️ 마이크 권한이 필요해요</p>
+                  {micPermState === "denied" ? (
+                    <>
+                      <p className="text-gray-400 text-xs leading-relaxed">
+                        마이크가 차단되어 있어요.<br />
+                        {isMobile
+                          ? <>Chrome 앱 → 메뉴(⋮) → 설정 →<br />사이트 설정 → 마이크 → 이 사이트 허용</>
+                          : <>주소창 자물쇠(🔒) → 마이크 → 허용</>
+                        }
+                      </p>
+                      <p className="text-gray-600 text-xs">설정 변경 후 아래 버튼을 눌러주세요</p>
+                      <button onClick={startCall} className="mt-1 px-4 py-1.5 bg-gray-700 hover:bg-gray-600 text-white rounded-xl text-xs font-medium">
+                        다시 시도
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-gray-400 text-xs">아래 버튼을 눌러 마이크를 허용해 주세요</p>
+                      <button onClick={startCall} className="mt-1 px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-semibold">
+                        🎙️ 마이크 허용하기
+                      </button>
+                    </>
+                  )}
+                </div>
               )}
               <button
                 onClick={startCall}
@@ -425,6 +471,16 @@ export default function KoPage() {
             </p>
           )}
         </div>
+
+        {/* 사업자 정보 */}
+        <div className="px-4 pb-4 text-center space-y-0.5">
+          <p className="text-gray-700 text-xs">송랩 · 사업자등록번호: 857-28-01961</p>
+          <p className="text-gray-700 text-xs">
+            <button onClick={() => setShowTerms(true)} className="hover:text-gray-500">이용약관 및 개인정보처리방침</button>
+          </p>
+        </div>
+
+        {showTerms && <TermsModal onClose={() => setShowTerms(false)} />}
       </div>
     </main>
   );

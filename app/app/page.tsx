@@ -11,6 +11,7 @@ import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
 import { supabase } from "@/lib/supabase";
 import { UserProfile } from "@/hooks/useUserProfile";
 import AdminPanel from "@/components/AdminPanel";
+import TermsModal from "@/components/TermsModal";
 
 type CallState = "idle" | "calling" | "active";
 type View = "home" | "settings" | "admin" | "help";
@@ -33,6 +34,8 @@ export default function Home() {
   const [unlimited, setUnlimited] = useState(false);
   const [blocked, setBlocked] = useState(false);
   const [micError, setMicError] = useState(false);
+  const [micPermState, setMicPermState] = useState<PermissionState | null>(null);
+  const [showTerms, setShowTerms] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [feedback, setFeedback] = useState<FeedbackData | null>(null);
   const [isFetchingFeedback, setIsFetchingFeedback] = useState(false);
@@ -220,6 +223,9 @@ export default function Home() {
       stream.getTracks().forEach((t) => t.stop());
     } catch {
       setMicError(true);
+      if (navigator.permissions) {
+        navigator.permissions.query({ name: "microphone" as PermissionName }).then((r) => setMicPermState(r.state));
+      }
       return;
     }
 
@@ -453,9 +459,31 @@ export default function Home() {
                   </div>
                 )}
                 {micError && (
-                  <p className="text-red-400 text-sm text-center mb-2">
-                    마이크 권한이 필요해요. 브라우저에서 마이크를 허용한 후 다시 눌러주세요.
-                  </p>
+                  <div className="bg-red-900/30 border border-red-800 rounded-xl px-4 py-3 mb-3 text-center space-y-2">
+                    <p className="text-red-400 text-sm">🎙️ 마이크 권한이 필요해요</p>
+                    {micPermState === "denied" ? (
+                      <>
+                        <p className="text-gray-400 text-xs leading-relaxed">
+                          마이크가 차단되어 있어요.<br />
+                          {isAndroid
+                            ? <>Chrome 앱 → 메뉴(⋮) → 설정 →<br />사이트 설정 → 마이크 → 이 사이트 허용</>
+                            : <>주소창 자물쇠(🔒) → 마이크 → 허용</>
+                          }
+                        </p>
+                        <p className="text-gray-600 text-xs">설정 변경 후 아래 버튼을 눌러주세요</p>
+                        <button onClick={startCall} className="mt-1 px-4 py-1.5 bg-gray-700 hover:bg-gray-600 text-white rounded-xl text-xs font-medium">
+                          다시 시도
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-gray-400 text-xs">아래 버튼을 눌러 마이크를 허용해 주세요</p>
+                        <button onClick={startCall} className="mt-1 px-5 py-2 bg-green-600 hover:bg-green-500 text-white rounded-xl text-sm font-semibold">
+                          🎙️ 마이크 허용하기
+                        </button>
+                      </>
+                    )}
+                  </div>
                 )}
                 <button onClick={startCall} className="w-full py-4 bg-green-600 hover:bg-green-500 text-white rounded-2xl font-semibold text-lg transition-all active:scale-95 shadow-lg">
                   📞 통화 시작
@@ -520,6 +548,16 @@ export default function Home() {
             </a>
           </div>
         )}
+
+        {/* 사업자 정보 */}
+        <div className="px-4 pb-4 text-center space-y-0.5">
+          <p className="text-gray-700 text-xs">송랩 · 사업자등록번호: 857-28-01961</p>
+          <p className="text-gray-700 text-xs">
+            <button onClick={() => setShowTerms(true)} className="hover:text-gray-500">이용약관 및 개인정보처리방침</button>
+          </p>
+        </div>
+
+        {showTerms && <TermsModal onClose={() => setShowTerms(false)} />}
       </div>
     </main>
   );

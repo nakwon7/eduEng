@@ -101,6 +101,24 @@ export default function UserSetup({ onComplete, existing }: UserSetupProps) {
       >
         {existing ? "저장" : "시작하기"}
       </button>
+
+      <div className="mt-6 bg-gray-900 rounded-xl p-4 space-y-2">
+        <p className="text-gray-400 text-xs font-medium">멤버십 요금</p>
+        <div className="flex items-baseline gap-1">
+          <span className="text-white text-lg font-bold">9,900원</span>
+          <span className="text-gray-500 text-xs">/ 월 · 무제한 이용</span>
+        </div>
+        <p className="text-gray-500 text-xs">무료 체험 3회(회당 최대 30분) 제공</p>
+        <p className="text-gray-500 text-xs">결제: 토스뱅크 1000-4983-0654 (송랩)</p>
+        <a
+          href="https://open.kakao.com/o/sPanl0Ci"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block mt-1 text-yellow-400 text-xs hover:text-yellow-300"
+        >
+          💬 가입 문의 (카카오톡)
+        </a>
+      </div>
     </div>
   );
 }

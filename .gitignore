@@ -44,3 +44,5 @@ next-env.d.ts
 CclaudeProjectEduEng.env.local
 .claude/
 CclaudeProjectEduEng.env.local
+
+.env*
