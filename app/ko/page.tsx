@@ -39,6 +39,7 @@ export default function KoPage() {
   const [unlimited, setUnlimited] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [showSetup, setShowSetup] = useState(false);
+  const [micError, setMicError] = useState(false);
 
   const callDurationRef = useRef(0);
   const callStateRef = useRef<CallState>("idle");
@@ -98,7 +99,15 @@ export default function KoPage() {
     callDurationRef.current = 0;
   }, [stopSpeaking]);
 
-  const startCall = useCallback(() => {
+  const startCall = useCallback(async () => {
+    setMicError(false);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach((t) => t.stop());
+    } catch {
+      setMicError(true);
+      return;
+    }
     unlockTTS();
     setCallState("calling");
 
@@ -365,6 +374,11 @@ export default function KoPage() {
                   <p className="text-blue-400 text-xs font-medium">멤버십 이용 중</p>
                   <p className="text-gray-300 text-xs mt-0.5">{new Date(expiresAt).toLocaleDateString("ko-KR")}까지</p>
                 </div>
+              )}
+              {micError && (
+                <p className="text-red-400 text-sm text-center mb-2">
+                  마이크 권한이 필요해요. 브라우저에서 마이크를 허용한 후 다시 눌러주세요.
+                </p>
               )}
               <button
                 onClick={startCall}

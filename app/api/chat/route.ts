@@ -1,8 +1,10 @@
+export const dynamic = "force-dynamic";
+
 import Groq from "groq-sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 
-const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const getGroq = () => new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 const SYSTEM_PROMPTS: Record<string, string> = {
   alex: `You are Alex, a friendly male English tutor having a phone conversation with a Korean student.
@@ -81,7 +83,7 @@ export async function POST(req: NextRequest) {
 
     const recentMessages = messages.slice(-10);
 
-    const stream = await client.chat.completions.create({
+    const stream = await getGroq().chat.completions.create({
       model: "llama-3.3-70b-versatile",
       max_tokens: 300,
       stream: true,

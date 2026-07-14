@@ -1,8 +1,10 @@
+export const dynamic = "force-dynamic";
+
 import Groq from "groq-sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 
-const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const getGroq = () => new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 export async function POST(req: NextRequest) {
   try {
@@ -29,7 +31,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const transcription = await client.audio.transcriptions.create({
+    const transcription = await getGroq().audio.transcriptions.create({
       file,
       model: "whisper-large-v3-turbo",
       language: "en",

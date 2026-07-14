@@ -32,6 +32,7 @@ export default function Home() {
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [unlimited, setUnlimited] = useState(false);
   const [blocked, setBlocked] = useState(false);
+  const [micError, setMicError] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [feedback, setFeedback] = useState<FeedbackData | null>(null);
   const [isFetchingFeedback, setIsFetchingFeedback] = useState(false);
@@ -211,13 +212,14 @@ export default function Home() {
 
   const startCall = useCallback(async () => {
     if (!canMakeCall) return;
+    setMicError(false);
     isTrialCallRef.current = !isPaid && !isUnlimited;
     unlockTTS();
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream.getTracks().forEach((t) => t.stop());
     } catch {
-      alert("마이크 권한이 필요해요.");
+      setMicError(true);
       return;
     }
 
@@ -449,6 +451,11 @@ export default function Home() {
                     <p className="text-green-400 text-xs font-medium">멤버십 이용 중</p>
                     <p className="text-gray-300 text-xs mt-0.5">{new Date(expiresAt).toLocaleDateString("ko-KR")}까지</p>
                   </div>
+                )}
+                {micError && (
+                  <p className="text-red-400 text-sm text-center mb-2">
+                    마이크 권한이 필요해요. 브라우저에서 마이크를 허용한 후 다시 눌러주세요.
+                  </p>
                 )}
                 <button onClick={startCall} className="w-full py-4 bg-green-600 hover:bg-green-500 text-white rounded-2xl font-semibold text-lg transition-all active:scale-95 shadow-lg">
                   📞 통화 시작
