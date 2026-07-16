@@ -9,6 +9,7 @@ import CallFeedback, { FeedbackData } from "@/components/CallFeedback";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
 import { supabase } from "@/lib/supabase";
+import { getRandomGreeting } from "@/lib/greetings";
 import { UserProfile } from "@/hooks/useUserProfile";
 import AdminPanel from "@/components/AdminPanel";
 import TermsModal from "@/components/TermsModal";
@@ -240,15 +241,9 @@ export default function Home() {
       const firstName = profile?.name || "there";
       const tutorName = effectiveTutor === "rachel" ? "Rachel" : "Alex";
       const greeting =
-        topic === "Word Description" ? `Hey ${firstName}! I'm ${tutorName}. Let's play Word Description! I'll give you a word, and you explain what it means in English. Ready? Here's your first word!`
-        : topic === "Self Introduction" ? `Hello ${firstName}! I'm ${tutorName}. Let's practice self-introductions. Could you tell me a bit about yourself?`
-        : topic === "Business English" ? `Good day ${firstName}! I'm ${tutorName}. Let's practice business English. How would you introduce yourself to a new colleague?`
-        : topic === "Travel" ? `Hi ${firstName}! I'm ${tutorName}. Let's talk about travel. Have you been anywhere interesting lately?`
-        : topic === "Health & Fitness" ? `Hey ${firstName}! I'm ${tutorName}. Let's talk about health and fitness. Do you exercise regularly?`
-        : topic === "Food & Cooking" ? `Hi ${firstName}! I'm ${tutorName}. Let's chat about food. Do you enjoy cooking?`
-        : topic === "Movies & TV" ? `Hey ${firstName}! I'm ${tutorName}. Let's talk about movies and TV. Watched anything good lately?`
-        : topic === "Work & Career" ? `Good day ${firstName}! I'm ${tutorName}. Let's practice work-related English. Tell me about your job!`
-        : `Hey ${firstName}! This is ${tutorName}, your English tutor. How are you doing today?`;
+        topic === "Word Description"
+          ? `Hey ${firstName}! I'm ${tutorName}. Let's play Word Description! I'll give you a word, and you explain what it means in English. Ready? Here's your first word!`
+          : getRandomGreeting(topic, firstName, tutorName);
 
       addMessage({ role: "assistant", content: greeting });
       speak(greeting, effectiveTutor === "rachel" ? "female" : "male");
