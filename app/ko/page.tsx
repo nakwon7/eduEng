@@ -383,6 +383,14 @@ export default function KoPage() {
                 <p className="text-gray-500 text-xs mb-1">
                   Hello, {profile.name} · Level: {profile.level}
                 </p>
+                {username === "gooster" && !isMobile && (
+                  <button
+                    onClick={() => router.push("/admin/stats")}
+                    className="mt-1 text-emerald-400 hover:text-emerald-300 text-xs"
+                  >
+                    통계 →
+                  </button>
+                )}
               </div>
             </div>
           ) : (
