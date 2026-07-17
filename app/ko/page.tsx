@@ -7,7 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { useAudioRecorderKo } from "@/hooks/useAudioRecorderKo";
 import { useKoreanSpeech } from "@/hooks/useKoreanSpeech";
 import TranscriptBox, { Message } from "@/components/TranscriptBox";
-import TermsModal from "@/components/TermsModal";
+import TermsModalEn from "@/components/TermsModalEn";
 
 type CallState = "idle" | "calling" | "active";
 
@@ -488,7 +488,7 @@ export default function KoPage() {
           </p>
         </div>
 
-        {showTerms && <TermsModal onClose={() => setShowTerms(false)} />}
+        {showTerms && <TermsModalEn onClose={() => setShowTerms(false)} />}
       </div>
     </main>
   );
