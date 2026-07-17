@@ -41,6 +41,7 @@ export default function Home() {
   const [feedback, setFeedback] = useState<FeedbackData | null>(null);
   const [isFetchingFeedback, setIsFetchingFeedback] = useState(false);
   const isTrialCallRef = useRef(false);
+  const topicRef = useRef(topic);
   const callDurationRef = useRef(0);
   const lastSavedRef = useRef(0);
   const callStateRef = useRef<CallState>("idle");
@@ -53,6 +54,7 @@ export default function Home() {
 
   useEffect(() => { callDurationRef.current = callDuration; }, [callDuration]);
   useEffect(() => { callStateRef.current = callState; }, [callState]);
+  useEffect(() => { topicRef.current = topic; }, [topic]);
 
   const isAndroid = typeof navigator !== "undefined" && /Android/i.test(navigator.userAgent);
   const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -126,7 +128,7 @@ export default function Home() {
     fetch("/api/call/end", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, sessionToken, seconds: unsaved }),
+      body: JSON.stringify({ userId, sessionToken, seconds: unsaved, topic: topicRef.current }),
     });
   }, [userId, sessionToken]);
 
@@ -158,7 +160,7 @@ export default function Home() {
       fetch("/api/call/end", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, sessionToken, seconds: unsaved }),
+        body: JSON.stringify({ userId, sessionToken, seconds: unsaved, topic: capturedTopic }),
       });
     }
 

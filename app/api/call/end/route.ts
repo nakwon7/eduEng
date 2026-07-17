@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export async function POST(req: NextRequest) {
-  const { userId, sessionToken, seconds } = await req.json();
+  const { userId, sessionToken, seconds, topic } = await req.json();
   if (!userId || !sessionToken || !seconds || seconds <= 0) {
     return NextResponse.json({ ok: true });
   }
@@ -27,23 +27,27 @@ export async function POST(req: NextRequest) {
     .eq("id", userId);
 
   const today = new Date().toISOString().split("T")[0];
-  const { data: logData } = await admin
+  const query = admin
     .from("call_logs")
     .select("seconds")
     .eq("user_id", userId)
-    .eq("date", today)
-    .single();
+    .eq("date", today);
+  if (topic) query.eq("topic", topic);
+
+  const { data: logData } = await query.single();
 
   if (logData) {
-    await admin
+    const updateQuery = admin
       .from("call_logs")
       .update({ seconds: logData.seconds + seconds })
       .eq("user_id", userId)
       .eq("date", today);
+    if (topic) updateQuery.eq("topic", topic);
+    await updateQuery;
   } else {
     await admin
       .from("call_logs")
-      .insert({ user_id: userId, date: today, seconds });
+      .insert({ user_id: userId, date: today, seconds, ...(topic ? { topic } : {}) });
   }
 
   return NextResponse.json({ ok: true });
