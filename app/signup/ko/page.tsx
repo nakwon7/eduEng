@@ -201,7 +201,7 @@ export default function SignupKoPage() {
             />
             <span className="text-gray-400 text-xs leading-relaxed">
               I agree to the{" "}
-              <a href="/terms" target="_blank" className="text-blue-400 underline hover:text-blue-300">
+              <a href="/terms/en" target="_blank" className="text-blue-400 underline hover:text-blue-300">
                 Terms of Service & Privacy Policy
               </a>
             </span>
