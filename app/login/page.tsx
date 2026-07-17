@@ -10,7 +10,12 @@ export default function LoginPage() {
     const check = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session && localStorage.getItem("turingcall_session")) {
-        router.replace("/app");
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("ko_access")
+          .eq("id", session.user.id)
+          .single();
+        router.replace(profile?.ko_access ? "/ko" : "/app");
       } else {
         setChecking(false);
       }
@@ -39,7 +44,7 @@ export default function LoginPage() {
 
       if (!res.ok) throw new Error("아이디 또는 비밀번호가 올바르지 않습니다");
 
-      const { email, approved } = await res.json();
+      const { email, approved, ko_access } = await res.json();
 
       if (!approved) {
         setError("아직 승인 대기 중입니다. 승인 후 이용 가능합니다.");
@@ -58,7 +63,7 @@ export default function LoginPage() {
       await supabase.from("profiles").update({ session_token: sessionToken }).eq("id", userId);
       localStorage.setItem("turingcall_session", sessionToken);
 
-      router.replace("/app");
+      router.replace(ko_access ? "/ko" : "/app");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "로그인 실패");
     } finally {

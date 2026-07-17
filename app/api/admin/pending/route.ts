@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 
   const { data, error } = await admin
     .from("profiles")
-    .select("id, username, name, email, level, trial_calls, expires_at, unlimited, blocked, total_seconds, created_at")
+    .select("id, username, name, email, level, trial_calls, expires_at, unlimited, blocked, total_seconds, created_at, ko_access")
     .neq("username", "gooster")
     .order("created_at", { ascending: false });
 

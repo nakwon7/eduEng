@@ -14,6 +14,7 @@ interface User {
   blocked: boolean;
   total_seconds: number;
   created_at: string;
+  ko_access: boolean;
 }
 
 interface AdminPanelProps {
@@ -92,6 +93,17 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId, sessionToken, targetId, unlimited: !current }),
+    });
+    await fetchUsers();
+    setBusy(null);
+  };
+
+  const handleToggleKo = async (targetId: string, current: boolean) => {
+    setBusy(targetId + "_ko");
+    await fetch("/api/admin/toggle-ko", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, sessionToken, targetId, ko_access: !current }),
     });
     await fetchUsers();
     setBusy(null);
@@ -203,6 +215,15 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                           {busy === u.id + "_trial" ? "..." : "체험초기화"}
                         </button>
                       </div>
+                      <button
+                        onClick={() => handleToggleKo(u.id, u.ko_access)}
+                        disabled={!!busy || u.blocked}
+                        className={`w-full py-1.5 text-white text-xs rounded-xl transition-all disabled:bg-gray-700 disabled:opacity-50 ${
+                          u.ko_access ? "bg-blue-700 hover:bg-blue-600" : "bg-gray-600 hover:bg-gray-500"
+                        }`}
+                      >
+                        {busy === u.id + "_ko" ? "..." : u.ko_access ? "한국어판 ON" : "한국어판 OFF"}
+                      </button>
                       <button
                         onClick={() => handleBlock(u.id, u.blocked)}
                         disabled={!!busy}

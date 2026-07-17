@@ -67,12 +67,11 @@ export default function KoPage() {
         const storedToken = localStorage.getItem("turingcall_session");
         const { data: profileData } = await supabase
           .from("profiles")
-          .select("username, session_token, expires_at, unlimited")
+          .select("username, session_token, expires_at, unlimited, ko_access")
           .eq("id", session.user.id)
           .single();
 
-        const allowedUsers = ["gooster", "mh1104"];
-        if (!profileData || profileData.session_token !== storedToken || !allowedUsers.includes(profileData.username)) {
+        if (!profileData || profileData.session_token !== storedToken || (!profileData.ko_access && profileData.username !== "gooster")) {
           router.push("/app");
           return;
         }
