@@ -493,7 +493,7 @@ export default function Home() {
                 </p>
                 <div className="bg-gray-800 rounded-xl p-3 text-xs text-gray-300 space-y-1">
                   <p className="flex items-center">KB국민은행 758637-00-012739 (송랩)<CopyButton text="758637-00-012739" /></p>
-                  <p>예금주: 최귀송</p>
+                  <p>예금주: 송랩</p>
                   <a
                     href="https://open.kakao.com/o/sPanl0Ci"
                     target="_blank"
