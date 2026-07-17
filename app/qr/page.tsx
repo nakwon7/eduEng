@@ -2,7 +2,7 @@
 
 import { QRCodeSVG } from "qrcode.react";
 
-const APP_URL = "https://turingcall.vercel.app?openExternalBrowser=1";
+const APP_URL = "https://turingcall-ten.vercel.app?openExternalBrowser=1";
 
 export default function QRPage() {
   return (
