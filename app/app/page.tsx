@@ -10,7 +10,6 @@ import CallFeedback, { FeedbackData } from "@/components/CallFeedback";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { useSpeechSynthesis } from "@/hooks/useSpeechSynthesis";
 import { supabase } from "@/lib/supabase";
-import { getRandomGreeting } from "@/lib/greetings";
 import { UserProfile } from "@/hooks/useUserProfile";
 import AdminPanel from "@/components/AdminPanel";
 import TermsModal from "@/components/TermsModal";
@@ -232,23 +231,42 @@ export default function Home() {
     }
 
     setCallState("calling");
-    setTimeout(() => {
-      setCallState("active");
-      setCallDuration(0);
-      callDurationRef.current = 0;
-      lastSavedRef.current = 0;
-      timerRef.current = setInterval(() => setCallDuration((d) => d + 1), 1000);
 
-      const firstName = profile?.name || "there";
-      const tutorName = effectiveTutor === "rachel" ? "Rachel" : "Alex";
-      const greeting =
-        topic === "Word Description"
-          ? `Hey ${firstName}! I'm ${tutorName}. Let's play Word Description! I'll give you a word, and you explain what it means in English. Ready? Here's your first word!`
-          : getRandomGreeting(topic, firstName, tutorName);
+    const firstName = profile?.name || "there";
+    const tutorName = effectiveTutor === "rachel" ? "Rachel" : "Alex";
 
-      addMessage({ role: "assistant", content: greeting });
-      speak(greeting, effectiveTutor === "rachel" ? "female" : "male");
-    }, 1500);
+    let greeting: string;
+    if (topic === "Word Description") {
+      greeting = `Hey ${firstName}! I'm ${tutorName}. Let's play Word Description! I'll give you a word, and you explain what it means in English. Ready? Here's your first word!`;
+      await new Promise((r) => setTimeout(r, 1500));
+    } else {
+      await new Promise((r) => setTimeout(r, 1500));
+      try {
+        const res = await fetch("/api/greeting", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            topic,
+            firstName,
+            tutorName,
+            tutor: effectiveTutor,
+            level: profile?.level || "intermediate",
+          }),
+        });
+        const data = await res.json();
+        greeting = data.greeting || `Hey ${firstName}! This is ${tutorName}. Ready to practice some English?`;
+      } catch {
+        greeting = `Hey ${firstName}! This is ${tutorName}. Ready to practice some English?`;
+      }
+    }
+
+    setCallState("active");
+    setCallDuration(0);
+    callDurationRef.current = 0;
+    lastSavedRef.current = 0;
+    timerRef.current = setInterval(() => setCallDuration((d) => d + 1), 1000);
+    addMessage({ role: "assistant", content: greeting });
+    speak(greeting, effectiveTutor === "rachel" ? "female" : "male");
   }, [topic, addMessage, speak, profile, unlockTTS, canMakeCall, isPaid, username]);
 
   const handleMicPress = useCallback(async () => {
