@@ -324,7 +324,7 @@ export default function KoPage() {
                   <span className="text-gray-500 text-xs">/ 월 · 무제한 이용</span>
                 </div>
                 <p className="text-gray-500 text-xs">무료 체험 3회(회당 최대 30분) 제공</p>
-                <p className="text-gray-500 text-xs flex items-center">결제: KB국민은행 758637-00-012739<CopyButton text="758637-00-012739" /></p>
+                <p className="text-gray-500 text-xs flex items-center">계좌이체: KB국민은행 758637-00-012739 (송랩)<CopyButton text="758637-00-012739" /></p>
                 <a
                   href="https://open.kakao.com/o/sPanl0Ci"
                   target="_blank"

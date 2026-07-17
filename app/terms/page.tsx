@@ -54,7 +54,7 @@ export default function TermsPage() {
               <li>무료 체험: 가입 후 3회 제공 (회당 최대 30분), 별도 결제 불필요</li>
               <li>멤버십: 월 9,900원 (베타 기간 기준), 계좌이체로 결제</li>
               <li className="flex items-center">
-                결제 계좌: KB국민은행 758637-00-012739
+                계좌이체: KB국민은행 758637-00-012739 (송랩)
                 <CopyButton text="758637-00-012739" />
               </li>
               <li>이용 기간은 입금 확인 후 관리자가 수동으로 활성화합니다.</li>
