@@ -370,6 +370,9 @@ export default function Home() {
               {username === "gooster" ? (
                 <div className="absolute top-4 left-4 flex flex-col gap-3">
                   <button onClick={() => setView("admin")} className="text-yellow-500 hover:text-yellow-400 text-xs">관리자</button>
+                  {!isMobile && (
+                    <button onClick={() => router.push("/admin/stats")} className="text-emerald-400 hover:text-emerald-300 text-xs">통계</button>
+                  )}
                   <button onClick={() => router.push("/ko")} className="text-blue-400 hover:text-blue-300 text-xs">🇰🇷 한국어판</button>
                   <button onClick={handleLogout} className="text-gray-500 hover:text-gray-300 text-xs">로그아웃</button>
                 </div>
