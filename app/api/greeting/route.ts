@@ -21,7 +21,23 @@ export async function POST(req: NextRequest) {
         ? "Use natural, native-level expressions."
         : "Use everyday conversational language.";
 
-    const prompt = `${persona}
+    const isWordDescription = topic === "Word Description";
+
+    const prompt = isWordDescription
+      ? `${persona}
+
+You're starting a Word Description phone lesson with a Korean student named ${firstName}.
+${levelNote}
+
+Generate a natural opening that:
+- Greets ${firstName} by name and introduces yourself as ${tutorName}
+- Briefly explains the game in one casual sentence (they describe a word in English without saying it)
+- Immediately gives the first word to describe — pick a ${level === "beginner" ? "simple everyday" : level === "advanced" ? "nuanced or idiomatic" : "moderately challenging"} English word
+- Format: greeting + game intro + "Your first word is: [WORD]. Go!"
+- Keep it to 2-3 sentences total, natural and energetic
+
+Reply with ONLY the opening. No quotes, no explanation.`
+      : `${persona}
 
 You're starting a phone English lesson with a Korean student named ${firstName}.
 Today's topic: ${topic}

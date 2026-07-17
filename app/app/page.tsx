@@ -235,29 +235,25 @@ export default function Home() {
     const firstName = profile?.name || "there";
     const tutorName = effectiveTutor === "rachel" ? "Rachel" : "Alex";
 
+    await new Promise((r) => setTimeout(r, 1500));
+
     let greeting: string;
-    if (topic === "Word Description") {
-      greeting = `Hey ${firstName}! I'm ${tutorName}. Let's play Word Description! I'll give you a word, and you explain what it means in English. Ready? Here's your first word!`;
-      await new Promise((r) => setTimeout(r, 1500));
-    } else {
-      await new Promise((r) => setTimeout(r, 1500));
-      try {
-        const res = await fetch("/api/greeting", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            topic,
-            firstName,
-            tutorName,
-            tutor: effectiveTutor,
-            level: profile?.level || "intermediate",
-          }),
-        });
-        const data = await res.json();
-        greeting = data.greeting || `Hey ${firstName}! This is ${tutorName}. Ready to practice some English?`;
-      } catch {
-        greeting = `Hey ${firstName}! This is ${tutorName}. Ready to practice some English?`;
-      }
+    try {
+      const res = await fetch("/api/greeting", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topic,
+          firstName,
+          tutorName,
+          tutor: effectiveTutor,
+          level: profile?.level || "intermediate",
+        }),
+      });
+      const data = await res.json();
+      greeting = data.greeting || `Hey ${firstName}! This is ${tutorName}. Ready to practice some English?`;
+    } catch {
+      greeting = `Hey ${firstName}! This is ${tutorName}. Ready to practice some English?`;
     }
 
     setCallState("active");
