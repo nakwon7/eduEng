@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import TopicSelector from "@/components/TopicSelector";
+import CopyButton from "@/components/CopyButton";
 import TranscriptBox, { Message } from "@/components/TranscriptBox";
 import UserSetup from "@/components/UserSetup";
 import CallFeedback, { FeedbackData } from "@/components/CallFeedback";
@@ -491,7 +492,7 @@ export default function Home() {
                   멤버십 가입 후 무제한으로 이용하세요<br />월 9,900원
                 </p>
                 <div className="bg-gray-800 rounded-xl p-3 text-xs text-gray-300 space-y-1">
-                  <p>토스 1000-4983-0654</p>
+                  <p className="flex items-center">KB국민은행 758637-00-012739<CopyButton text="758637-00-012739" /></p>
                   <p>예금주: 최귀송</p>
                   <a
                     href="https://open.kakao.com/o/sPanl0Ci"
