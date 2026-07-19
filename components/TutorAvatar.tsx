@@ -50,7 +50,7 @@ export default function TutorAvatar({ tutor, fallbackBg = "bg-green-600" }: Prop
   // 없으면 기존 이모지 fallback
   if (charSrc) {
     return (
-      <div className="relative w-20 h-20 rounded-full overflow-hidden mx-auto mb-3 shadow-lg">
+      <div className="relative w-28 h-28 rounded-full overflow-hidden mx-auto mb-3 shadow-lg">
         {/* 배경 레이어 */}
         {bgSrc ? (
           <Image
@@ -77,7 +77,7 @@ export default function TutorAvatar({ tutor, fallbackBg = "bg-green-600" }: Prop
 
   // fallback: 이미지 파일 없을 때 기존 이모지 표시
   return (
-    <div className={`w-20 h-20 ${fallbackBg} rounded-full flex items-center justify-center text-3xl mx-auto mb-3`}>
+    <div className={`w-28 h-28 ${fallbackBg} rounded-full flex items-center justify-center text-3xl mx-auto mb-3`}>
       {TUTOR_EMOJI[tutor] ?? "🎓"}
     </div>
   );
