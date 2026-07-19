@@ -78,6 +78,13 @@ export default function LandingKoPage() {
         >
           Log in
         </a>
+
+        {/* Install as app */}
+        <div className="bg-gray-900 rounded-2xl p-4 text-xs text-gray-400 space-y-2">
+          <p className="text-white text-xs font-semibold">📲 Install as an app (free · no app store needed)</p>
+          <p>🍎 <span className="text-gray-300">iPhone</span> — Open in Safari → Share (□↑) → Add to Home Screen</p>
+          <p>🤖 <span className="text-gray-300">Android</span> — Open in Chrome → Menu (⋮) → Add to Home Screen</p>
+        </div>
       </div>
 
       <div className="text-center pb-8 space-y-3">

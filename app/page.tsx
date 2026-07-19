@@ -78,6 +78,13 @@ export default function LandingPage() {
         >
           로그인
         </a>
+
+        {/* 홈 화면 추가 안내 */}
+        <div className="bg-gray-900 rounded-2xl p-4 text-xs text-gray-400 space-y-2">
+          <p className="text-white text-xs font-semibold">📲 앱처럼 설치하기 (무료 · 앱스토어 불필요)</p>
+          <p>🍎 <span className="text-gray-300">iPhone</span> — Safari에서 접속 → 하단 공유(□↑) → 홈 화면에 추가</p>
+          <p>🤖 <span className="text-gray-300">Android</span> — Chrome에서 접속 → 우상단 메뉴(⋮) → 홈 화면에 추가</p>
+        </div>
       </div>
 
       <div className="text-center pb-8 space-y-3">
