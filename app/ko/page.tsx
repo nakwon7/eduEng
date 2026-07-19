@@ -37,6 +37,7 @@ export default function KoPage() {
   const [isAiTyping, setIsAiTyping] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
   const [profile, setProfile] = useState<KoProfile>({ name: "Student", level: "beginner", tutor: "minjun" });
+  const [userId, setUserId] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [unlimited, setUnlimited] = useState(false);
@@ -68,7 +69,7 @@ export default function KoPage() {
         const storedToken = localStorage.getItem("turingcall_session");
         const { data: profileData } = await supabase
           .from("profiles")
-          .select("username, session_token, expires_at, unlimited, ko_access")
+          .select("username, name, level, tutor, session_token, expires_at, unlimited, ko_access")
           .eq("id", session.user.id)
           .single();
 
@@ -77,9 +78,15 @@ export default function KoPage() {
           return;
         }
 
+        setUserId(session.user.id);
         setUsername(profileData.username);
         setExpiresAt(profileData.expires_at ?? null);
         setUnlimited(profileData.unlimited ?? false);
+        setProfile({
+          name: profileData.name || "Student",
+          level: profileData.level || "beginner",
+          tutor: profileData.tutor || "minjun",
+        });
         setLoaded(true);
       } else if (event === "SIGNED_OUT") {
         router.push("/login");
@@ -309,7 +316,16 @@ export default function KoPage() {
               </div>
 
               <button
-                onClick={() => setShowSetup(false)}
+                onClick={async () => {
+                  if (userId) {
+                    await supabase.from("profiles").update({
+                      name: profile.name,
+                      level: profile.level,
+                      tutor: profile.tutor,
+                    }).eq("id", userId);
+                  }
+                  setShowSetup(false);
+                }}
                 className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-semibold text-sm"
               >
                 Save
