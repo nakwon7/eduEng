@@ -7,40 +7,51 @@ export default function Icon() {
   return new ImageResponse(
     <div
       style={{
-        background: "#16a34a",
         width: "100%",
         height: "100%",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        borderRadius: "96px",
+        borderRadius: "112px",
+        background: "linear-gradient(135deg, #16a34a 0%, #0ea5e9 100%)",
       }}
     >
+      {/* TC 이니셜 */}
       <span
         style={{
           color: "white",
-          fontSize: 220,
+          fontSize: 210,
           fontWeight: 800,
-          letterSpacing: "-8px",
           fontFamily: "sans-serif",
+          letterSpacing: "-6px",
           lineHeight: 1,
+          marginBottom: 24,
         }}
       >
-        T
+        TC
       </span>
-      <span
+
+      {/* 음성 파형 */}
+      <div
         style={{
-          color: "rgba(255,255,255,0.75)",
-          fontSize: 72,
-          fontWeight: 600,
-          fontFamily: "sans-serif",
-          marginTop: 12,
-          letterSpacing: "6px",
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
         }}
       >
-        TuringCall
-      </span>
+        {[28, 52, 80, 52, 100, 64, 100, 52, 80, 52, 28].map((h, i) => (
+          <div
+            key={i}
+            style={{
+              width: 14,
+              height: h,
+              borderRadius: 8,
+              background: "rgba(255,255,255,0.85)",
+            }}
+          />
+        ))}
+      </div>
     </div>,
     { ...size }
   );
