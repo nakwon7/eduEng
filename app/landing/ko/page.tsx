@@ -84,6 +84,7 @@ export default function LandingKoPage() {
           <p className="text-white text-xs font-semibold">📲 Install as an app (free · no app store needed)</p>
           <p>🍎 <span className="text-gray-300">iPhone</span> — Open in Safari → Share (□↑) → Add to Home Screen</p>
           <p>🤖 <span className="text-gray-300">Android</span> — Open in Chrome → Menu (⋮) → Add to Home Screen</p>
+          <p>💻 <span className="text-gray-300">PC / Other browsers</span> — Click the install (⊕) button on the right side of the address bar</p>
         </div>
       </div>
 

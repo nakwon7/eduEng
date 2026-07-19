@@ -84,6 +84,7 @@ export default function LandingPage() {
           <p className="text-white text-xs font-semibold">📲 앱처럼 설치하기 (무료 · 앱스토어 불필요)</p>
           <p>🍎 <span className="text-gray-300">iPhone</span> — Safari에서 접속 → 하단 공유(□↑) → 홈 화면에 추가</p>
           <p>🤖 <span className="text-gray-300">Android</span> — Chrome에서 접속 → 우상단 메뉴(⋮) → 홈 화면에 추가</p>
+          <p>💻 <span className="text-gray-300">PC / 기타 브라우저</span> — 주소창 오른쪽 설치(⊕) 버튼 클릭</p>
         </div>
       </div>
 
