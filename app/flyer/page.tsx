@@ -139,7 +139,7 @@ export default function FlyerPage() {
         {/* 하단 푸터 */}
         <div style={{ textAlign: "center" }}>
           <p style={{ fontSize: "8pt", color: "#d1d5db" }}>
-            송랩 · 사업자등록번호 857-28-01961 · turingcall-ten.vercel.app
+            turingcall-ten.vercel.app
           </p>
         </div>
       </div>
