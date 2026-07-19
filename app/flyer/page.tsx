@@ -138,12 +138,6 @@ export default function FlyerPage() {
 
         {/* 하단 푸터 */}
         <div style={{ textAlign: "center" }}>
-          <p style={{ fontSize: "10pt", color: "#16a34a", fontWeight: 700, marginBottom: "1mm" }}>
-            💬 카카오톡 문의
-          </p>
-          <p style={{ fontSize: "9pt", color: "#9ca3af", marginBottom: "3mm" }}>
-            open.kakao.com/o/sPanl0Ci
-          </p>
           <p style={{ fontSize: "8pt", color: "#d1d5db" }}>
             송랩 · 사업자등록번호 857-28-01961 · turingcall-ten.vercel.app
           </p>
