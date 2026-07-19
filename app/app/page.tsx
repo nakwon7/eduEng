@@ -13,6 +13,7 @@ import { supabase } from "@/lib/supabase";
 import { UserProfile } from "@/hooks/useUserProfile";
 import AdminPanel from "@/components/AdminPanel";
 import TermsModal from "@/components/TermsModal";
+import TutorAvatar from "@/components/TutorAvatar";
 
 type CallState = "idle" | "calling" | "active";
 type View = "home" | "settings" | "admin" | "help";
@@ -390,9 +391,7 @@ export default function Home() {
             <button onClick={() => setView("home")} className="absolute top-4 left-4 text-gray-500 hover:text-gray-300 text-sm">← 뒤로</button>
           )}
 
-          <div className="w-20 h-20 bg-green-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-3">
-            {effectiveTutor === "rachel" ? "🌸" : "🎓"}
-          </div>
+          <TutorAvatar tutor={effectiveTutor} fallbackBg="bg-green-600" />
           <h1 className="text-white text-lg font-semibold">
             {effectiveTutor === "rachel" ? "Rachel" : "Alex"}
           </h1>

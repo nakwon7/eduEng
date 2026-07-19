@@ -8,6 +8,7 @@ import { useAudioRecorderKo } from "@/hooks/useAudioRecorderKo";
 import { useKoreanSpeech } from "@/hooks/useKoreanSpeech";
 import TranscriptBox, { Message } from "@/components/TranscriptBox";
 import TermsModalEn from "@/components/TermsModalEn";
+import TutorAvatar from "@/components/TutorAvatar";
 
 type CallState = "idle" | "calling" | "active";
 
@@ -228,9 +229,7 @@ export default function KoPage() {
             </>
           )}
 
-          <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-3">
-            {effectiveTutor === "jia" ? "🌸" : "🎓"}
-          </div>
+          <TutorAvatar tutor={effectiveTutor} fallbackBg="bg-blue-600" />
           <h1 className="text-white text-lg font-semibold">{tutorName}</h1>
           <p className="text-gray-400 text-sm">Korean Tutor</p>
           <div className="flex items-center justify-center gap-2 mt-1">
