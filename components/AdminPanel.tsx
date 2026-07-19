@@ -140,6 +140,25 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
     <div className="flex-1 flex flex-col px-2 py-4 overflow-y-auto">
       <h2 className="text-white text-sm font-bold mb-4 text-center">회원 관리</h2>
 
+      <div className="flex gap-2 mb-4">
+        <a
+          href="/qr"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 py-2 bg-green-800 hover:bg-green-700 text-green-300 text-xs font-medium rounded-xl text-center"
+        >
+          🇺🇸 영어판 QR
+        </a>
+        <a
+          href="/qr/ko"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 py-2 bg-blue-800 hover:bg-blue-700 text-blue-300 text-xs font-medium rounded-xl text-center"
+        >
+          🇰🇷 한국어판 QR
+        </a>
+      </div>
+
       {loading ? (
         <p className="text-gray-500 text-xs text-center">불러오는 중...</p>
       ) : users.length === 0 ? (
