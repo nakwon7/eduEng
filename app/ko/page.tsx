@@ -69,7 +69,7 @@ export default function KoPage() {
         const storedToken = localStorage.getItem("turingcall_session");
         const { data: profileData } = await supabase
           .from("profiles")
-          .select("username, name, level, tutor, session_token, expires_at, unlimited, ko_access")
+          .select("username, name, level, ko_tutor, session_token, expires_at, unlimited, ko_access")
           .eq("id", session.user.id)
           .single();
 
@@ -85,7 +85,7 @@ export default function KoPage() {
         setProfile({
           name: profileData.name || "Student",
           level: profileData.level || "beginner",
-          tutor: profileData.tutor || "minjun",
+          tutor: profileData.ko_tutor || "minjun",
         });
         setLoaded(true);
       } else if (event === "SIGNED_OUT") {
@@ -321,7 +321,7 @@ export default function KoPage() {
                     await supabase.from("profiles").update({
                       name: profile.name,
                       level: profile.level,
-                      tutor: profile.tutor,
+                      ko_tutor: profile.tutor,
                     }).eq("id", userId);
                   }
                   setShowSetup(false);
