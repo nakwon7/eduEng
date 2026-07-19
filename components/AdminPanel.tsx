@@ -140,6 +140,17 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
     <div className="flex-1 flex flex-col px-2 py-4 overflow-y-auto">
       <h2 className="text-white text-sm font-bold mb-4 text-center">회원 관리</h2>
 
+      <div className="mb-2">
+        <a
+          href="/flyer"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block w-full py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 text-xs font-medium rounded-xl text-center"
+        >
+          🖨️ 전단지 인쇄
+        </a>
+      </div>
+
       <div className="flex gap-2 mb-4">
         <a
           href="/qr"
