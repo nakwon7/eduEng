@@ -132,7 +132,7 @@ export default function Home() {
 
   const isPaid = !!expiresAt && new Date(expiresAt) > new Date();
   const isUnlimited = unlimited;
-  const dailyLimitReached = !isUnlimited && todaySeconds >= 1800;
+  const dailyLimitReached = !isUnlimited && todaySeconds >= 60; // TEST: 60s (원래 1800)
   const canMakeCall = !dailyLimitReached && (isUnlimited || isPaid || trialCalls > 0);
 
   const saveElapsed = useCallback(() => {
@@ -234,7 +234,7 @@ export default function Home() {
 
   // 일일 30분 한도 자동 종료 (무제한 제외)
   useEffect(() => {
-    if (callState === "active" && !unlimited && todaySeconds + callDuration >= 1800) {
+    if (callState === "active" && !unlimited && todaySeconds + callDuration >= 60) { // TEST: 60s (원래 1800)
       endCall();
       alert("오늘의 사용 시간(30분)을 모두 사용했습니다. 내일 다시 이용해 주세요.");
     }
@@ -497,7 +497,7 @@ export default function Home() {
                 )}
                 {!isUnlimited && (isPaid || trialCalls > 0) && (
                   <p className="text-gray-500 text-xs text-center mb-2">
-                    오늘 {Math.floor(todaySeconds / 60)}분 사용 · 잔여 {Math.max(0, Math.floor((1800 - todaySeconds) / 60))}분
+                    오늘 {Math.floor(todaySeconds / 60)}분 사용 · 잔여 {Math.max(0, Math.floor((60 - todaySeconds) / 60))}분
                   </p>
                 )}
                 {micError && (
