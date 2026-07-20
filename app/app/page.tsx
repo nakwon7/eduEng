@@ -41,6 +41,7 @@ export default function Home() {
   const [loaded, setLoaded] = useState(false);
   const [feedback, setFeedback] = useState<FeedbackData | null>(null);
   const [isFetchingFeedback, setIsFetchingFeedback] = useState(false);
+  const [todaySeconds, setTodaySeconds] = useState(0);
   const isTrialCallRef = useRef(false);
   const topicRef = useRef(topic);
   const callDurationRef = useRef(0);
@@ -86,6 +87,18 @@ export default function Home() {
       setExpiresAt(profileData.expires_at ?? null);
       setUnlimited(profileData.unlimited ?? false);
       setBlocked(profileData.blocked ?? false);
+
+      if (!profileData.unlimited) {
+        const today = new Date().toISOString().split("T")[0];
+        const { data: todayLogs } = await supabase
+          .from("call_logs")
+          .select("seconds")
+          .eq("user_id", session.user.id)
+          .eq("date", today);
+        const total = (todayLogs || []).reduce((s: number, l: { seconds: number }) => s + l.seconds, 0);
+        setTodaySeconds(total);
+      }
+
       setLoaded(true);
     };
 
@@ -119,7 +132,8 @@ export default function Home() {
 
   const isPaid = !!expiresAt && new Date(expiresAt) > new Date();
   const isUnlimited = unlimited;
-  const canMakeCall = isUnlimited || isPaid || trialCalls > 0;
+  const dailyLimitReached = !isUnlimited && todaySeconds >= 1800;
+  const canMakeCall = !dailyLimitReached && (isUnlimited || isPaid || trialCalls > 0);
 
   const saveElapsed = useCallback(() => {
     if (!userId || !sessionToken || callStateRef.current !== "active") return;
@@ -163,6 +177,7 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, sessionToken, seconds: unsaved, topic: capturedTopic }),
       });
+      setTodaySeconds((prev) => prev + unsaved);
     }
 
     if (wasTrial && userId && sessionToken) {
@@ -216,6 +231,14 @@ export default function Home() {
       alert(`체험 통화 ${trialMinutes}분이 종료됐습니다.`);
     }
   }, [callDuration, callState, trialMinutes, endCall]);
+
+  // 일일 30분 한도 자동 종료 (무제한 제외)
+  useEffect(() => {
+    if (callState === "active" && !unlimited && todaySeconds + callDuration >= 1800) {
+      endCall();
+      alert("오늘의 사용 시간(30분)을 모두 사용했습니다. 내일 다시 이용해 주세요.");
+    }
+  }, [callDuration, callState, unlimited, todaySeconds, endCall]);
 
   const startCall = useCallback(async () => {
     if (!canMakeCall) return;
@@ -472,6 +495,11 @@ export default function Home() {
                     <p className="text-gray-300 text-xs mt-0.5">{new Date(expiresAt).toLocaleDateString("ko-KR")}까지</p>
                   </div>
                 )}
+                {!isUnlimited && (isPaid || trialCalls > 0) && (
+                  <p className="text-gray-500 text-xs text-center mb-2">
+                    오늘 {Math.floor(todaySeconds / 60)}분 사용 · 잔여 {Math.max(0, Math.floor((1800 - todaySeconds) / 60))}분
+                  </p>
+                )}
                 {micError && (
                   <div className="bg-red-900/30 border border-red-800 rounded-xl px-4 py-3 mb-3 text-center space-y-2">
                     <p className="text-red-400 text-sm">🎙️ 마이크 권한이 필요해요</p>
@@ -503,11 +531,16 @@ export default function Home() {
                   📞 통화 시작
                 </button>
               </div>
+            ) : dailyLimitReached ? (
+              <div className="space-y-2 text-center py-2">
+                <p className="text-orange-400 text-sm font-medium">오늘 사용량(30분)을 모두 사용했습니다</p>
+                <p className="text-gray-500 text-xs">자정 이후 다시 이용할 수 있어요</p>
+              </div>
             ) : (
               <div className="space-y-3 text-center">
                 <p className="text-white text-sm font-medium">체험 횟수를 모두 사용했습니다</p>
                 <p className="text-gray-400 text-xs leading-relaxed">
-                  멤버십 가입 후 무제한으로 이용하세요<br />월 9,900원
+                  멤버십 가입 후 이용하세요<br />월 9,900원 · 하루 30분
                 </p>
                 <div className="bg-gray-800 rounded-xl p-3 text-xs text-gray-300 space-y-1">
                   <p className="flex items-center">KB국민은행 758637-00-012739 (송랩)<CopyButton text="758637-00-012739" /></p>
