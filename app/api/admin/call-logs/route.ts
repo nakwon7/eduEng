@@ -25,8 +25,15 @@ export async function POST(req: NextRequest) {
     .from("call_logs")
     .select("date, seconds")
     .eq("user_id", targetId)
-    .order("date", { ascending: false })
-    .limit(30);
+    .order("date", { ascending: false });
 
-  return NextResponse.json({ logs: logs || [] });
+  const dateMap = new Map<string, number>();
+  for (const log of logs || []) {
+    dateMap.set(log.date, (dateMap.get(log.date) || 0) + log.seconds);
+  }
+  const aggregated = Array.from(dateMap.entries())
+    .map(([date, seconds]) => ({ date, seconds }))
+    .slice(0, 5);
+
+  return NextResponse.json({ logs: aggregated });
 }
