@@ -41,7 +41,7 @@ export default function Home() {
   const [loaded, setLoaded] = useState(false);
   const [feedback, setFeedback] = useState<FeedbackData | null>(null);
   const [isFetchingFeedback, setIsFetchingFeedback] = useState(false);
-  const [todaySeconds, setTodaySeconds] = useState(0);
+  const [monthlySeconds, setMonthlySeconds] = useState(0);
   const isTrialCallRef = useRef(false);
   const topicRef = useRef(topic);
   const callDurationRef = useRef(0);
@@ -89,14 +89,15 @@ export default function Home() {
       setBlocked(profileData.blocked ?? false);
 
       if (!profileData.unlimited) {
-        const today = new Date().toISOString().split("T")[0];
-        const { data: todayLogs } = await supabase
+        const now = new Date();
+        const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
+        const { data: monthLogs } = await supabase
           .from("call_logs")
           .select("seconds")
           .eq("user_id", session.user.id)
-          .eq("date", today);
-        const total = (todayLogs || []).reduce((s: number, l: { seconds: number }) => s + l.seconds, 0);
-        setTodaySeconds(total);
+          .gte("date", monthStart);
+        const total = (monthLogs || []).reduce((s: number, l: { seconds: number }) => s + l.seconds, 0);
+        setMonthlySeconds(total);
       }
 
       setLoaded(true);
@@ -132,8 +133,8 @@ export default function Home() {
 
   const isPaid = !!expiresAt && new Date(expiresAt) > new Date();
   const isUnlimited = unlimited;
-  const dailyLimitReached = !isUnlimited && todaySeconds >= 60; // TEST: 60s (원래 1800)
-  const canMakeCall = !dailyLimitReached && (isUnlimited || isPaid || trialCalls > 0);
+  const monthlyLimitReached = !isUnlimited && monthlySeconds >= 54000;
+  const canMakeCall = !monthlyLimitReached && (isUnlimited || isPaid || trialCalls > 0);
 
   const saveElapsed = useCallback(() => {
     if (!userId || !sessionToken || callStateRef.current !== "active") return;
@@ -177,7 +178,7 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, sessionToken, seconds: unsaved, topic: capturedTopic }),
       });
-      setTodaySeconds((prev) => prev + unsaved);
+      setMonthlySeconds((prev) => prev + unsaved);
     }
 
     if (wasTrial && userId && sessionToken) {
@@ -234,11 +235,11 @@ export default function Home() {
 
   // 일일 30분 한도 자동 종료 (무제한 제외)
   useEffect(() => {
-    if (callState === "active" && !unlimited && todaySeconds + callDuration >= 60) { // TEST: 60s (원래 1800)
+    if (callState === "active" && !unlimited && monthlySeconds + callDuration >= 54000) {
       endCall();
-      alert("오늘의 사용 시간(30분)을 모두 사용했습니다. 내일 다시 이용해 주세요.");
+      alert("이번달 사용 시간(900분)을 모두 사용했습니다. 다음달에 다시 이용할 수 있어요.");
     }
-  }, [callDuration, callState, unlimited, todaySeconds, endCall]);
+  }, [callDuration, callState, unlimited, monthlySeconds, endCall]);
 
   const startCall = useCallback(async () => {
     if (!canMakeCall) return;
@@ -497,7 +498,7 @@ export default function Home() {
                 )}
                 {!isUnlimited && (isPaid || trialCalls > 0) && (
                   <p className="text-gray-500 text-xs text-center mb-2">
-                    오늘 {Math.floor(todaySeconds / 60)}분 사용 · 잔여 {Math.max(0, Math.floor((60 - todaySeconds) / 60))}분
+                    이번달 {Math.floor(monthlySeconds / 60)}분 사용 · 잔여 {Math.max(0, 900 - Math.floor(monthlySeconds / 60))}분
                   </p>
                 )}
                 {micError && (
@@ -531,16 +532,16 @@ export default function Home() {
                   📞 통화 시작
                 </button>
               </div>
-            ) : dailyLimitReached ? (
+            ) : monthlyLimitReached ? (
               <div className="space-y-2 text-center py-2">
-                <p className="text-orange-400 text-sm font-medium">오늘 사용량(30분)을 모두 사용했습니다</p>
-                <p className="text-gray-500 text-xs">자정 이후 다시 이용할 수 있어요</p>
+                <p className="text-orange-400 text-sm font-medium">이번달 사용량(900분)을 모두 사용했습니다</p>
+                <p className="text-gray-500 text-xs">다음달 1일부터 다시 이용할 수 있어요</p>
               </div>
             ) : (
               <div className="space-y-3 text-center">
                 <p className="text-white text-sm font-medium">체험 횟수를 모두 사용했습니다</p>
                 <p className="text-gray-400 text-xs leading-relaxed">
-                  멤버십 가입 후 이용하세요<br />월 9,900원 · 하루 30분
+                  멤버십 가입 후 이용하세요<br />월 9,900원 · 월 900분 제공
                 </p>
                 <div className="bg-gray-800 rounded-xl p-3 text-xs text-gray-300 space-y-1">
                   <p className="flex items-center">KB국민은행 758637-00-012739 (송랩)<CopyButton text="758637-00-012739" /></p>
