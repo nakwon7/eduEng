@@ -55,11 +55,11 @@ export default function LandingPage() {
         <div className="bg-gray-900 rounded-2xl p-6 text-center border border-green-600">
           <p className="text-green-400 text-xs font-medium mb-1">베타 특가</p>
           <p className="text-4xl font-bold mb-1">9,900<span className="text-xl">원</span></p>
-          <p className="text-gray-400 text-sm mb-4">/ 월 · 무제한 이용</p>
+          <p className="text-gray-400 text-sm mb-4">/ 월 · 월 900분 제공</p>
           <div className="bg-gray-800 rounded-xl p-3 text-xs text-gray-300 text-left space-y-1">
             <p className="text-green-400 font-medium mb-2">무료 체험 포함</p>
             <p>✅ 가입 즉시 3회 무료 통화 (회당 30분)</p>
-            <p>✅ 체험 후 멤버십 가입하면 무제한</p>
+            <p>✅ 체험 후 멤버십 가입하면 월 900분 이용</p>
           </div>
         </div>
       </div>

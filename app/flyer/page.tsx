@@ -129,7 +129,7 @@ export default function FlyerPage() {
           </div>
           <div style={{ textAlign: "right" }}>
             <p style={{ fontSize: "22pt", fontWeight: 800, color: "#111827", lineHeight: 1 }}>9,900원</p>
-            <p style={{ fontSize: "9pt", color: "#6b7280" }}>/ 월 · 무제한</p>
+            <p style={{ fontSize: "9pt", color: "#6b7280" }}>/ 월 · 월 900분 제공</p>
           </div>
         </div>
 
