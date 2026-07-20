@@ -52,7 +52,7 @@ export default function TermsModalEn({ onClose }: TermsModalEnProps) {
           <div className="space-y-1">
             <h3 className="font-semibold text-gray-200 text-xs">Article 6 (Refund Policy)</h3>
             <ul className="text-gray-400 text-xs leading-relaxed space-y-1 list-disc list-inside">
-              <li>As 3 free trial sessions are provided immediately upon sign-up, refunds are not available after membership payment.</li>
+              <li>As 5 free trial sessions are provided immediately upon sign-up, refunds are not available after membership payment.</li>
               <li>However, if cancellation is requested before service activation, a full refund will be issued.</li>
               <li>Refund requests: contact us via KakaoTalk channel</li>
             </ul>

@@ -83,7 +83,7 @@ export default function Home() {
       setUsername(profileData.username);
       setProfile({ name: profileData.name, level: profileData.level, tutor: profileData.tutor || "alex" });
       setTrialCalls(profileData.trial_calls ?? 0);
-      setTrialMinutes(profileData.trial_minutes ?? 30);
+      setTrialMinutes(profileData.trial_minutes ?? 10);
       setExpiresAt(profileData.expires_at ?? null);
       setUnlimited(profileData.unlimited ?? false);
       setBlocked(profileData.blocked ?? false);
