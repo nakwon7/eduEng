@@ -26,10 +26,15 @@ export async function POST(req: NextRequest) {
     .update({ total_seconds: (data.total_seconds || 0) + seconds })
     .eq("id", userId);
 
-  const today = new Date().toISOString().split("T")[0];
-  await admin
+  const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(new Date());
+  const { error: insertError } = await admin
     .from("call_logs")
     .insert({ user_id: userId, date: today, seconds, ...(topic ? { topic } : {}) });
+
+  if (insertError) {
+    console.error("[call/end] call_logs insert error:", insertError);
+    return NextResponse.json({ ok: true, logError: insertError.message });
+  }
 
   return NextResponse.json({ ok: true });
 }
