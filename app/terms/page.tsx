@@ -53,9 +53,10 @@ export default function TermsPage() {
             <ul className="text-gray-400 text-sm leading-relaxed space-y-1 list-disc list-inside">
               <li>무료 체험: 가입 후 5회 제공 (회당 최대 10분), 별도 결제 불필요</li>
               <li>멤버십: 월 9,900원 (베타 기간 기준), 계좌이체로 결제</li>
-              <li className="flex items-center">
-                계좌이체: KB국민은행 758637-00-012739 (송랩)
+              <li className="flex items-center gap-1">
+                계좌이체: KB국민은행 758637-00-012739
                 <CopyButton text="758637-00-012739" />
+                (예금주: 송랩)
               </li>
               <li>이용 기간은 입금 확인 후 관리자가 수동으로 활성화합니다.</li>
             </ul>
