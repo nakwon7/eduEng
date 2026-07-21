@@ -3,7 +3,7 @@ export default function TermsEnPage() {
     <main className="min-h-screen bg-gray-950 text-white px-6 py-12">
       <div className="max-w-2xl mx-auto space-y-12">
         <div>
-          <a href="/ko" className="text-blue-400 text-sm hover:text-blue-300">← Home</a>
+          <a href="/landing/ko" className="text-blue-400 text-sm hover:text-blue-300">← Home</a>
           <h1 className="text-2xl font-bold mt-4 mb-1">Terms of Service & Privacy Policy</h1>
           <p className="text-gray-500 text-xs">Last updated: July 13, 2026 · Effective: July 13, 2026</p>
         </div>
