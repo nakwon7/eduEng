@@ -541,7 +541,7 @@ export default function Home() {
               <div className="space-y-3 text-center">
                 <p className="text-white text-sm font-medium">체험 횟수를 모두 사용했습니다</p>
                 <p className="text-gray-400 text-xs leading-relaxed">
-                  멤버십 가입 후 이용하세요<br />월 9,900원 · 월 900분 제공
+                  멤버십 가입 후 이용하세요<br />월 9,900원 · 매월 900분 제공
                 </p>
                 <div className="bg-gray-800 rounded-xl p-3 text-xs text-gray-300 space-y-1">
                   <p className="flex items-center">KB국민은행 758637-00-012739 (송랩)<CopyButton text="758637-00-012739" /></p>
