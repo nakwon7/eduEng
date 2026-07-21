@@ -202,7 +202,7 @@ export default function KoPage() {
   };
 
   const isBusy = isTranscribing || isAiTyping || isSpeaking;
-  const tutorName = effectiveTutor === "jia" ? "Jia (지아)" : "MinJun (민준)";
+  const tutorName = effectiveTutor === "jia" ? "Jia" : "MinJun";
 
   if (!loaded) {
     return (
@@ -284,7 +284,7 @@ export default function KoPage() {
                           : "bg-gray-800 text-gray-400 hover:bg-gray-700"
                       }`}
                     >
-                      {lvl === "beginner" ? "초급" : lvl === "intermediate" ? "중급" : "고급"}
+                      {lvl === "beginner" ? "Beginner" : lvl === "intermediate" ? "Intermediate" : "Advanced"}
                     </button>
                   ))}
                 </div>
@@ -294,7 +294,7 @@ export default function KoPage() {
                 <label className="text-gray-400 text-xs mb-1 block">Tutor</label>
                 {isMobile ? (
                   <div className="bg-gray-800 rounded-xl px-4 py-3 text-xs text-gray-400">
-                    튜터 선택은 PC에서 가능해요. 모바일에서는 Jia(지아)와 대화해요.
+                    Tutor selection is available on PC. On mobile, you'll chat with Jia.
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 gap-2">
@@ -308,7 +308,7 @@ export default function KoPage() {
                             : "bg-gray-800 text-gray-400 hover:bg-gray-700"
                         }`}
                       >
-                        {t === "jia" ? "🌸 Jia (지아)" : "🎓 MinJun (민준)"}
+                        {t === "jia" ? "🌸 Jia" : "🎓 MinJun"}
                       </button>
                     ))}
                   </div>
@@ -332,13 +332,13 @@ export default function KoPage() {
               </button>
 
               <div className="mt-4 bg-gray-900 rounded-xl p-4 space-y-2">
-                <p className="text-gray-400 text-xs font-medium">멤버십 요금</p>
+                <p className="text-gray-400 text-xs font-medium">Membership</p>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-white text-lg font-bold">9,900원</span>
-                  <span className="text-gray-500 text-xs">/ 월 · 매월 900분 제공</span>
+                  <span className="text-white text-lg font-bold">₩9,900</span>
+                  <span className="text-gray-500 text-xs">/ month · 900 min/month</span>
                 </div>
-                <p className="text-gray-500 text-xs">무료 체험 5회(회당 최대 10분) 제공</p>
-                <p className="text-gray-500 text-xs flex items-center gap-1">KB국민은행 758637-00-012739<CopyButton text="758637-00-012739" /></p>
+                <p className="text-gray-500 text-xs">5 free trial sessions (up to 10 min each)</p>
+                <p className="text-gray-500 text-xs flex items-center gap-1">KB Kookmin Bank 758637-00-012739<CopyButton text="758637-00-012739" label="Copy" copiedLabel="Copied!" /></p>
                 <p className="text-gray-500 text-xs">예금주: 송랩</p>
                 <a
                   href="https://open.kakao.com/o/sPanl0Ci"
@@ -346,7 +346,7 @@ export default function KoPage() {
                   rel="noopener noreferrer"
                   className="inline-block mt-1 text-yellow-400 text-xs hover:text-yellow-300"
                 >
-                  💬 가입 문의 (카카오톡)
+                  💬 Contact us (KakaoTalk)
                 </a>
               </div>
 
@@ -355,7 +355,7 @@ export default function KoPage() {
                   onClick={async () => { await supabase.auth.signOut(); localStorage.removeItem("turingcall_session"); router.push("/login"); }}
                   className="w-full py-3 bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-2xl text-sm"
                 >
-                  로그아웃
+                  Log out
                 </button>
               </div>
             </div>
@@ -403,7 +403,7 @@ export default function KoPage() {
                     onClick={() => router.push("/admin/stats")}
                     className="mt-1 text-emerald-400 hover:text-emerald-300 text-xs"
                   >
-                    통계 →
+                    Stats →
                   </button>
                 )}
               </div>
@@ -419,32 +419,32 @@ export default function KoPage() {
             <>
               {!unlimited && expiresAt && new Date(expiresAt) > new Date() && (
                 <div className="bg-gray-800 rounded-xl px-4 py-2 mb-2 text-center">
-                  <p className="text-blue-400 text-xs font-medium">멤버십 이용 중</p>
-                  <p className="text-gray-300 text-xs mt-0.5">{new Date(expiresAt).toLocaleDateString("ko-KR")}까지</p>
+                  <p className="text-blue-400 text-xs font-medium">Active membership</p>
+                  <p className="text-gray-300 text-xs mt-0.5">Until {new Date(expiresAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</p>
                 </div>
               )}
               {micError && (
                 <div className="bg-red-900/30 border border-red-800 rounded-xl px-4 py-3 mb-3 text-center space-y-2">
-                  <p className="text-red-400 text-sm">🎙️ 마이크 권한이 필요해요</p>
+                  <p className="text-red-400 text-sm">🎙️ Microphone permission required</p>
                   {micPermState === "denied" ? (
                     <>
                       <p className="text-gray-400 text-xs leading-relaxed">
-                        마이크가 차단되어 있어요.<br />
+                        Microphone is blocked.<br />
                         {isMobile
-                          ? <>Chrome 앱 → 메뉴(⋮) → 설정 →<br />사이트 설정 → 마이크 → 이 사이트 허용</>
-                          : <>주소창 자물쇠(🔒) → 마이크 → 허용</>
+                          ? <>Chrome → Menu(⋮) → Settings →<br />Site settings → Microphone → Allow</>
+                          : <>Click the lock(🔒) in the address bar → Microphone → Allow</>
                         }
                       </p>
-                      <p className="text-gray-600 text-xs">설정 변경 후 아래 버튼을 눌러주세요</p>
+                      <p className="text-gray-600 text-xs">After changing settings, tap the button below</p>
                       <button onClick={startCall} className="mt-1 px-4 py-1.5 bg-gray-700 hover:bg-gray-600 text-white rounded-xl text-xs font-medium">
-                        다시 시도
+                        Try again
                       </button>
                     </>
                   ) : (
                     <>
-                      <p className="text-gray-400 text-xs">아래 버튼을 눌러 마이크를 허용해 주세요</p>
+                      <p className="text-gray-400 text-xs">Tap the button below to allow microphone access</p>
                       <button onClick={startCall} className="mt-1 px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-semibold">
-                        🎙️ 마이크 허용하기
+                        🎙️ Allow Microphone
                       </button>
                     </>
                   )}
@@ -496,11 +496,11 @@ export default function KoPage() {
           )}
         </div>
 
-        {/* 사업자 정보 */}
+        {/* Business Info */}
         <div className="px-4 pb-4 text-center space-y-0.5">
-          <p className="text-gray-700 text-xs">송랩 · 사업자등록번호: 857-28-01961</p>
+          <p className="text-gray-700 text-xs">SongLab · Business Reg. No.: 857-28-01961</p>
           <p className="text-gray-700 text-xs">
-            <button onClick={() => setShowTerms(true)} className="hover:text-gray-500">이용약관 및 개인정보처리방침</button>
+            <button onClick={() => setShowTerms(true)} className="hover:text-gray-500">Terms &amp; Privacy Policy</button>
           </p>
         </div>
 
