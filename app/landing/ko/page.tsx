@@ -90,6 +90,14 @@ export default function LandingKoPage() {
 
       <div className="text-center pb-8 space-y-3">
         <a
+          href="https://www.paypal.com/ncp/payment/DC7LDXNCBE4NY"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 px-6 py-3 bg-blue-500 hover:bg-blue-400 text-white text-sm font-semibold rounded-xl transition-all"
+        >
+          💳 Pay with PayPal — $3/week
+        </a>
+        <a
           href="https://open.kakao.com/o/sPanl0Ci"
           target="_blank"
           rel="noopener noreferrer"

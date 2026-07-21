@@ -338,6 +338,15 @@ export default function KoPage() {
                   <span className="text-gray-500 text-xs">/ week</span>
                 </div>
                 <p className="text-gray-500 text-xs">5 free trial sessions (up to 10 min each)</p>
+                <a
+                  href="https://www.paypal.com/ncp/payment/DC7LDXNCBE4NY"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block w-full py-2 bg-blue-500 hover:bg-blue-400 text-white text-xs font-semibold rounded-xl text-center mt-1"
+                >
+                  💳 Pay with PayPal
+                </a>
+                <p className="text-gray-600 text-xs text-center">or bank transfer</p>
                 <p className="text-gray-500 text-xs flex items-center gap-1">KB Kookmin Bank 758637-00-012739<CopyButton text="758637-00-012739" label="Copy" copiedLabel="Copied!" /></p>
                 <p className="text-gray-500 text-xs">예금주: 송랩</p>
                 <a
