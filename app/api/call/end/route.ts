@@ -27,14 +27,9 @@ export async function POST(req: NextRequest) {
     .eq("id", userId);
 
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(new Date());
-  const { error: insertError } = await admin
+  await admin
     .from("call_logs")
     .insert({ user_id: userId, date: today, seconds, ...(topic ? { topic } : {}) });
-
-  if (insertError) {
-    console.error("[call/end] call_logs insert error:", insertError);
-    return NextResponse.json({ ok: true, logError: insertError.message });
-  }
 
   return NextResponse.json({ ok: true });
 }
