@@ -50,7 +50,7 @@ export default function TermsEnPage() {
             <h3 className="font-semibold text-sm text-gray-200">Article 5 (Service & Pricing)</h3>
             <ul className="text-gray-400 text-sm leading-relaxed space-y-1 list-disc list-inside">
               <li>Free Trial: 3 sessions upon sign-up (up to 30 minutes each), no payment required</li>
-              <li>Membership: ₩9,900/month (beta pricing), paid via bank transfer</li>
+              <li>Membership: $3/week (beta pricing), paid via bank transfer or PayPal</li>
               <li>Bank transfer: KB Kookmin Bank 758637-00-012739 (SongLab)</li>
               <li>Access is activated manually by the administrator after payment confirmation.</li>
             </ul>

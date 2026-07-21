@@ -334,8 +334,8 @@ export default function KoPage() {
               <div className="mt-4 bg-gray-900 rounded-xl p-4 space-y-2">
                 <p className="text-gray-400 text-xs font-medium">Membership</p>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-white text-lg font-bold">₩9,900</span>
-                  <span className="text-gray-500 text-xs">/ month · 900 min/month</span>
+                  <span className="text-white text-lg font-bold">$3</span>
+                  <span className="text-gray-500 text-xs">/ week</span>
                 </div>
                 <p className="text-gray-500 text-xs">5 free trial sessions (up to 10 min each)</p>
                 <p className="text-gray-500 text-xs flex items-center gap-1">KB Kookmin Bank 758637-00-012739<CopyButton text="758637-00-012739" label="Copy" copiedLabel="Copied!" /></p>
