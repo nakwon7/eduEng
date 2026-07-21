@@ -420,7 +420,7 @@ export default function Home() {
             {effectiveTutor === "rachel" ? "Rachel" : "Alex"}
           </h1>
           <p className="text-gray-400 text-sm">
-            {effectiveTutor === "rachel" ? "AI Tutor · From Seattle, WA" : "AI Tutor · From New York, NY"}
+            {effectiveTutor === "rachel" ? "AI Tutor · Korean-American · From Seattle, WA" : "AI Tutor · From New York, NY"}
           </p>
           {profile && callState === "idle" && view === "home" && (
             <p className="text-green-400 text-xs mt-1">안녕하세요, {profile.name}님 👋</p>
