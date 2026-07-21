@@ -65,12 +65,12 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
     fetchUsers();
   }, []);
 
-  const handleApprove = async (targetId: string) => {
-    setBusy(targetId + "_approve");
+  const handleApprove = async (targetId: string, days: number) => {
+    setBusy(targetId + "_approve" + days);
     await fetch("/api/admin/approve", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, sessionToken, targetId, days: 30 }),
+      body: JSON.stringify({ userId, sessionToken, targetId, days }),
     });
     await fetchUsers();
     setBusy(null);
@@ -222,11 +222,18 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                     <div className="space-y-2 pt-1">
                       <div className="flex gap-2">
                         <button
-                          onClick={() => handleApprove(u.id)}
+                          onClick={() => handleApprove(u.id, 7)}
+                          disabled={!!busy || u.blocked}
+                          className="flex-1 py-1.5 bg-blue-700 hover:bg-blue-600 disabled:bg-gray-700 disabled:opacity-50 text-white text-xs rounded-xl transition-all"
+                        >
+                          {busy === u.id + "_approve7" ? "..." : "+7일"}
+                        </button>
+                        <button
+                          onClick={() => handleApprove(u.id, 30)}
                           disabled={!!busy || u.blocked}
                           className="flex-1 py-1.5 bg-green-700 hover:bg-green-600 disabled:bg-gray-700 disabled:opacity-50 text-white text-xs rounded-xl transition-all"
                         >
-                          {busy === u.id + "_approve" ? "..." : "+30일"}
+                          {busy === u.id + "_approve30" ? "..." : "+30일"}
                         </button>
                         <button
                           onClick={() => handleToggleUnlimited(u.id, u.unlimited)}
