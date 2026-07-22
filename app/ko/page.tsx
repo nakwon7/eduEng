@@ -41,6 +41,7 @@ export default function KoPage() {
   const [username, setUsername] = useState<string | null>(null);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [unlimited, setUnlimited] = useState(false);
+  const [blocked, setBlocked] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [showSetup, setShowSetup] = useState(false);
   const [micError, setMicError] = useState(false);
@@ -71,7 +72,7 @@ export default function KoPage() {
         const storedToken = localStorage.getItem("turingcall_session");
         const { data: profileData } = await supabase
           .from("profiles")
-          .select("username, name, level, ko_tutor, session_token, expires_at, unlimited, ko_access")
+          .select("username, name, level, ko_tutor, session_token, expires_at, unlimited, blocked, ko_access")
           .eq("id", session.user.id)
           .single();
 
@@ -84,6 +85,7 @@ export default function KoPage() {
         setUsername(profileData.username);
         setExpiresAt(profileData.expires_at ?? null);
         setUnlimited(profileData.unlimited ?? false);
+        setBlocked(profileData.blocked ?? false);
         setProfile({
           name: profileData.name || "Student",
           level: profileData.level || "beginner",
@@ -201,7 +203,7 @@ export default function KoPage() {
     return () => { if (membershipAlertTimerRef.current) clearTimeout(membershipAlertTimerRef.current); };
   }, []);
 
-  const hasActiveMembership = !unlimited && !!expiresAt && new Date(expiresAt) > new Date();
+  const hasActiveMembership = !blocked && !unlimited && !!expiresAt && new Date(expiresAt) > new Date();
 
   const handlePaypalClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
     if (!hasActiveMembership) return;
@@ -448,11 +450,20 @@ export default function KoPage() {
         {/* Controls */}
         <div className="px-6 pb-8 pt-4">
           {callState === "idle" && !showSetup && (
+            blocked ? (
+              <div className="text-center space-y-2 py-4">
+                <p className="text-red-400 text-sm font-medium">Your account has been restricted</p>
+                <p className="text-gray-500 text-xs">Please contact the admin</p>
+                <a href="https://open.kakao.com/o/sPanl0Ci" target="_blank" rel="noopener noreferrer" className="block text-yellow-400 hover:text-yellow-300 text-xs">
+                  Contact us (KakaoTalk) →
+                </a>
+              </div>
+            ) : (
             <>
-              {!unlimited && expiresAt && new Date(expiresAt) > new Date() && (
+              {hasActiveMembership && (
                 <div className="bg-gray-800 rounded-xl px-4 py-2 mb-2 text-center">
                   <p className="text-blue-400 text-xs font-medium">Active membership</p>
-                  <p className="text-gray-300 text-xs mt-0.5">Until {new Date(expiresAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</p>
+                  <p className="text-gray-300 text-xs mt-0.5">Until {new Date(expiresAt!).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</p>
                 </div>
               )}
               {micError && (
@@ -489,6 +500,7 @@ export default function KoPage() {
                 📞 Start Call
               </button>
             </>
+            )
           )}
 
           {callState !== "idle" && (
