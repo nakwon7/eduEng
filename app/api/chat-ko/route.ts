@@ -1,5 +1,6 @@
 import Groq from "groq-sdk";
 import { NextRequest, NextResponse } from "next/server";
+import { supabaseAdmin } from "@/lib/supabase";
 
 const LANGUAGE_LOCK = `ABSOLUTE RULE — READ THIS FIRST:
 Your output must contain ONLY Korean (한글) and English letters/numbers.
@@ -93,7 +94,34 @@ Korean number system rules (CRITICAL — common foreigner mistakes):
 export async function POST(req: NextRequest) {
   const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
   try {
-    const { messages, topic, profile } = await req.json();
+    const { messages, topic, profile, sessionToken, userId } = await req.json();
+
+    if (userId && sessionToken) {
+      const admin = supabaseAdmin();
+      const { data } = await admin
+        .from("profiles")
+        .select("session_token")
+        .eq("id", userId)
+        .single();
+
+      if (data?.session_token !== sessionToken) {
+        return NextResponse.json({ error: "SESSION_EXPIRED" }, { status: 401 });
+      }
+
+      const { data: subProfile } = await admin
+        .from("profiles")
+        .select("expires_at, unlimited, blocked")
+        .eq("id", userId)
+        .single();
+
+      if (subProfile?.blocked) {
+        return NextResponse.json({ error: "SUBSCRIPTION_EXPIRED" }, { status: 403 });
+      }
+      const isUnlimited = subProfile?.unlimited;
+      if (!isUnlimited && subProfile?.expires_at && new Date(subProfile.expires_at) < new Date()) {
+        return NextResponse.json({ error: "SUBSCRIPTION_EXPIRED" }, { status: 403 });
+      }
+    }
 
     const levelGuide =
       profile?.level === "beginner"

@@ -38,10 +38,14 @@ export default function KoPage() {
   const [callDuration, setCallDuration] = useState(0);
   const [profile, setProfile] = useState<KoProfile>({ name: "Student", level: "beginner", tutor: "minjun" });
   const [userId, setUserId] = useState<string | null>(null);
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [unlimited, setUnlimited] = useState(false);
   const [blocked, setBlocked] = useState(false);
+  const [trialCalls, setTrialCalls] = useState(0);
+  const [trialMinutes, setTrialMinutes] = useState(10);
+  const [weeklySeconds, setWeeklySeconds] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [showSetup, setShowSetup] = useState(false);
   const [micError, setMicError] = useState(false);
@@ -54,6 +58,8 @@ export default function KoPage() {
   const messagesRef = useRef<Message[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const membershipAlertTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isTrialCallRef = useRef(false);
+  const lastSavedRef = useRef(0);
 
   const { isRecording, isTranscribing, startRecording, stopRecording } = useAudioRecorderKo();
   const { speak, stop: stopSpeaking, unlock: unlockTTS, isSpeaking } = useKoreanSpeech();
@@ -72,7 +78,7 @@ export default function KoPage() {
         const storedToken = localStorage.getItem("turingcall_session");
         const { data: profileData } = await supabase
           .from("profiles")
-          .select("username, name, level, ko_tutor, session_token, expires_at, unlimited, blocked, ko_access")
+          .select("username, name, level, ko_tutor, session_token, expires_at, unlimited, blocked, trial_calls, trial_minutes, ko_access")
           .eq("id", session.user.id)
           .single();
 
@@ -82,15 +88,35 @@ export default function KoPage() {
         }
 
         setUserId(session.user.id);
+        setSessionToken(storedToken);
         setUsername(profileData.username);
         setExpiresAt(profileData.expires_at ?? null);
         setUnlimited(profileData.unlimited ?? false);
         setBlocked(profileData.blocked ?? false);
+        setTrialCalls(profileData.trial_calls ?? 0);
+        setTrialMinutes(profileData.trial_minutes ?? 10);
         setProfile({
           name: profileData.name || "Student",
           level: profileData.level || "beginner",
           tutor: profileData.ko_tutor || "minjun",
         });
+
+        if (!profileData.unlimited) {
+          const now = new Date();
+          const day = now.getDay();
+          const diffToMonday = (day + 6) % 7;
+          const monday = new Date(now);
+          monday.setDate(now.getDate() - diffToMonday);
+          const weekStart = `${monday.getFullYear()}-${String(monday.getMonth() + 1).padStart(2, "0")}-${String(monday.getDate()).padStart(2, "0")}`;
+          const { data: weekLogs } = await supabase
+            .from("call_logs")
+            .select("seconds")
+            .eq("user_id", session.user.id)
+            .gte("date", weekStart);
+          const total = (weekLogs || []).reduce((s: number, l: { seconds: number }) => s + l.seconds, 0);
+          setWeeklySeconds(total);
+        }
+
         setLoaded(true);
       } else if (event === "SIGNED_OUT") {
         router.push("/login/ko");
@@ -99,22 +125,100 @@ export default function KoPage() {
     return () => subscription.unsubscribe();
   }, [router]);
 
+  const isPaid = !!expiresAt && new Date(expiresAt) > new Date();
+  const isUnlimited = unlimited;
+  const weeklyLimitReached = !isUnlimited && weeklySeconds >= 12000;
+  const canMakeCall = !blocked && !weeklyLimitReached && (isUnlimited || isPaid || trialCalls > 0);
+
+  const saveElapsed = useCallback(() => {
+    if (!userId || !sessionToken || callStateRef.current !== "active") return;
+    const unsaved = callDurationRef.current - lastSavedRef.current;
+    if (unsaved <= 0) return;
+    lastSavedRef.current = callDurationRef.current;
+    fetch("/api/call/end", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, sessionToken, seconds: unsaved, topic }),
+    });
+  }, [userId, sessionToken, topic]);
+
   const addMessage = useCallback((msg: Message) => {
     messagesRef.current = [...messagesRef.current, msg];
     setMessages([...messagesRef.current]);
   }, []);
 
-  const endCall = useCallback(() => {
+  const endCall = useCallback(async () => {
     if (timerRef.current) clearInterval(timerRef.current);
     stopSpeaking();
+    const wasTrial = isTrialCallRef.current;
+    isTrialCallRef.current = false;
+
+    const unsaved = callDurationRef.current - lastSavedRef.current;
+    lastSavedRef.current = 0;
+
     setCallState("idle");
     setMessages([]);
     messagesRef.current = [];
     setCallDuration(0);
     callDurationRef.current = 0;
-  }, [stopSpeaking]);
+
+    if (userId && sessionToken && unsaved > 0) {
+      fetch("/api/call/end", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, sessionToken, seconds: unsaved, topic }),
+      });
+      setWeeklySeconds((prev) => prev + unsaved);
+    }
+
+    if (wasTrial && userId && sessionToken) {
+      const res = await fetch("/api/trial/use", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, sessionToken }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setTrialCalls(data.trial_calls);
+      }
+    }
+  }, [stopSpeaking, userId, sessionToken, topic]);
+
+  // 탭 전환 시 즉시 저장
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") saveElapsed();
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [saveElapsed]);
+
+  // 60초마다 주기적 저장
+  useEffect(() => {
+    if (callState !== "active") return;
+    const interval = setInterval(saveElapsed, 60000);
+    return () => clearInterval(interval);
+  }, [callState, saveElapsed]);
+
+  // 체험 통화 자동 종료
+  useEffect(() => {
+    if (callState === "active" && isTrialCallRef.current && callDuration >= trialMinutes * 60) {
+      endCall();
+      alert(`Your trial call ended after ${trialMinutes} minutes.`);
+    }
+  }, [callDuration, callState, trialMinutes, endCall]);
+
+  // 주간 200분 한도 자동 종료 (무제한 제외)
+  useEffect(() => {
+    if (callState === "active" && !unlimited && weeklySeconds + callDuration >= 12000) {
+      endCall();
+      alert("You've used all your time this week (200 minutes). It resets next Monday.");
+    }
+  }, [callDuration, callState, unlimited, weeklySeconds, endCall]);
 
   const startCall = useCallback(async () => {
+    if (!canMakeCall) return;
+    isTrialCallRef.current = !isPaid && !isUnlimited;
     setMicError(false);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -147,7 +251,7 @@ export default function KoPage() {
       addMessage({ role: "assistant", content: greeting });
       speak(greeting, effectiveTutor === "jia" ? "female" : "male");
     }, 1500);
-  }, [topic, addMessage, speak, profile, unlockTTS, effectiveTutor]);
+  }, [topic, addMessage, speak, profile, unlockTTS, effectiveTutor, canMakeCall, isPaid, isUnlimited]);
 
   const handleMicPress = useCallback(async () => {
     if (isRecording || isSpeaking) return;
@@ -171,10 +275,23 @@ export default function KoPage() {
       const res = await fetch("/api/chat-ko", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: apiMessages, topic, profile }),
+        body: JSON.stringify({ messages: apiMessages, topic, profile, userId, sessionToken }),
       });
 
-      if (!res.ok) throw new Error("API error");
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        if (err.error === "SUBSCRIPTION_EXPIRED") {
+          endCall();
+          alert("Your membership has expired. Please contact the admin.");
+          return;
+        }
+        if (err.error === "SESSION_EXPIRED") {
+          await supabase.auth.signOut();
+          router.push("/login/ko");
+          return;
+        }
+        throw new Error("API error");
+      }
 
       const reader = res.body!.getReader();
       const decoder = new TextDecoder();
@@ -197,7 +314,7 @@ export default function KoPage() {
       setIsAiTyping(false);
       addMessage({ role: "assistant", content: "죄송해요, 다시 말씀해 주세요." });
     }
-  }, [isRecording, stopRecording, addMessage, topic, speak, profile]);
+  }, [isRecording, stopRecording, addMessage, topic, speak, profile, userId, sessionToken, endCall, router]);
 
   useEffect(() => {
     return () => { if (membershipAlertTimerRef.current) clearTimeout(membershipAlertTimerRef.current); };
@@ -458,13 +575,23 @@ export default function KoPage() {
                   Contact us (KakaoTalk) →
                 </a>
               </div>
-            ) : (
+            ) : canMakeCall ? (
             <>
+              {!isPaid && !isUnlimited && (
+                <p className="text-yellow-400 text-xs text-center mb-2">
+                  {trialCalls} trial session{trialCalls === 1 ? "" : "s"} left · up to {trialMinutes} min each
+                </p>
+              )}
               {hasActiveMembership && (
                 <div className="bg-gray-800 rounded-xl px-4 py-2 mb-2 text-center">
                   <p className="text-blue-400 text-xs font-medium">Active membership</p>
                   <p className="text-gray-300 text-xs mt-0.5">Until {new Date(expiresAt!).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</p>
                 </div>
+              )}
+              {!isUnlimited && (isPaid || trialCalls > 0) && (
+                <p className="text-gray-500 text-xs text-center mb-2">
+                  {Math.floor(weeklySeconds / 60)} min used this week · {Math.max(0, 200 - Math.floor(weeklySeconds / 60))} min left
+                </p>
               )}
               {micError && (
                 <div className="bg-red-900/30 border border-red-800 rounded-xl px-4 py-3 mb-3 text-center space-y-2">
@@ -500,6 +627,38 @@ export default function KoPage() {
                 📞 Start Call
               </button>
             </>
+            ) : weeklyLimitReached ? (
+              <div className="space-y-2 text-center py-2">
+                <p className="text-orange-400 text-sm font-medium">You&apos;ve used all your time this week (200 min)</p>
+                <p className="text-gray-500 text-xs">It resets next Monday</p>
+              </div>
+            ) : (
+              <div className="space-y-3 text-center">
+                <p className="text-white text-sm font-medium">You&apos;ve used all your trial sessions</p>
+                <p className="text-gray-400 text-xs leading-relaxed">
+                  Subscribe to continue<br />$3 / week
+                </p>
+                <div className="bg-gray-800 rounded-xl p-3 text-xs text-gray-300 space-y-1">
+                  <a
+                    href="https://www.paypal.com/ncp/payment/DC7LDXNCBE4NY"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full py-2 bg-blue-500 hover:bg-blue-400 text-white text-xs font-semibold rounded-lg text-center mb-1"
+                  >
+                    💳 Pay with PayPal
+                  </a>
+                  <p className="flex items-center justify-center gap-1">KB Kookmin Bank 758637-00-012739<CopyButton text="758637-00-012739" label="Copy" copiedLabel="Copied!" /></p>
+                  <p>예금주: 송랩</p>
+                  <a
+                    href="https://open.kakao.com/o/sPanl0Ci"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-yellow-400 hover:text-yellow-300 pt-1"
+                  >
+                    Contact us after payment (KakaoTalk) →
+                  </a>
+                </div>
+              </div>
             )
           )}
 
