@@ -52,6 +52,8 @@ export default function KoPage() {
   const [micPermState, setMicPermState] = useState<PermissionState | null>(null);
   const [showTerms, setShowTerms] = useState(false);
   const [showMembershipAlert, setShowMembershipAlert] = useState(false);
+  const [paymentRequestedAt, setPaymentRequestedAt] = useState<string | null>(null);
+  const [requestingPayment, setRequestingPayment] = useState(false);
 
   const callDurationRef = useRef(0);
   const callStateRef = useRef<CallState>("idle");
@@ -78,7 +80,7 @@ export default function KoPage() {
         const storedToken = localStorage.getItem("turingcall_session");
         const { data: profileData } = await supabase
           .from("profiles")
-          .select("username, name, level, ko_tutor, session_token, expires_at, unlimited, blocked, trial_calls, trial_minutes, ko_access")
+          .select("username, name, level, ko_tutor, session_token, expires_at, unlimited, blocked, trial_calls, trial_minutes, ko_access, payment_requested_at")
           .eq("id", session.user.id)
           .single();
 
@@ -95,6 +97,7 @@ export default function KoPage() {
         setBlocked(profileData.blocked ?? false);
         setTrialCalls(profileData.trial_calls ?? 0);
         setTrialMinutes(profileData.trial_minutes ?? 10);
+        setPaymentRequestedAt(profileData.payment_requested_at ?? null);
         setProfile({
           name: profileData.name || "Student",
           level: profileData.level || "beginner",
@@ -134,6 +137,18 @@ export default function KoPage() {
   const isUnlimited = unlimited;
   const weeklyLimitReached = !isUnlimited && weeklySeconds >= 12000;
   const canMakeCall = !blocked && !weeklyLimitReached && (isUnlimited || isPaid || trialCalls > 0);
+
+  const requestPaymentConfirmation = async () => {
+    if (!userId || !sessionToken || requestingPayment) return;
+    setRequestingPayment(true);
+    const res = await fetch("/api/payment/request", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, sessionToken }),
+    });
+    if (res.ok) setPaymentRequestedAt(new Date().toISOString());
+    setRequestingPayment(false);
+  };
 
   const saveElapsed = useCallback(() => {
     if (!userId || !sessionToken || callStateRef.current !== "active") return;
@@ -496,6 +511,17 @@ export default function KoPage() {
                 <p className="text-gray-600 text-xs text-center">or bank transfer</p>
                 <p className="text-gray-500 text-xs flex items-center gap-1">KB Kookmin Bank 758637-00-012739<CopyButton text="758637-00-012739" label="Copy" copiedLabel="Copied!" /></p>
                 <p className="text-gray-500 text-xs">예금주: 송랩</p>
+                {paymentRequestedAt ? (
+                  <p className="mt-1 text-emerald-400 text-xs">✅ Confirmation requested — admin will review shortly</p>
+                ) : (
+                  <button
+                    onClick={requestPaymentConfirmation}
+                    disabled={requestingPayment}
+                    className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
+                  >
+                    {requestingPayment ? "Requesting..." : "✅ I've paid, request confirmation"}
+                  </button>
+                )}
                 <a
                   href="https://open.kakao.com/o/sPanl0Ci"
                   target="_blank"
@@ -654,6 +680,17 @@ export default function KoPage() {
                   </a>
                   <p className="flex items-center justify-center gap-1">KB Kookmin Bank 758637-00-012739<CopyButton text="758637-00-012739" label="Copy" copiedLabel="Copied!" /></p>
                   <p>예금주: 송랩</p>
+                  {paymentRequestedAt ? (
+                    <p className="pt-1 text-emerald-400 text-xs">✅ Confirmation requested — admin will review shortly</p>
+                  ) : (
+                    <button
+                      onClick={requestPaymentConfirmation}
+                      disabled={requestingPayment}
+                      className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
+                    >
+                      {requestingPayment ? "Requesting..." : "✅ I've paid, request confirmation"}
+                    </button>
+                  )}
                   <a
                     href="https://open.kakao.com/o/sPanl0Ci"
                     target="_blank"
@@ -681,6 +718,17 @@ export default function KoPage() {
                   </a>
                   <p className="flex items-center justify-center gap-1">KB Kookmin Bank 758637-00-012739<CopyButton text="758637-00-012739" label="Copy" copiedLabel="Copied!" /></p>
                   <p>예금주: 송랩</p>
+                  {paymentRequestedAt ? (
+                    <p className="pt-1 text-emerald-400 text-xs">✅ Confirmation requested — admin will review shortly</p>
+                  ) : (
+                    <button
+                      onClick={requestPaymentConfirmation}
+                      disabled={requestingPayment}
+                      className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
+                    >
+                      {requestingPayment ? "Requesting..." : "✅ I've paid, request confirmation"}
+                    </button>
+                  )}
                   <a
                     href="https://open.kakao.com/o/sPanl0Ci"
                     target="_blank"
