@@ -102,17 +102,22 @@ export default function KoPage() {
         });
 
         if (!profileData.unlimited) {
-          const now = new Date();
-          const day = now.getDay();
-          const diffToMonday = (day + 6) % 7;
-          const monday = new Date(now);
-          monday.setDate(now.getDate() - diffToMonday);
-          const weekStart = `${monday.getFullYear()}-${String(monday.getMonth() + 1).padStart(2, "0")}-${String(monday.getDate()).padStart(2, "0")}`;
+          let cycleStart: Date;
+          if (profileData.expires_at) {
+            cycleStart = new Date(new Date(profileData.expires_at).getTime() - 7 * 24 * 60 * 60 * 1000);
+          } else {
+            const now = new Date();
+            const day = now.getDay();
+            const diffToMonday = (day + 6) % 7;
+            cycleStart = new Date(now);
+            cycleStart.setDate(now.getDate() - diffToMonday);
+          }
+          const cycleStartStr = `${cycleStart.getFullYear()}-${String(cycleStart.getMonth() + 1).padStart(2, "0")}-${String(cycleStart.getDate()).padStart(2, "0")}`;
           const { data: weekLogs } = await supabase
             .from("call_logs")
             .select("seconds")
             .eq("user_id", session.user.id)
-            .gte("date", weekStart);
+            .gte("date", cycleStartStr);
           const total = (weekLogs || []).reduce((s: number, l: { seconds: number }) => s + l.seconds, 0);
           setWeeklySeconds(total);
         }
@@ -585,7 +590,9 @@ export default function KoPage() {
               {hasActiveMembership && (
                 <div className="bg-gray-800 rounded-xl px-4 py-2 mb-2 text-center">
                   <p className="text-blue-400 text-xs font-medium">Active membership</p>
-                  <p className="text-gray-300 text-xs mt-0.5">Until {new Date(expiresAt!).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</p>
+                  <p className="text-gray-300 text-xs mt-0.5">
+                    Until {new Date(expiresAt!).toLocaleString("en-US", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                  </p>
                 </div>
               )}
               {!isUnlimited && (isPaid || trialCalls > 0) && (
@@ -629,8 +636,12 @@ export default function KoPage() {
             </>
             ) : weeklyLimitReached ? (
               <div className="space-y-2 text-center py-2">
-                <p className="text-orange-400 text-sm font-medium">You&apos;ve used all your time this week (200 min)</p>
-                <p className="text-gray-500 text-xs">It resets next Monday</p>
+                <p className="text-orange-400 text-sm font-medium">You&apos;ve used all your time for this billing period (200 min)</p>
+                <p className="text-gray-500 text-xs">
+                  {expiresAt
+                    ? <>Resets when your membership renews (current period ends {new Date(expiresAt).toLocaleString("en-US", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })})</>
+                    : "It resets next Monday"}
+                </p>
               </div>
             ) : (
               <div className="space-y-3 text-center">

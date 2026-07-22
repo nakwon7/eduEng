@@ -94,13 +94,19 @@ export default function Home() {
       setBlocked(profileData.blocked ?? false);
 
       if (!profileData.unlimited) {
-        const now = new Date();
-        const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
+        let cycleStart: Date;
+        if (profileData.expires_at) {
+          cycleStart = new Date(new Date(profileData.expires_at).getTime() - 30 * 24 * 60 * 60 * 1000);
+        } else {
+          const now = new Date();
+          cycleStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        }
+        const cycleStartStr = `${cycleStart.getFullYear()}-${String(cycleStart.getMonth() + 1).padStart(2, "0")}-${String(cycleStart.getDate()).padStart(2, "0")}`;
         const { data: monthLogs } = await supabase
           .from("call_logs")
           .select("seconds")
           .eq("user_id", session.user.id)
-          .gte("date", monthStart);
+          .gte("date", cycleStartStr);
         const total = (monthLogs || []).reduce((s: number, l: { seconds: number }) => s + l.seconds, 0);
         setMonthlySeconds(total);
       }
@@ -498,7 +504,9 @@ export default function Home() {
                 {isPaid && expiresAt && (
                   <div className="bg-gray-800 rounded-xl px-4 py-2 mb-2 text-center">
                     <p className="text-green-400 text-xs font-medium">멤버십 이용 중</p>
-                    <p className="text-gray-300 text-xs mt-0.5">{new Date(expiresAt).toLocaleDateString("ko-KR")}까지</p>
+                    <p className="text-gray-300 text-xs mt-0.5">
+                      {new Date(expiresAt).toLocaleString("ko-KR", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}까지
+                    </p>
                   </div>
                 )}
                 {!isUnlimited && (isPaid || trialCalls > 0) && (
@@ -539,8 +547,12 @@ export default function Home() {
               </div>
             ) : monthlyLimitReached ? (
               <div className="space-y-2 text-center py-2">
-                <p className="text-orange-400 text-sm font-medium">이번달 사용량(900분)을 모두 사용했습니다</p>
-                <p className="text-gray-500 text-xs">다음달 1일부터 다시 이용할 수 있어요</p>
+                <p className="text-orange-400 text-sm font-medium">이번 결제 주기 사용량(900분)을 모두 사용했습니다</p>
+                <p className="text-gray-500 text-xs">
+                  {expiresAt
+                    ? <>멤버십 갱신 시 초기화돼요 (이용기간 종료: {new Date(expiresAt).toLocaleString("ko-KR", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })})</>
+                    : "다음달 1일부터 다시 이용할 수 있어요"}
+                </p>
               </div>
             ) : (
               <div className="space-y-3 text-center">
