@@ -117,13 +117,13 @@ export default function KoPage() {
             cycleStart.setDate(now.getDate() - diffToMonday);
           }
           const cycleStartStr = `${cycleStart.getFullYear()}-${String(cycleStart.getMonth() + 1).padStart(2, "0")}-${String(cycleStart.getDate()).padStart(2, "0")}`;
-          const { data: weekLogs } = await supabase
-            .from("call_logs")
-            .select("seconds")
-            .eq("user_id", session.user.id)
-            .gte("date", cycleStartStr);
-          const total = (weekLogs || []).reduce((s: number, l: { seconds: number }) => s + l.seconds, 0);
-          setWeeklySeconds(total);
+          const summaryRes = await fetch("/api/usage/summary", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: session.user.id, sessionToken: storedToken, sinceDate: cycleStartStr }),
+          });
+          const summaryData = await summaryRes.json();
+          setWeeklySeconds(summaryRes.ok ? summaryData.totalSeconds ?? 0 : 0);
         }
 
         setLoaded(true);
