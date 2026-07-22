@@ -24,6 +24,12 @@ export default function CallFeedback({ feedback, isLoading, onDismiss }: Props) 
       <div className="flex-1 flex flex-col items-center justify-center gap-3">
         <div className="w-10 h-10 border-2 border-green-500 border-t-transparent rounded-full animate-spin" />
         <p className="text-gray-400 text-sm">AI가 피드백을 분석 중이에요...</p>
+        <button
+          onClick={onDismiss}
+          className="mt-2 text-gray-500 hover:text-gray-300 text-xs underline"
+        >
+          건너뛰고 메인으로
+        </button>
       </div>
     );
   }
@@ -104,7 +110,7 @@ export default function CallFeedback({ feedback, isLoading, onDismiss }: Props) 
         onClick={onDismiss}
         className="mt-3 w-full py-3 bg-green-600 hover:bg-green-500 text-white rounded-2xl font-semibold text-sm transition-all active:scale-95"
       >
-        📞 다시 통화하기
+        🏠 메인으로 돌아가기
       </button>
     </div>
   );
