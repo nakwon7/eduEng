@@ -236,10 +236,16 @@ export default function KoPage() {
           {callState === "idle" && (
             <>
               <button
-                onClick={() => showSetup ? setShowSetup(false) : router.push("/app")}
+                onClick={async () => {
+                  if (showSetup) { setShowSetup(false); return; }
+                  if (username === "gooster") { router.push("/app"); return; }
+                  await supabase.auth.signOut();
+                  localStorage.removeItem("turingcall_session");
+                  router.push("/login");
+                }}
                 className="absolute top-4 left-4 text-gray-500 hover:text-gray-300 text-xs"
               >
-                ← Back
+                {showSetup || username === "gooster" ? "← Back" : "Logout"}
               </button>
               <div className="absolute top-4 right-4 flex gap-2">
                 <button
