@@ -46,11 +46,13 @@ export default function KoPage() {
   const [micError, setMicError] = useState(false);
   const [micPermState, setMicPermState] = useState<PermissionState | null>(null);
   const [showTerms, setShowTerms] = useState(false);
+  const [showMembershipAlert, setShowMembershipAlert] = useState(false);
 
   const callDurationRef = useRef(0);
   const callStateRef = useRef<CallState>("idle");
   const messagesRef = useRef<Message[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const membershipAlertTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { isRecording, isTranscribing, startRecording, stopRecording } = useAudioRecorderKo();
   const { speak, stop: stopSpeaking, unlock: unlockTTS, isSpeaking } = useKoreanSpeech();
@@ -194,6 +196,20 @@ export default function KoPage() {
       addMessage({ role: "assistant", content: "죄송해요, 다시 말씀해 주세요." });
     }
   }, [isRecording, stopRecording, addMessage, topic, speak, profile]);
+
+  useEffect(() => {
+    return () => { if (membershipAlertTimerRef.current) clearTimeout(membershipAlertTimerRef.current); };
+  }, []);
+
+  const hasActiveMembership = !unlimited && !!expiresAt && new Date(expiresAt) > new Date();
+
+  const handlePaypalClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!hasActiveMembership) return;
+    e.preventDefault();
+    setShowMembershipAlert(true);
+    if (membershipAlertTimerRef.current) clearTimeout(membershipAlertTimerRef.current);
+    membershipAlertTimerRef.current = setTimeout(() => setShowMembershipAlert(false), 2800);
+  }, [hasActiveMembership]);
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60);
@@ -342,6 +358,7 @@ export default function KoPage() {
                   href="https://www.paypal.com/ncp/payment/DC7LDXNCBE4NY"
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={handlePaypalClick}
                   className="inline-block w-full py-2 bg-blue-500 hover:bg-blue-400 text-white text-xs font-semibold rounded-xl text-center mt-1"
                 >
                   💳 Pay with PayPal
@@ -514,6 +531,16 @@ export default function KoPage() {
         </div>
 
         {showTerms && <TermsModalEn onClose={() => setShowTerms(false)} />}
+
+        <div
+          className={`fixed left-1/2 bottom-24 z-50 -translate-x-1/2 transition-all duration-300 ease-out ${
+            showMembershipAlert ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"
+          }`}
+        >
+          <div className="bg-gray-800 border border-blue-700 text-white text-xs px-4 py-3 rounded-xl shadow-xl max-w-[260px] text-center">
+            You already have an active membership.<br />No need to pay again yet.
+          </div>
+        </div>
       </div>
     </main>
   );
