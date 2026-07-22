@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { UserProfile } from "@/hooks/useUserProfile";
 import CopyButton from "./CopyButton";
+import UsageHistory from "./UsageHistory";
 
 interface UserSetupProps {
   onComplete: (profile: UserProfile) => void;
@@ -10,6 +11,7 @@ interface UserSetupProps {
   paymentRequestedAt?: string | null;
   requestingPayment?: boolean;
   onRequestPayment?: () => void;
+  userId?: string | null;
 }
 
 const LEVELS = [
@@ -23,7 +25,7 @@ const TUTORS = [
   { id: "rachel", emoji: "🌸", label: "Rachel", desc: "Warm & Patient" },
 ] as const;
 
-export default function UserSetup({ onComplete, existing, paymentRequestedAt, requestingPayment, onRequestPayment }: UserSetupProps) {
+export default function UserSetup({ onComplete, existing, paymentRequestedAt, requestingPayment, onRequestPayment, userId }: UserSetupProps) {
   const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   const [name, setName] = useState(existing?.name || "");
   const [level, setLevel] = useState<UserProfile["level"]>(existing?.level || "intermediate");
@@ -137,6 +139,8 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
           💬 가입 문의 (카카오톡)
         </a>
       </div>
+
+      {userId && <UsageHistory userId={userId} lang="ko" />}
     </div>
   );
 }

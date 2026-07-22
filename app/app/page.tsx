@@ -488,6 +488,7 @@ export default function Home() {
               paymentRequestedAt={paymentRequestedAt}
               requestingPayment={requestingPayment}
               onRequestPayment={requestPaymentConfirmation}
+              userId={userId}
             />
           ) : callState === "idle" && (isFetchingFeedback || feedback) ? (
             <CallFeedback

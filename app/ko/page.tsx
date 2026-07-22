@@ -9,6 +9,7 @@ import { useKoreanSpeech } from "@/hooks/useKoreanSpeech";
 import TranscriptBox, { Message } from "@/components/TranscriptBox";
 import TermsModalEn from "@/components/TermsModalEn";
 import TutorAvatar from "@/components/TutorAvatar";
+import UsageHistory from "@/components/UsageHistory";
 
 type CallState = "idle" | "calling" | "active";
 
@@ -531,6 +532,8 @@ export default function KoPage() {
                   💬 Contact us (KakaoTalk)
                 </a>
               </div>
+
+              {userId && <UsageHistory userId={userId} lang="en" />}
 
               <div className="mt-4">
                 <button
