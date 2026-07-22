@@ -66,7 +66,7 @@ export default function KoPage() {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "INITIAL_SESSION" || event === "SIGNED_IN") {
-        if (!session) { router.push("/login"); return; }
+        if (!session) { router.push("/login/ko"); return; }
 
         const storedToken = localStorage.getItem("turingcall_session");
         const { data: profileData } = await supabase
@@ -91,7 +91,7 @@ export default function KoPage() {
         });
         setLoaded(true);
       } else if (event === "SIGNED_OUT") {
-        router.push("/login");
+        router.push("/login/ko");
       }
     });
     return () => subscription.unsubscribe();
@@ -241,7 +241,7 @@ export default function KoPage() {
                   if (username === "gooster") { router.push("/app"); return; }
                   await supabase.auth.signOut();
                   localStorage.removeItem("turingcall_session");
-                  router.push("/login");
+                  router.push("/login/ko");
                 }}
                 className="absolute top-4 left-4 text-gray-500 hover:text-gray-300 text-xs"
               >
@@ -384,7 +384,7 @@ export default function KoPage() {
 
               <div className="mt-4">
                 <button
-                  onClick={async () => { await supabase.auth.signOut(); localStorage.removeItem("turingcall_session"); router.push("/login"); }}
+                  onClick={async () => { await supabase.auth.signOut(); localStorage.removeItem("turingcall_session"); router.push("/login/ko"); }}
                   className="w-full py-3 bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-2xl text-sm"
                 >
                   Log out

@@ -73,7 +73,7 @@ export default function LandingKoPage() {
           Start for free
         </a>
         <a
-          href="/login"
+          href="/login/ko"
           className="block w-full py-3 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-2xl font-medium text-sm text-center transition-all"
         >
           Log in

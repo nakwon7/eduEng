@@ -104,7 +104,7 @@ export default function SignupKoPage() {
           <p className="text-gray-400 text-sm leading-relaxed">
             Your account is ready. Log in to start your free trial — 5 sessions included!
           </p>
-          <a href="/login" className="mt-6 inline-block text-blue-400 hover:text-blue-300 text-sm">
+          <a href="/login/ko" className="mt-6 inline-block text-blue-400 hover:text-blue-300 text-sm">
             Go to login →
           </a>
         </div>
@@ -220,7 +220,7 @@ export default function SignupKoPage() {
 
         <p className="text-center text-gray-500 text-sm mt-4">
           Already have an account?{" "}
-          <a href="/login" className="text-blue-400 hover:text-blue-300">Log in</a>
+          <a href="/login/ko" className="text-blue-400 hover:text-blue-300">Log in</a>
         </p>
       </div>
     </main>
