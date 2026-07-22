@@ -67,7 +67,7 @@ export default function Home() {
       const storedToken = localStorage.getItem("turingcall_session");
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("name, level, tutor, username, session_token, trial_calls, trial_minutes, expires_at, unlimited, blocked")
+        .select("name, level, tutor, username, session_token, trial_calls, trial_minutes, expires_at, unlimited, blocked, ko_access")
         .eq("id", session.user.id)
         .single();
 
@@ -75,6 +75,11 @@ export default function Home() {
         await supabase.auth.signOut();
         localStorage.removeItem("turingcall_session");
         router.push("/login");
+        return;
+      }
+
+      if (profileData.ko_access && profileData.username !== "gooster" && profileData.username !== "mh1104") {
+        router.push("/ko");
         return;
       }
 

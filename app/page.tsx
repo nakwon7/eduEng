@@ -11,7 +11,13 @@ export default function LandingPage() {
     const check = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session && localStorage.getItem("turingcall_session")) {
-        router.replace("/app");
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("ko_access, username")
+          .eq("id", session.user.id)
+          .single();
+        const isKoOnly = profile?.ko_access && profile.username !== "gooster" && profile.username !== "mh1104";
+        router.replace(isKoOnly ? "/ko" : "/app");
       }
     };
     check();
