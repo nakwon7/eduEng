@@ -12,6 +12,7 @@ interface UserSetupProps {
   requestingPayment?: boolean;
   onRequestPayment?: () => void;
   userId?: string | null;
+  sessionToken?: string | null;
 }
 
 const LEVELS = [
@@ -25,7 +26,7 @@ const TUTORS = [
   { id: "rachel", emoji: "🌸", label: "Rachel", desc: "Warm & Patient" },
 ] as const;
 
-export default function UserSetup({ onComplete, existing, paymentRequestedAt, requestingPayment, onRequestPayment, userId }: UserSetupProps) {
+export default function UserSetup({ onComplete, existing, paymentRequestedAt, requestingPayment, onRequestPayment, userId, sessionToken }: UserSetupProps) {
   const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   const [name, setName] = useState(existing?.name || "");
   const [level, setLevel] = useState<UserProfile["level"]>(existing?.level || "intermediate");
@@ -140,7 +141,7 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
         </a>
       </div>
 
-      {userId && <UsageHistory userId={userId} lang="ko" />}
+      {userId && sessionToken && <UsageHistory userId={userId} sessionToken={sessionToken} lang="ko" />}
     </div>
   );
 }

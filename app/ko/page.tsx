@@ -533,7 +533,7 @@ export default function KoPage() {
                 </a>
               </div>
 
-              {userId && <UsageHistory userId={userId} lang="en" />}
+              {userId && sessionToken && <UsageHistory userId={userId} sessionToken={sessionToken} lang="en" />}
 
               <div className="mt-4">
                 <button

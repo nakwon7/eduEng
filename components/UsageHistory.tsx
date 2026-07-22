@@ -1,10 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 
 interface UsageHistoryProps {
   userId: string;
+  sessionToken: string;
   lang?: "ko" | "en";
 }
 
@@ -32,7 +32,7 @@ const TEXT = {
   },
 };
 
-export default function UsageHistory({ userId, lang = "ko" }: UsageHistoryProps) {
+export default function UsageHistory({ userId, sessionToken, lang = "ko" }: UsageHistoryProps) {
   const t = TEXT[lang];
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
@@ -42,30 +42,15 @@ export default function UsageHistory({ userId, lang = "ko" }: UsageHistoryProps)
 
   const fetchLogs = useCallback(async () => {
     setLoading(true);
-    const monthStart = `${year}-${String(month).padStart(2, "0")}-01`;
-    const nextMonthStart =
-      month === 12
-        ? `${year + 1}-01-01`
-        : `${year}-${String(month + 1).padStart(2, "0")}-01`;
-
-    const { data } = await supabase
-      .from("call_logs")
-      .select("date, seconds")
-      .eq("user_id", userId)
-      .gte("date", monthStart)
-      .lt("date", nextMonthStart);
-
-    const byDate = new Map<string, number>();
-    (data || []).forEach((row: { date: string; seconds: number }) => {
-      byDate.set(row.date, (byDate.get(row.date) || 0) + row.seconds);
+    const res = await fetch("/api/usage/history", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, sessionToken, year, month }),
     });
-    const list = Array.from(byDate.entries())
-      .map(([date, seconds]) => ({ date, seconds }))
-      .sort((a, b) => (a.date < b.date ? 1 : -1));
-
-    setLogs(list);
+    const data = await res.json();
+    setLogs(res.ok ? data.logs || [] : []);
     setLoading(false);
-  }, [userId, year, month]);
+  }, [userId, sessionToken, year, month]);
 
   useEffect(() => {
     fetchLogs();
