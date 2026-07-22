@@ -325,7 +325,7 @@ export default function KoPage() {
     return () => { if (membershipAlertTimerRef.current) clearTimeout(membershipAlertTimerRef.current); };
   }, []);
 
-  const hasActiveMembership = !blocked && !unlimited && !!expiresAt && new Date(expiresAt) > new Date();
+  const hasActiveMembership = !blocked && !unlimited && !weeklyLimitReached && !!expiresAt && new Date(expiresAt) > new Date();
 
   const handlePaypalClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
     if (!hasActiveMembership) return;
@@ -635,13 +635,34 @@ export default function KoPage() {
               </button>
             </>
             ) : weeklyLimitReached ? (
-              <div className="space-y-2 text-center py-2">
+              <div className="space-y-3 text-center py-2">
                 <p className="text-orange-400 text-sm font-medium">You&apos;ve used all your time for this billing period (200 min)</p>
                 <p className="text-gray-500 text-xs">
                   {expiresAt
-                    ? <>Resets when your membership renews (current period ends {new Date(expiresAt).toLocaleString("en-US", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })})</>
+                    ? <>It normally resets when your membership renews (current period ends {new Date(expiresAt).toLocaleString("en-US", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })})</>
                     : "It resets next Monday"}
                 </p>
+                <p className="text-gray-400 text-xs">Want more time now? Pay early for extra minutes.</p>
+                <div className="bg-gray-800 rounded-xl p-3 text-xs text-gray-300 space-y-1">
+                  <a
+                    href="https://www.paypal.com/ncp/payment/DC7LDXNCBE4NY"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full py-2 bg-blue-500 hover:bg-blue-400 text-white text-xs font-semibold rounded-lg text-center mb-1"
+                  >
+                    💳 Pay with PayPal
+                  </a>
+                  <p className="flex items-center justify-center gap-1">KB Kookmin Bank 758637-00-012739<CopyButton text="758637-00-012739" label="Copy" copiedLabel="Copied!" /></p>
+                  <p>예금주: 송랩</p>
+                  <a
+                    href="https://open.kakao.com/o/sPanl0Ci"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-yellow-400 hover:text-yellow-300 pt-1"
+                  >
+                    Contact us after payment (KakaoTalk) →
+                  </a>
+                </div>
               </div>
             ) : (
               <div className="space-y-3 text-center">
