@@ -15,6 +15,7 @@ interface User {
   total_seconds: number;
   created_at: string;
   ko_access: boolean;
+  payment_requested_at: string | null;
 }
 
 interface AdminPanelProps {
@@ -179,7 +180,15 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
           {users.map((u) => {
             const status = statusLabel(u);
             return (
-              <div key={u.id} className="bg-gray-800 rounded-2xl p-4 space-y-2">
+              <div
+                key={u.id}
+                className={`bg-gray-800 rounded-2xl p-4 space-y-2 ${u.payment_requested_at ? "ring-2 ring-emerald-500" : ""}`}
+              >
+                {u.payment_requested_at && (
+                  <p className="text-emerald-400 text-xs font-medium">
+                    💰 입금 확인 요청 · {new Date(u.payment_requested_at).toLocaleString("ko-KR", { month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                  </p>
+                )}
                 <div className="flex justify-between items-start">
                   <div>
                     <p className="text-white text-sm font-medium">{u.username}</p>

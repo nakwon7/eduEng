@@ -7,6 +7,9 @@ import CopyButton from "./CopyButton";
 interface UserSetupProps {
   onComplete: (profile: UserProfile) => void;
   existing?: UserProfile;
+  paymentRequestedAt?: string | null;
+  requestingPayment?: boolean;
+  onRequestPayment?: () => void;
 }
 
 const LEVELS = [
@@ -20,7 +23,7 @@ const TUTORS = [
   { id: "rachel", emoji: "🌸", label: "Rachel", desc: "Warm & Patient" },
 ] as const;
 
-export default function UserSetup({ onComplete, existing }: UserSetupProps) {
+export default function UserSetup({ onComplete, existing, paymentRequestedAt, requestingPayment, onRequestPayment }: UserSetupProps) {
   const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   const [name, setName] = useState(existing?.name || "");
   const [level, setLevel] = useState<UserProfile["level"]>(existing?.level || "intermediate");
@@ -112,6 +115,19 @@ export default function UserSetup({ onComplete, existing }: UserSetupProps) {
         <p className="text-gray-500 text-xs">무료 체험 5회(회당 최대 10분) 제공</p>
         <p className="text-gray-500 text-xs flex items-center gap-1">KB국민은행 758637-00-012739<CopyButton text="758637-00-012739" /></p>
         <p className="text-gray-500 text-xs">예금주: 송랩</p>
+        {onRequestPayment && (
+          paymentRequestedAt ? (
+            <p className="mt-1 text-emerald-400 text-xs">✅ 확인 요청됨 · 관리자 확인 후 곧 승인됩니다</p>
+          ) : (
+            <button
+              onClick={onRequestPayment}
+              disabled={requestingPayment}
+              className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
+            >
+              {requestingPayment ? "요청 중..." : "✅ 입금 완료, 확인 요청하기"}
+            </button>
+          )
+        )}
         <a
           href="https://open.kakao.com/o/sPanl0Ci"
           target="_blank"

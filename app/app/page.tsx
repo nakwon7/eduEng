@@ -42,6 +42,8 @@ export default function Home() {
   const [feedback, setFeedback] = useState<FeedbackData | null>(null);
   const [isFetchingFeedback, setIsFetchingFeedback] = useState(false);
   const [monthlySeconds, setMonthlySeconds] = useState(0);
+  const [paymentRequestedAt, setPaymentRequestedAt] = useState<string | null>(null);
+  const [requestingPayment, setRequestingPayment] = useState(false);
   const isTrialCallRef = useRef(false);
   const topicRef = useRef(topic);
   const callDurationRef = useRef(0);
@@ -67,7 +69,7 @@ export default function Home() {
       const storedToken = localStorage.getItem("turingcall_session");
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("name, level, tutor, username, session_token, trial_calls, trial_minutes, expires_at, unlimited, blocked, ko_access")
+        .select("name, level, tutor, username, session_token, trial_calls, trial_minutes, expires_at, unlimited, blocked, ko_access, payment_requested_at")
         .eq("id", session.user.id)
         .single();
 
@@ -92,6 +94,7 @@ export default function Home() {
       setExpiresAt(profileData.expires_at ?? null);
       setUnlimited(profileData.unlimited ?? false);
       setBlocked(profileData.blocked ?? false);
+      setPaymentRequestedAt(profileData.payment_requested_at ?? null);
 
       if (!profileData.unlimited) {
         let cycleStart: Date;
@@ -133,6 +136,18 @@ export default function Home() {
     localStorage.removeItem("turingcall_session");
     await supabase.auth.signOut();
     router.push("/login");
+  };
+
+  const requestPaymentConfirmation = async () => {
+    if (!userId || !sessionToken || requestingPayment) return;
+    setRequestingPayment(true);
+    const res = await fetch("/api/payment/request", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, sessionToken }),
+    });
+    if (res.ok) setPaymentRequestedAt(new Date().toISOString());
+    setRequestingPayment(false);
   };
 
   const saveProfile = async (p: UserProfile) => {
@@ -467,7 +482,13 @@ export default function Home() {
           ) : view === "admin" && userId && sessionToken ? (
             <AdminPanel userId={userId} sessionToken={sessionToken} />
           ) : view === "settings" ? (
-            <UserSetup existing={profile || undefined} onComplete={saveProfile} />
+            <UserSetup
+              existing={profile || undefined}
+              onComplete={saveProfile}
+              paymentRequestedAt={paymentRequestedAt}
+              requestingPayment={requestingPayment}
+              onRequestPayment={requestPaymentConfirmation}
+            />
           ) : callState === "idle" && (isFetchingFeedback || feedback) ? (
             <CallFeedback
               feedback={feedback}
@@ -563,13 +584,24 @@ export default function Home() {
                 <div className="bg-gray-800 rounded-xl p-3 text-xs text-gray-300 space-y-1">
                   <p className="flex items-center gap-1">KB국민은행 758637-00-012739<CopyButton text="758637-00-012739" /></p>
                   <p>예금주: 송랩</p>
+                  {paymentRequestedAt ? (
+                    <p className="pt-1 text-emerald-400 text-xs">✅ 확인 요청됨 · 관리자 확인 후 곧 승인됩니다</p>
+                  ) : (
+                    <button
+                      onClick={requestPaymentConfirmation}
+                      disabled={requestingPayment}
+                      className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
+                    >
+                      {requestingPayment ? "요청 중..." : "✅ 입금 완료, 확인 요청하기"}
+                    </button>
+                  )}
                   <a
                     href="https://open.kakao.com/o/sPanl0Ci"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block text-yellow-400 hover:text-yellow-300 pt-1"
                   >
-                    입금 후 카카오톡으로 아이디 알려주기 →
+                    카카오톡 문의 →
                   </a>
                 </div>
               </div>

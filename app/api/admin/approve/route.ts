@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
 
   const { error } = await admin
     .from("profiles")
-    .update({ approved: true, expires_at: expiresAt.toISOString() })
+    .update({ approved: true, expires_at: expiresAt.toISOString(), payment_requested_at: null })
     .eq("id", targetId);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
