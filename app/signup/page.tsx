@@ -102,11 +102,10 @@ export default function SignupPage() {
     return (
       <main className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
         <div className="w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl p-8 text-center">
-          <div className="text-5xl mb-4">📬</div>
+          <div className="text-5xl mb-4">🎉</div>
           <h2 className="text-white text-lg font-bold mb-2">가입 완료!</h2>
           <p className="text-gray-400 text-sm leading-relaxed">
-            관리자 승인 후 로그인 가능합니다.<br />
-            승인이 완료되면 별도로 안내드릴게요.
+            바로 로그인해서 무료 체험을 시작해보세요!
           </p>
           <a href="/login" className="mt-6 inline-block text-green-400 hover:text-green-300 text-sm">
             로그인 페이지로 →
@@ -124,7 +123,7 @@ export default function SignupPage() {
             🎓
           </div>
           <h1 className="text-white text-xl font-bold">회원가입</h1>
-          <p className="text-gray-400 text-xs mt-1">관리자 승인 후 이용 가능합니다</p>
+          <p className="text-gray-400 text-xs mt-1">가입 즉시 무료 체험 이용 가능합니다</p>
         </div>
 
         <form onSubmit={handleSignup} className="space-y-4">
