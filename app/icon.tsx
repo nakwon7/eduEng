@@ -14,7 +14,7 @@ export default function Icon() {
         alignItems: "center",
         justifyContent: "center",
         borderRadius: "112px",
-        background: "linear-gradient(135deg, #16a34a 0%, #0ea5e9 100%)",
+        background: "#03C75A",
       }}
     >
       {/* TC 이니셜 */}
