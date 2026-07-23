@@ -11,6 +11,7 @@ import TermsModalEn from "@/components/TermsModalEn";
 import TutorAvatar from "@/components/TutorAvatar";
 import UsageHistory from "@/components/UsageHistory";
 import PaymentNoteInput from "@/components/PaymentNoteInput";
+import PaymentRejectNotice from "@/components/PaymentRejectNotice";
 
 type CallState = "idle" | "calling" | "active";
 
@@ -57,6 +58,7 @@ export default function KoPage() {
   const [paymentRequestedAt, setPaymentRequestedAt] = useState<string | null>(null);
   const [requestingPayment, setRequestingPayment] = useState(false);
   const [paymentNote, setPaymentNote] = useState("");
+  const [paymentRejectReason, setPaymentRejectReason] = useState<string | null>(null);
 
   const callDurationRef = useRef(0);
   const callStateRef = useRef<CallState>("idle");
@@ -83,7 +85,7 @@ export default function KoPage() {
         const storedToken = localStorage.getItem("turingcall_session");
         const { data: profileData } = await supabase
           .from("profiles")
-          .select("username, name, level, ko_tutor, session_token, expires_at, unlimited, blocked, trial_calls, trial_minutes, ko_access, payment_requested_at")
+          .select("username, name, level, ko_tutor, session_token, expires_at, unlimited, blocked, trial_calls, trial_minutes, ko_access, payment_requested_at, payment_reject_reason")
           .eq("id", session.user.id)
           .single();
 
@@ -101,6 +103,7 @@ export default function KoPage() {
         setTrialCalls(profileData.trial_calls ?? 0);
         setTrialMinutes(profileData.trial_minutes ?? 10);
         setPaymentRequestedAt(profileData.payment_requested_at ?? null);
+        setPaymentRejectReason(profileData.payment_reject_reason ?? null);
         setProfile({
           name: profileData.name || "Student",
           level: profileData.level || "beginner",
@@ -149,7 +152,10 @@ export default function KoPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId, sessionToken, note: paymentNote }),
     });
-    if (res.ok) setPaymentRequestedAt(new Date().toISOString());
+    if (res.ok) {
+      setPaymentRequestedAt(new Date().toISOString());
+      setPaymentRejectReason(null);
+    }
     setRequestingPayment(false);
   };
 
@@ -518,7 +524,8 @@ export default function KoPage() {
                   <p className="mt-1 text-emerald-400 text-xs">✅ Confirmation requested — admin will review shortly</p>
                 ) : (
                   <>
-                    <PaymentNoteInput value={paymentNote} onChange={setPaymentNote} variant="email" />
+                    {paymentRejectReason && <PaymentRejectNotice reason={paymentRejectReason} lang="en" />}
+                      <PaymentNoteInput value={paymentNote} onChange={setPaymentNote} variant="email" />
                     <button
                       onClick={requestPaymentConfirmation}
                       disabled={requestingPayment || !paymentNote.trim()}
@@ -692,6 +699,7 @@ export default function KoPage() {
                     <p className="pt-1 text-emerald-400 text-xs">✅ Confirmation requested — admin will review shortly</p>
                   ) : (
                     <>
+                      {paymentRejectReason && <PaymentRejectNotice reason={paymentRejectReason} lang="en" />}
                       <PaymentNoteInput value={paymentNote} onChange={setPaymentNote} variant="email" />
                       <button
                         onClick={requestPaymentConfirmation}
@@ -733,6 +741,7 @@ export default function KoPage() {
                     <p className="pt-1 text-emerald-400 text-xs">✅ Confirmation requested — admin will review shortly</p>
                   ) : (
                     <>
+                      {paymentRejectReason && <PaymentRejectNotice reason={paymentRejectReason} lang="en" />}
                       <PaymentNoteInput value={paymentNote} onChange={setPaymentNote} variant="email" />
                       <button
                         onClick={requestPaymentConfirmation}

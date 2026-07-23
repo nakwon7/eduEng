@@ -50,6 +50,8 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
   const [busy, setBusy] = useState<string | null>(null);
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
   const [callLogs, setCallLogs] = useState<Record<string, { date: string; seconds: number }[]>>({});
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
+  const [rejectReason, setRejectReason] = useState("");
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -127,6 +129,19 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
     setCallLogs((prev) => ({ ...prev, [targetId]: data.logs || [] }));
   };
 
+  const handleReject = async (targetId: string) => {
+    setBusy(targetId + "_reject");
+    await fetch("/api/admin/reject-payment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, sessionToken, targetId, reason: rejectReason }),
+    });
+    setRejectingId(null);
+    setRejectReason("");
+    await fetchUsers();
+    setBusy(null);
+  };
+
   const handleResetTrial = async (targetId: string) => {
     setBusy(targetId + "_trial");
     await fetch("/api/admin/reset-trial", {
@@ -194,6 +209,41 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                   <p className="text-emerald-300/80 text-xs">
                     📝 {u.payment_note}
                   </p>
+                )}
+                {u.payment_requested_at && (
+                  rejectingId === u.id ? (
+                    <div className="bg-gray-900 rounded-xl p-2 space-y-2">
+                      <input
+                        type="text"
+                        value={rejectReason}
+                        onChange={(e) => setRejectReason(e.target.value)}
+                        placeholder="반려 사유 (비우면 기본 문구로 전송)"
+                        className="w-full bg-gray-800 text-white rounded-lg px-2 py-1.5 text-xs outline-none focus:ring-2 focus:ring-red-500 placeholder-gray-600"
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleReject(u.id)}
+                          disabled={!!busy}
+                          className="flex-1 py-1.5 bg-red-700 hover:bg-red-600 disabled:opacity-50 text-white text-xs rounded-lg"
+                        >
+                          {busy === u.id + "_reject" ? "..." : "반려 확정"}
+                        </button>
+                        <button
+                          onClick={() => { setRejectingId(null); setRejectReason(""); }}
+                          className="flex-1 py-1.5 bg-gray-700 hover:bg-gray-600 text-white text-xs rounded-lg"
+                        >
+                          취소
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => { setRejectingId(u.id); setRejectReason(""); }}
+                      className="text-red-400 hover:text-red-300 text-xs underline"
+                    >
+                      반려하기
+                    </button>
+                  )
                 )}
                 <div className="flex justify-between items-start">
                   <div>

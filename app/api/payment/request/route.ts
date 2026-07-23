@@ -30,6 +30,7 @@ export async function POST(req: NextRequest) {
     .update({
       payment_requested_at: new Date().toISOString(),
       payment_note: trimmedNote.slice(0, 200),
+      payment_reject_reason: null,
     })
     .eq("id", userId);
 

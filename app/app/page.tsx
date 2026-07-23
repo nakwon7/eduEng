@@ -15,6 +15,7 @@ import AdminPanel from "@/components/AdminPanel";
 import TermsModal from "@/components/TermsModal";
 import TutorAvatar from "@/components/TutorAvatar";
 import PaymentNoteInput from "@/components/PaymentNoteInput";
+import PaymentRejectNotice from "@/components/PaymentRejectNotice";
 
 type CallState = "idle" | "calling" | "active";
 type View = "home" | "settings" | "admin" | "help";
@@ -46,6 +47,7 @@ export default function Home() {
   const [paymentRequestedAt, setPaymentRequestedAt] = useState<string | null>(null);
   const [requestingPayment, setRequestingPayment] = useState(false);
   const [paymentNote, setPaymentNote] = useState("");
+  const [paymentRejectReason, setPaymentRejectReason] = useState<string | null>(null);
   const isTrialCallRef = useRef(false);
   const topicRef = useRef(topic);
   const callDurationRef = useRef(0);
@@ -71,7 +73,7 @@ export default function Home() {
       const storedToken = localStorage.getItem("turingcall_session");
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("name, level, tutor, username, session_token, trial_calls, trial_minutes, expires_at, unlimited, blocked, ko_access, payment_requested_at")
+        .select("name, level, tutor, username, session_token, trial_calls, trial_minutes, expires_at, unlimited, blocked, ko_access, payment_requested_at, payment_reject_reason")
         .eq("id", session.user.id)
         .single();
 
@@ -97,6 +99,7 @@ export default function Home() {
       setUnlimited(profileData.unlimited ?? false);
       setBlocked(profileData.blocked ?? false);
       setPaymentRequestedAt(profileData.payment_requested_at ?? null);
+      setPaymentRejectReason(profileData.payment_reject_reason ?? null);
 
       if (!profileData.unlimited) {
         let cycleStart: Date;
@@ -148,7 +151,10 @@ export default function Home() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId, sessionToken, note: paymentNote }),
     });
-    if (res.ok) setPaymentRequestedAt(new Date().toISOString());
+    if (res.ok) {
+      setPaymentRequestedAt(new Date().toISOString());
+      setPaymentRejectReason(null);
+    }
     setRequestingPayment(false);
   };
 
@@ -492,6 +498,7 @@ export default function Home() {
               onRequestPayment={requestPaymentConfirmation}
               paymentNote={paymentNote}
               onPaymentNoteChange={setPaymentNote}
+              paymentRejectReason={paymentRejectReason}
               userId={userId}
               sessionToken={sessionToken}
             />
@@ -594,6 +601,7 @@ export default function Home() {
                     <p className="pt-1 text-emerald-400 text-xs">✅ 확인 요청됨 · 관리자 확인 후 곧 승인됩니다</p>
                   ) : (
                     <>
+                      {paymentRejectReason && <PaymentRejectNotice reason={paymentRejectReason} lang="ko" />}
                       <PaymentNoteInput value={paymentNote} onChange={setPaymentNote} variant="bankName" />
                       <button
                         onClick={requestPaymentConfirmation}

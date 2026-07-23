@@ -3,12 +3,13 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 
+const DEFAULT_REASON = "확인되지 않았어요. 내역을 다시 확인한 뒤 요청해주세요.";
+
 export async function POST(req: NextRequest) {
-  const { userId, sessionToken, targetId, days = 30 } = await req.json();
+  const { userId, sessionToken, targetId, reason } = await req.json();
 
   const admin = supabaseAdmin();
 
-  // 요청자 검증 (세션 + 관리자 확인)
   const { data: requester } = await admin
     .from("profiles")
     .select("username, session_token")
@@ -19,12 +20,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
-  const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + days);
+  const trimmedReason = typeof reason === "string" ? reason.trim() : "";
 
   const { error } = await admin
     .from("profiles")
-    .update({ approved: true, expires_at: expiresAt.toISOString(), payment_requested_at: null, payment_reject_reason: null })
+    .update({
+      payment_requested_at: null,
+      payment_note: null,
+      payment_reject_reason: (trimmedReason || DEFAULT_REASON).slice(0, 300),
+    })
     .eq("id", targetId);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
