@@ -16,6 +16,7 @@ interface User {
   created_at: string;
   ko_access: boolean;
   payment_requested_at: string | null;
+  payment_note: string | null;
 }
 
 interface AdminPanelProps {
@@ -187,6 +188,11 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                 {u.payment_requested_at && (
                   <p className="text-emerald-400 text-xs font-medium">
                     💰 입금 확인 요청 · {new Date(u.payment_requested_at).toLocaleString("ko-KR", { month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                  </p>
+                )}
+                {u.payment_note && (
+                  <p className="text-emerald-300/80 text-xs">
+                    📝 {u.payment_note}
                   </p>
                 )}
                 <div className="flex justify-between items-start">

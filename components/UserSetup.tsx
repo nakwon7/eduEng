@@ -4,6 +4,7 @@ import { useState } from "react";
 import { UserProfile } from "@/hooks/useUserProfile";
 import CopyButton from "./CopyButton";
 import UsageHistory from "./UsageHistory";
+import PaymentNoteInput from "./PaymentNoteInput";
 
 interface UserSetupProps {
   onComplete: (profile: UserProfile) => void;
@@ -11,6 +12,8 @@ interface UserSetupProps {
   paymentRequestedAt?: string | null;
   requestingPayment?: boolean;
   onRequestPayment?: () => void;
+  paymentNote?: string;
+  onPaymentNoteChange?: (note: string) => void;
   userId?: string | null;
   sessionToken?: string | null;
 }
@@ -26,7 +29,7 @@ const TUTORS = [
   { id: "rachel", emoji: "🌸", label: "Rachel", desc: "Warm & Patient" },
 ] as const;
 
-export default function UserSetup({ onComplete, existing, paymentRequestedAt, requestingPayment, onRequestPayment, userId, sessionToken }: UserSetupProps) {
+export default function UserSetup({ onComplete, existing, paymentRequestedAt, requestingPayment, onRequestPayment, paymentNote, onPaymentNoteChange, userId, sessionToken }: UserSetupProps) {
   const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   const [name, setName] = useState(existing?.name || "");
   const [level, setLevel] = useState<UserProfile["level"]>(existing?.level || "intermediate");
@@ -122,13 +125,18 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
           paymentRequestedAt ? (
             <p className="mt-1 text-emerald-400 text-xs">✅ 확인 요청됨 · 관리자 확인 후 곧 승인됩니다</p>
           ) : (
-            <button
-              onClick={onRequestPayment}
-              disabled={requestingPayment}
-              className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
-            >
-              {requestingPayment ? "요청 중..." : "✅ 입금 완료, 확인 요청하기"}
-            </button>
+            <>
+              {onPaymentNoteChange && (
+                <PaymentNoteInput value={paymentNote || ""} onChange={onPaymentNoteChange} lang="ko" />
+              )}
+              <button
+                onClick={onRequestPayment}
+                disabled={requestingPayment}
+                className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
+              >
+                {requestingPayment ? "요청 중..." : "✅ 입금 완료, 확인 요청하기"}
+              </button>
+            </>
           )
         )}
         <a

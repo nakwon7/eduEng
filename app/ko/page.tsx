@@ -10,6 +10,7 @@ import TranscriptBox, { Message } from "@/components/TranscriptBox";
 import TermsModalEn from "@/components/TermsModalEn";
 import TutorAvatar from "@/components/TutorAvatar";
 import UsageHistory from "@/components/UsageHistory";
+import PaymentNoteInput from "@/components/PaymentNoteInput";
 
 type CallState = "idle" | "calling" | "active";
 
@@ -55,6 +56,7 @@ export default function KoPage() {
   const [showMembershipAlert, setShowMembershipAlert] = useState(false);
   const [paymentRequestedAt, setPaymentRequestedAt] = useState<string | null>(null);
   const [requestingPayment, setRequestingPayment] = useState(false);
+  const [paymentNote, setPaymentNote] = useState("");
 
   const callDurationRef = useRef(0);
   const callStateRef = useRef<CallState>("idle");
@@ -145,7 +147,7 @@ export default function KoPage() {
     const res = await fetch("/api/payment/request", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, sessionToken }),
+      body: JSON.stringify({ userId, sessionToken, note: paymentNote }),
     });
     if (res.ok) setPaymentRequestedAt(new Date().toISOString());
     setRequestingPayment(false);
@@ -515,13 +517,16 @@ export default function KoPage() {
                 {paymentRequestedAt ? (
                   <p className="mt-1 text-emerald-400 text-xs">✅ Confirmation requested — admin will review shortly</p>
                 ) : (
-                  <button
-                    onClick={requestPaymentConfirmation}
-                    disabled={requestingPayment}
-                    className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
-                  >
-                    {requestingPayment ? "Requesting..." : "✅ I've paid, request confirmation"}
-                  </button>
+                  <>
+                    <PaymentNoteInput value={paymentNote} onChange={setPaymentNote} lang="en" />
+                    <button
+                      onClick={requestPaymentConfirmation}
+                      disabled={requestingPayment}
+                      className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
+                    >
+                      {requestingPayment ? "Requesting..." : "✅ I've paid, request confirmation"}
+                    </button>
+                  </>
                 )}
                 <a
                   href="https://open.kakao.com/o/sPanl0Ci"
@@ -686,13 +691,16 @@ export default function KoPage() {
                   {paymentRequestedAt ? (
                     <p className="pt-1 text-emerald-400 text-xs">✅ Confirmation requested — admin will review shortly</p>
                   ) : (
-                    <button
-                      onClick={requestPaymentConfirmation}
-                      disabled={requestingPayment}
-                      className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
-                    >
-                      {requestingPayment ? "Requesting..." : "✅ I've paid, request confirmation"}
-                    </button>
+                    <>
+                      <PaymentNoteInput value={paymentNote} onChange={setPaymentNote} lang="en" />
+                      <button
+                        onClick={requestPaymentConfirmation}
+                        disabled={requestingPayment}
+                        className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
+                      >
+                        {requestingPayment ? "Requesting..." : "✅ I've paid, request confirmation"}
+                      </button>
+                    </>
                   )}
                   <a
                     href="https://open.kakao.com/o/sPanl0Ci"
@@ -724,13 +732,16 @@ export default function KoPage() {
                   {paymentRequestedAt ? (
                     <p className="pt-1 text-emerald-400 text-xs">✅ Confirmation requested — admin will review shortly</p>
                   ) : (
-                    <button
-                      onClick={requestPaymentConfirmation}
-                      disabled={requestingPayment}
-                      className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
-                    >
-                      {requestingPayment ? "Requesting..." : "✅ I've paid, request confirmation"}
-                    </button>
+                    <>
+                      <PaymentNoteInput value={paymentNote} onChange={setPaymentNote} lang="en" />
+                      <button
+                        onClick={requestPaymentConfirmation}
+                        disabled={requestingPayment}
+                        className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
+                      >
+                        {requestingPayment ? "Requesting..." : "✅ I've paid, request confirmation"}
+                      </button>
+                    </>
                   )}
                   <a
                     href="https://open.kakao.com/o/sPanl0Ci"

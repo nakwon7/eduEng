@@ -14,6 +14,7 @@ import { UserProfile } from "@/hooks/useUserProfile";
 import AdminPanel from "@/components/AdminPanel";
 import TermsModal from "@/components/TermsModal";
 import TutorAvatar from "@/components/TutorAvatar";
+import PaymentNoteInput from "@/components/PaymentNoteInput";
 
 type CallState = "idle" | "calling" | "active";
 type View = "home" | "settings" | "admin" | "help";
@@ -44,6 +45,7 @@ export default function Home() {
   const [monthlySeconds, setMonthlySeconds] = useState(0);
   const [paymentRequestedAt, setPaymentRequestedAt] = useState<string | null>(null);
   const [requestingPayment, setRequestingPayment] = useState(false);
+  const [paymentNote, setPaymentNote] = useState("");
   const isTrialCallRef = useRef(false);
   const topicRef = useRef(topic);
   const callDurationRef = useRef(0);
@@ -144,7 +146,7 @@ export default function Home() {
     const res = await fetch("/api/payment/request", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, sessionToken }),
+      body: JSON.stringify({ userId, sessionToken, note: paymentNote }),
     });
     if (res.ok) setPaymentRequestedAt(new Date().toISOString());
     setRequestingPayment(false);
@@ -488,6 +490,8 @@ export default function Home() {
               paymentRequestedAt={paymentRequestedAt}
               requestingPayment={requestingPayment}
               onRequestPayment={requestPaymentConfirmation}
+              paymentNote={paymentNote}
+              onPaymentNoteChange={setPaymentNote}
               userId={userId}
               sessionToken={sessionToken}
             />
@@ -589,13 +593,16 @@ export default function Home() {
                   {paymentRequestedAt ? (
                     <p className="pt-1 text-emerald-400 text-xs">✅ 확인 요청됨 · 관리자 확인 후 곧 승인됩니다</p>
                   ) : (
-                    <button
-                      onClick={requestPaymentConfirmation}
-                      disabled={requestingPayment}
-                      className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
-                    >
-                      {requestingPayment ? "요청 중..." : "✅ 입금 완료, 확인 요청하기"}
-                    </button>
+                    <>
+                      <PaymentNoteInput value={paymentNote} onChange={setPaymentNote} lang="ko" />
+                      <button
+                        onClick={requestPaymentConfirmation}
+                        disabled={requestingPayment}
+                        className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
+                      >
+                        {requestingPayment ? "요청 중..." : "✅ 입금 완료, 확인 요청하기"}
+                      </button>
+                    </>
                   )}
                   <a
                     href="https://open.kakao.com/o/sPanl0Ci"

@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export async function POST(req: NextRequest) {
-  const { userId, sessionToken } = await req.json();
+  const { userId, sessionToken, note } = await req.json();
   if (!userId || !sessionToken) {
     return NextResponse.json({ error: "userId and sessionToken required" }, { status: 400 });
   }
@@ -23,7 +23,10 @@ export async function POST(req: NextRequest) {
 
   await admin
     .from("profiles")
-    .update({ payment_requested_at: new Date().toISOString() })
+    .update({
+      payment_requested_at: new Date().toISOString(),
+      payment_note: typeof note === "string" && note.trim() ? note.trim().slice(0, 200) : null,
+    })
     .eq("id", userId);
 
   return NextResponse.json({ ok: true });
