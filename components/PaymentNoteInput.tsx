@@ -3,15 +3,22 @@
 interface PaymentNoteInputProps {
   value: string;
   onChange: (value: string) => void;
-  lang?: "ko" | "en";
+  variant: "bankName" | "email";
 }
 
-export default function PaymentNoteInput({ value, onChange, lang = "ko" }: PaymentNoteInputProps) {
-  const label =
-    lang === "ko"
-      ? "입금자명 또는 결제하신 이메일 (선택, 있으면 확인이 빨라져요)"
-      : "Depositor name or payment email (optional, speeds up confirmation)";
-  const placeholder = lang === "ko" ? "예: 홍길동 또는 you@paypal.com" : "e.g. John Doe or you@paypal.com";
+const COPY = {
+  bankName: {
+    label: "입금자명 (필수, 계좌이체 시 표시되는 이름)",
+    placeholder: "예: 홍길동",
+  },
+  email: {
+    label: "PayPal email (required)",
+    placeholder: "e.g. you@paypal.com",
+  },
+} as const;
+
+export default function PaymentNoteInput({ value, onChange, variant }: PaymentNoteInputProps) {
+  const { label, placeholder } = COPY[variant];
 
   return (
     <div className="mt-1">

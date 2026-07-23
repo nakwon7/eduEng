@@ -141,7 +141,7 @@ export default function Home() {
   };
 
   const requestPaymentConfirmation = async () => {
-    if (!userId || !sessionToken || requestingPayment) return;
+    if (!userId || !sessionToken || requestingPayment || !paymentNote.trim()) return;
     setRequestingPayment(true);
     const res = await fetch("/api/payment/request", {
       method: "POST",
@@ -594,10 +594,10 @@ export default function Home() {
                     <p className="pt-1 text-emerald-400 text-xs">✅ 확인 요청됨 · 관리자 확인 후 곧 승인됩니다</p>
                   ) : (
                     <>
-                      <PaymentNoteInput value={paymentNote} onChange={setPaymentNote} lang="ko" />
+                      <PaymentNoteInput value={paymentNote} onChange={setPaymentNote} variant="bankName" />
                       <button
                         onClick={requestPaymentConfirmation}
-                        disabled={requestingPayment}
+                        disabled={requestingPayment || !paymentNote.trim()}
                         className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
                       >
                         {requestingPayment ? "요청 중..." : "✅ 입금 완료, 확인 요청하기"}

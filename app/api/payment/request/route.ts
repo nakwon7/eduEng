@@ -5,8 +5,12 @@ import { supabaseAdmin } from "@/lib/supabase";
 
 export async function POST(req: NextRequest) {
   const { userId, sessionToken, note } = await req.json();
+  const trimmedNote = typeof note === "string" ? note.trim() : "";
   if (!userId || !sessionToken) {
     return NextResponse.json({ error: "userId and sessionToken required" }, { status: 400 });
+  }
+  if (!trimmedNote) {
+    return NextResponse.json({ error: "note required" }, { status: 400 });
   }
 
   const admin = supabaseAdmin();
@@ -25,7 +29,7 @@ export async function POST(req: NextRequest) {
     .from("profiles")
     .update({
       payment_requested_at: new Date().toISOString(),
-      payment_note: typeof note === "string" && note.trim() ? note.trim().slice(0, 200) : null,
+      payment_note: trimmedNote.slice(0, 200),
     })
     .eq("id", userId);
 

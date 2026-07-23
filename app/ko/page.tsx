@@ -142,7 +142,7 @@ export default function KoPage() {
   const canMakeCall = !blocked && !weeklyLimitReached && (isUnlimited || isPaid || trialCalls > 0);
 
   const requestPaymentConfirmation = async () => {
-    if (!userId || !sessionToken || requestingPayment) return;
+    if (!userId || !sessionToken || requestingPayment || !paymentNote.trim()) return;
     setRequestingPayment(true);
     const res = await fetch("/api/payment/request", {
       method: "POST",
@@ -518,10 +518,10 @@ export default function KoPage() {
                   <p className="mt-1 text-emerald-400 text-xs">✅ Confirmation requested — admin will review shortly</p>
                 ) : (
                   <>
-                    <PaymentNoteInput value={paymentNote} onChange={setPaymentNote} lang="en" />
+                    <PaymentNoteInput value={paymentNote} onChange={setPaymentNote} variant="email" />
                     <button
                       onClick={requestPaymentConfirmation}
-                      disabled={requestingPayment}
+                      disabled={requestingPayment || !paymentNote.trim()}
                       className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
                     >
                       {requestingPayment ? "Requesting..." : "✅ I've paid, request confirmation"}
@@ -692,10 +692,10 @@ export default function KoPage() {
                     <p className="pt-1 text-emerald-400 text-xs">✅ Confirmation requested — admin will review shortly</p>
                   ) : (
                     <>
-                      <PaymentNoteInput value={paymentNote} onChange={setPaymentNote} lang="en" />
+                      <PaymentNoteInput value={paymentNote} onChange={setPaymentNote} variant="email" />
                       <button
                         onClick={requestPaymentConfirmation}
-                        disabled={requestingPayment}
+                        disabled={requestingPayment || !paymentNote.trim()}
                         className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
                       >
                         {requestingPayment ? "Requesting..." : "✅ I've paid, request confirmation"}
@@ -733,10 +733,10 @@ export default function KoPage() {
                     <p className="pt-1 text-emerald-400 text-xs">✅ Confirmation requested — admin will review shortly</p>
                   ) : (
                     <>
-                      <PaymentNoteInput value={paymentNote} onChange={setPaymentNote} lang="en" />
+                      <PaymentNoteInput value={paymentNote} onChange={setPaymentNote} variant="email" />
                       <button
                         onClick={requestPaymentConfirmation}
-                        disabled={requestingPayment}
+                        disabled={requestingPayment || !paymentNote.trim()}
                         className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
                       >
                         {requestingPayment ? "Requesting..." : "✅ I've paid, request confirmation"}

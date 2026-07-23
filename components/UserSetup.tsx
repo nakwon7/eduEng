@@ -127,11 +127,11 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
           ) : (
             <>
               {onPaymentNoteChange && (
-                <PaymentNoteInput value={paymentNote || ""} onChange={onPaymentNoteChange} lang="ko" />
+                <PaymentNoteInput value={paymentNote || ""} onChange={onPaymentNoteChange} variant="bankName" />
               )}
               <button
                 onClick={onRequestPayment}
-                disabled={requestingPayment}
+                disabled={requestingPayment || !(paymentNote || "").trim()}
                 className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
               >
                 {requestingPayment ? "요청 중..." : "✅ 입금 완료, 확인 요청하기"}
