@@ -73,6 +73,7 @@ export default function KoPage() {
 
   const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   const effectiveTutor = isMobile ? "jia" : profile.tutor;
+  const isPaymentExempt = username === "gooster" || username === "mh1104";
 
   useEffect(() => { callDurationRef.current = callDuration; }, [callDuration]);
   useEffect(() => { callStateRef.current = callState; }, [callState]);
@@ -520,7 +521,7 @@ export default function KoPage() {
                 <p className="text-gray-600 text-xs text-center">or bank transfer</p>
                 <p className="text-gray-500 text-xs flex items-center gap-1">KB Kookmin Bank 758637-00-012739<CopyButton text="758637-00-012739" label="Copy" copiedLabel="Copied!" /></p>
                 <p className="text-gray-500 text-xs">예금주: 송랩</p>
-                {paymentRequestedAt ? (
+                {isPaymentExempt ? null : paymentRequestedAt ? (
                   <p className="mt-1 text-emerald-400 text-xs">✅ Confirmation requested — admin will review shortly</p>
                 ) : (
                   <>
@@ -695,7 +696,7 @@ export default function KoPage() {
                   </a>
                   <p className="flex items-center justify-center gap-1">KB Kookmin Bank 758637-00-012739<CopyButton text="758637-00-012739" label="Copy" copiedLabel="Copied!" /></p>
                   <p>예금주: 송랩</p>
-                  {paymentRequestedAt ? (
+                  {isPaymentExempt ? null : paymentRequestedAt ? (
                     <p className="pt-1 text-emerald-400 text-xs">✅ Confirmation requested — admin will review shortly</p>
                   ) : (
                     <>
@@ -737,7 +738,7 @@ export default function KoPage() {
                   </a>
                   <p className="flex items-center justify-center gap-1">KB Kookmin Bank 758637-00-012739<CopyButton text="758637-00-012739" label="Copy" copiedLabel="Copied!" /></p>
                   <p>예금주: 송랩</p>
-                  {paymentRequestedAt ? (
+                  {isPaymentExempt ? null : paymentRequestedAt ? (
                     <p className="pt-1 text-emerald-400 text-xs">✅ Confirmation requested — admin will review shortly</p>
                   ) : (
                     <>

@@ -67,6 +67,7 @@ export default function Home() {
   const isAndroid = typeof navigator !== "undefined" && /Android/i.test(navigator.userAgent);
   const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   const effectiveTutor = isMobile ? "rachel" : (profile?.tutor ?? "alex");
+  const isPaymentExempt = username === "gooster" || username === "mh1104";
 
   useEffect(() => {
     const loadProfile = async (session: { user: { id: string } }) => {
@@ -495,7 +496,7 @@ export default function Home() {
               onComplete={saveProfile}
               paymentRequestedAt={paymentRequestedAt}
               requestingPayment={requestingPayment}
-              onRequestPayment={requestPaymentConfirmation}
+              onRequestPayment={isPaymentExempt ? undefined : requestPaymentConfirmation}
               paymentNote={paymentNote}
               onPaymentNoteChange={setPaymentNote}
               paymentRejectReason={paymentRejectReason}
@@ -597,7 +598,7 @@ export default function Home() {
                 <div className="bg-gray-800 rounded-xl p-3 text-xs text-gray-300 space-y-1">
                   <p className="flex items-center gap-1">KB국민은행 758637-00-012739<CopyButton text="758637-00-012739" /></p>
                   <p>예금주: 송랩</p>
-                  {paymentRequestedAt ? (
+                  {isPaymentExempt ? null : paymentRequestedAt ? (
                     <p className="pt-1 text-emerald-400 text-xs">✅ 확인 요청됨 · 관리자 확인 후 곧 승인됩니다</p>
                   ) : (
                     <>
