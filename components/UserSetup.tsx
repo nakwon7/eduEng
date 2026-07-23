@@ -16,6 +16,8 @@ interface UserSetupProps {
   paymentNote?: string;
   onPaymentNoteChange?: (note: string) => void;
   paymentRejectReason?: string | null;
+  hasActiveMembership?: boolean;
+  expiresAt?: string | null;
   userId?: string | null;
   sessionToken?: string | null;
 }
@@ -31,7 +33,7 @@ const TUTORS = [
   { id: "rachel", emoji: "🌸", label: "Rachel", desc: "Warm & Patient" },
 ] as const;
 
-export default function UserSetup({ onComplete, existing, paymentRequestedAt, requestingPayment, onRequestPayment, paymentNote, onPaymentNoteChange, paymentRejectReason, userId, sessionToken }: UserSetupProps) {
+export default function UserSetup({ onComplete, existing, paymentRequestedAt, requestingPayment, onRequestPayment, paymentNote, onPaymentNoteChange, paymentRejectReason, hasActiveMembership, expiresAt, userId, sessionToken }: UserSetupProps) {
   const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   const [name, setName] = useState(existing?.name || "");
   const [level, setLevel] = useState<UserProfile["level"]>(existing?.level || "intermediate");
@@ -124,7 +126,11 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
         <p className="text-gray-500 text-xs flex items-center gap-1">KB국민은행 758637-00-012739<CopyButton text="758637-00-012739" /></p>
         <p className="text-gray-500 text-xs">예금주: 송랩</p>
         {onRequestPayment && (
-          paymentRequestedAt ? (
+          hasActiveMembership ? (
+            <p className="mt-1 text-green-400 text-xs">
+              ✅ 멤버십 이용중{expiresAt ? ` · ${new Date(expiresAt).toLocaleDateString("ko-KR")}까지` : ""}
+            </p>
+          ) : paymentRequestedAt ? (
             <p className="mt-1 text-emerald-400 text-xs">✅ 확인 요청됨 · 관리자 확인 후 곧 승인됩니다</p>
           ) : (
             <>

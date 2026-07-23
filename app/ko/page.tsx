@@ -351,6 +351,7 @@ export default function KoPage() {
   }, []);
 
   const hasActiveMembership = !blocked && !unlimited && !weeklyLimitReached && !!expiresAt && new Date(expiresAt) > new Date();
+  const canSkipPayment = unlimited || hasActiveMembership;
 
   const handlePaypalClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
     if (!hasActiveMembership) return;
@@ -521,12 +522,16 @@ export default function KoPage() {
                 <p className="text-gray-600 text-xs text-center">or bank transfer</p>
                 <p className="text-gray-500 text-xs flex items-center gap-1">KB Kookmin Bank 758637-00-012739<CopyButton text="758637-00-012739" label="Copy" copiedLabel="Copied!" /></p>
                 <p className="text-gray-500 text-xs">예금주: 송랩</p>
-                {isPaymentExempt ? null : paymentRequestedAt ? (
+                {isPaymentExempt ? null : canSkipPayment ? (
+                  <p className="mt-1 text-green-400 text-xs">
+                    ✅ Active membership{expiresAt ? ` — until ${new Date(expiresAt).toLocaleDateString("en-US")}` : ""}
+                  </p>
+                ) : paymentRequestedAt ? (
                   <p className="mt-1 text-emerald-400 text-xs">✅ Confirmation requested — admin will review shortly</p>
                 ) : (
                   <>
                     {paymentRejectReason && <PaymentRejectNotice reason={paymentRejectReason} lang="en" />}
-                      <PaymentNoteInput value={paymentNote} onChange={setPaymentNote} variant="email" />
+                    <PaymentNoteInput value={paymentNote} onChange={setPaymentNote} variant="email" />
                     <button
                       onClick={requestPaymentConfirmation}
                       disabled={requestingPayment || !paymentNote.trim()}

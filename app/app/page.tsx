@@ -500,6 +500,8 @@ export default function Home() {
               paymentNote={paymentNote}
               onPaymentNoteChange={setPaymentNote}
               paymentRejectReason={paymentRejectReason}
+              hasActiveMembership={isPaid || isUnlimited}
+              expiresAt={expiresAt}
               userId={userId}
               sessionToken={sessionToken}
             />
