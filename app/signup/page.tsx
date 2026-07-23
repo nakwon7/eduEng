@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { isDisposableEmail } from "@/lib/disposableEmailDomains";
 
 const LEVELS = [
   { id: "beginner", label: "초급", desc: "기초 문법, 간단한 대화" },
@@ -44,6 +45,8 @@ export default function SignupPage() {
     : "";
   const emailError = email && !EMAIL_REGEX.test(email)
     ? "올바른 이메일 형식이 아닙니다"
+    : email && isDisposableEmail(email)
+    ? "일회용/임시 이메일 서비스는 사용할 수 없습니다"
     : "";
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -160,6 +163,7 @@ export default function SignupPage() {
               placeholder="example@email.com"
               className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
             />
+            <p className="text-gray-600 text-xs mt-1">비밀번호 재설정 등에 사용되니 실제 사용 가능한 이메일을 입력해주세요</p>
             {emailError && <p className="text-red-400 text-xs mt-1">{emailError}</p>}
           </div>
           <div>

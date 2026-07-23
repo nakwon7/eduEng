@@ -124,7 +124,7 @@ export default function FlyerPage() {
         }}>
           <div>
             <p style={{ fontSize: "10pt", color: "#16a34a", fontWeight: 700, marginBottom: "1mm" }}>베타 특가</p>
-            <p style={{ fontSize: "9pt", color: "#374151" }}>✅ 가입 즉시 무료 체험 5회 (회당 10분)</p>
+            <p style={{ fontSize: "9pt", color: "#374151" }}>✅ 가입 즉시 무료 체험 2회 (회당 5분)</p>
             <p style={{ fontSize: "9pt", color: "#374151" }}>✅ 설치 없이 바로 사용 가능</p>
           </div>
           <div style={{ textAlign: "right" }}>

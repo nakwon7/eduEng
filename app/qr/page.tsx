@@ -29,7 +29,7 @@ export default function QRPage() {
         </div>
 
         <div className="bg-gray-900 rounded-2xl px-6 py-4 space-y-1.5 text-sm text-gray-300 w-full max-w-xs">
-          <p>✅ 무료 체험 5회 제공</p>
+          <p>✅ 무료 체험 2회 제공</p>
           <p>✅ 설치 없이 바로 사용</p>
           <p>✅ AI 튜터 Alex · Rachel</p>
         </div>

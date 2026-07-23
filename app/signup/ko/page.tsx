@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { isDisposableEmail } from "@/lib/disposableEmailDomains";
 
 const LEVELS = [
   { id: "beginner", label: "Beginner", desc: "Basic words, simple sentences" },
@@ -44,6 +45,8 @@ export default function SignupKoPage() {
     : "";
   const emailError = email && !EMAIL_REGEX.test(email)
     ? "Please enter a valid email address"
+    : email && isDisposableEmail(email)
+    ? "Disposable/temporary email addresses are not allowed"
     : "";
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -102,7 +105,7 @@ export default function SignupKoPage() {
           <div className="text-5xl mb-4">🎉</div>
           <h2 className="text-white text-lg font-bold mb-2">You&apos;re all set!</h2>
           <p className="text-gray-400 text-sm leading-relaxed">
-            Your account is ready. Log in to start your free trial — 5 sessions included!
+            Your account is ready. Log in to start your free trial — 2 sessions included!
           </p>
           <a href="/login/ko" className="mt-6 inline-block text-blue-400 hover:text-blue-300 text-sm">
             Go to login →
@@ -120,7 +123,7 @@ export default function SignupKoPage() {
             🇰🇷
           </div>
           <h1 className="text-white text-xl font-bold">Learn Korean with AI</h1>
-          <p className="text-gray-400 text-xs mt-1">5 free trial sessions included</p>
+          <p className="text-gray-400 text-xs mt-1">2 free trial sessions included</p>
         </div>
 
         <form onSubmit={handleSignup} className="space-y-4">
@@ -159,6 +162,7 @@ export default function SignupKoPage() {
               placeholder="example@email.com"
               className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
             />
+            <p className="text-gray-600 text-xs mt-1">Used for things like password reset — please use a real email you can access</p>
             {emailError && <p className="text-red-400 text-xs mt-1">{emailError}</p>}
           </div>
           <div>

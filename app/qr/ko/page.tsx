@@ -29,7 +29,7 @@ export default function QRKoPage() {
         </div>
 
         <div className="bg-gray-900 rounded-2xl px-6 py-4 space-y-1.5 text-sm text-gray-300 w-full max-w-xs">
-          <p>✅ 5 free trial sessions</p>
+          <p>✅ 2 free trial sessions</p>
           <p>✅ No app download needed</p>
           <p>✅ AI tutor available 24/7</p>
         </div>

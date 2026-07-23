@@ -122,7 +122,7 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
           <span className="text-white text-lg font-bold">9,900원</span>
           <span className="text-gray-500 text-xs">/ 월 · 매월 900분 제공</span>
         </div>
-        <p className="text-gray-500 text-xs">무료 체험 5회(회당 최대 10분) 제공</p>
+        <p className="text-gray-500 text-xs">무료 체험 2회(회당 최대 5분) 제공</p>
         <p className="text-gray-500 text-xs flex items-center gap-1">KB국민은행 758637-00-012739<CopyButton text="758637-00-012739" /></p>
         <p className="text-gray-500 text-xs">예금주: 송랩</p>
         {onRequestPayment && (

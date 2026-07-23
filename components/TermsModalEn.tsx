@@ -42,7 +42,7 @@ export default function TermsModalEn({ onClose }: TermsModalEnProps) {
           <div className="space-y-1">
             <h3 className="font-semibold text-gray-200 text-xs">Article 5 (Service & Pricing)</h3>
             <ul className="text-gray-400 text-xs leading-relaxed space-y-1 list-disc list-inside">
-              <li>Free Trial: 5 sessions upon sign-up (up to 10 minutes each), no payment required</li>
+              <li>Free Trial: 2 sessions upon sign-up (up to 5 minutes each), no payment required</li>
               <li>Membership: $3/week (beta pricing), paid via bank transfer or PayPal</li>
               <li>Bank transfer: KB Kookmin Bank 758637-00-012739 (SongLab)</li>
               <li>Access is activated manually by the administrator after payment confirmation.</li>
@@ -52,7 +52,7 @@ export default function TermsModalEn({ onClose }: TermsModalEnProps) {
           <div className="space-y-1">
             <h3 className="font-semibold text-gray-200 text-xs">Article 6 (Refund Policy)</h3>
             <ul className="text-gray-400 text-xs leading-relaxed space-y-1 list-disc list-inside">
-              <li>As 5 free trial sessions are provided immediately upon sign-up, refunds are not available after membership payment.</li>
+              <li>As 2 free trial sessions are provided immediately upon sign-up, refunds are not available after membership payment.</li>
               <li>However, if cancellation is requested before service activation, a full refund will be issued.</li>
               <li>Refund requests: contact us via KakaoTalk channel</li>
             </ul>

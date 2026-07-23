@@ -47,7 +47,7 @@ export default function KoPage() {
   const [unlimited, setUnlimited] = useState(false);
   const [blocked, setBlocked] = useState(false);
   const [trialCalls, setTrialCalls] = useState(0);
-  const [trialMinutes, setTrialMinutes] = useState(10);
+  const [trialMinutes, setTrialMinutes] = useState(5);
   const [weeklySeconds, setWeeklySeconds] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [showSetup, setShowSetup] = useState(false);
@@ -102,7 +102,7 @@ export default function KoPage() {
         setUnlimited(profileData.unlimited ?? false);
         setBlocked(profileData.blocked ?? false);
         setTrialCalls(profileData.trial_calls ?? 0);
-        setTrialMinutes(profileData.trial_minutes ?? 10);
+        setTrialMinutes(profileData.trial_minutes ?? 5);
         setPaymentRequestedAt(profileData.payment_requested_at ?? null);
         setPaymentRejectReason(profileData.payment_reject_reason ?? null);
         setProfile({
@@ -514,7 +514,7 @@ export default function KoPage() {
                   <span className="text-white text-lg font-bold">$3</span>
                   <span className="text-gray-500 text-xs">/ week</span>
                 </div>
-                <p className="text-gray-500 text-xs">5 free trial sessions (up to 10 min each)</p>
+                <p className="text-gray-500 text-xs">2 free trial sessions (up to 5 min each)</p>
                 <a
                   href="https://www.paypal.com/ncp/payment/DC7LDXNCBE4NY"
                   target="_blank"

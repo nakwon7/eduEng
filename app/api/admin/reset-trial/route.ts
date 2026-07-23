@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 
   const { error } = await admin
     .from("profiles")
-    .update({ trial_calls: 5, trial_minutes: 10 })
+    .update({ trial_calls: 2, trial_minutes: 5 })
     .eq("id", targetId);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
