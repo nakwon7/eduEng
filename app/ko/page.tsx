@@ -415,9 +415,6 @@ export default function KoPage() {
             <span className="text-blue-400 text-xs font-medium bg-blue-900/40 px-2 py-0.5 rounded-full">
               🇰🇷 Korean for Foreigners
             </span>
-            <span className="text-yellow-400 text-xs bg-yellow-900/40 px-2 py-0.5 rounded-full">
-              Admin Only
-            </span>
           </div>
           {callState === "active" && (
             <p className="text-green-400 text-sm mt-1 font-mono">{formatTime(callDuration)}</p>

@@ -583,13 +583,41 @@ export default function Home() {
                 </button>
               </div>
             ) : monthlyLimitReached ? (
-              <div className="space-y-2 text-center py-2">
+              <div className="space-y-3 text-center py-2">
                 <p className="text-orange-400 text-sm font-medium">이번 결제 주기 사용량(900분)을 모두 사용했습니다</p>
                 <p className="text-gray-500 text-xs">
                   {expiresAt
                     ? <>멤버십 갱신 시 초기화돼요 (이용기간 종료: {new Date(expiresAt).toLocaleString("ko-KR", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })})</>
                     : "다음달 1일부터 다시 이용할 수 있어요"}
                 </p>
+                <p className="text-gray-400 text-xs">지금 더 이용하고 싶으면 조기 결제할 수 있어요</p>
+                <div className="bg-gray-800 rounded-xl p-3 text-xs text-gray-300 space-y-1">
+                  <p className="flex items-center justify-center gap-1">KB국민은행 758637-00-012739<CopyButton text="758637-00-012739" /></p>
+                  <p>예금주: 송랩</p>
+                  {isPaymentExempt ? null : paymentRequestedAt ? (
+                    <p className="pt-1 text-emerald-400 text-xs">✅ 확인 요청됨 · 관리자 확인 후 곧 승인됩니다</p>
+                  ) : (
+                    <>
+                      {paymentRejectReason && <PaymentRejectNotice reason={paymentRejectReason} lang="ko" />}
+                      <PaymentNoteInput value={paymentNote} onChange={setPaymentNote} variant="bankName" />
+                      <button
+                        onClick={requestPaymentConfirmation}
+                        disabled={requestingPayment || !paymentNote.trim()}
+                        className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
+                      >
+                        {requestingPayment ? "요청 중..." : "✅ 입금 완료, 확인 요청하기"}
+                      </button>
+                    </>
+                  )}
+                  <a
+                    href="https://open.kakao.com/o/sPanl0Ci"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-yellow-400 hover:text-yellow-300 pt-1"
+                  >
+                    💬 가입 문의 (카카오톡)
+                  </a>
+                </div>
               </div>
             ) : (
               <div className="space-y-3 text-center">
