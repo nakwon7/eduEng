@@ -17,20 +17,27 @@ const TEXT = {
   ko: {
     title: "사용 내역",
     loading: "불러오는 중...",
-    total: (min: number) => `합계: ${min}분`,
+    total: (label: string) => `합계: ${label}`,
     empty: "해당 월 사용 기록이 없습니다",
     minute: (min: number) => `${min}분`,
+    under1min: "1분 미만",
     month: (m: number) => `${m}월`,
   },
   en: {
     title: "Usage History",
     loading: "Loading...",
-    total: (min: number) => `Total: ${min} min`,
+    total: (label: string) => `Total: ${label}`,
     empty: "No usage this month",
     minute: (min: number) => `${min} min`,
+    under1min: "Under 1 min",
     month: (m: number) => MONTH_LABELS_EN[m - 1],
   },
 };
+
+function formatMinutes(seconds: number, t: (typeof TEXT)["ko"] | (typeof TEXT)["en"]) {
+  if (seconds > 0 && seconds < 60) return t.under1min;
+  return t.minute(Math.floor(seconds / 60));
+}
 
 export default function UsageHistory({ userId, sessionToken, lang = "ko" }: UsageHistoryProps) {
   const t = TEXT[lang];
@@ -56,7 +63,7 @@ export default function UsageHistory({ userId, sessionToken, lang = "ko" }: Usag
     fetchLogs();
   }, [fetchLogs]);
 
-  const totalMinutes = Math.floor(logs.reduce((s, l) => s + l.seconds, 0) / 60);
+  const totalSeconds = logs.reduce((s, l) => s + l.seconds, 0);
   const years = [now.getFullYear(), now.getFullYear() - 1, now.getFullYear() - 2];
 
   return (
@@ -89,12 +96,12 @@ export default function UsageHistory({ userId, sessionToken, lang = "ko" }: Usag
         <p className="text-gray-600 text-xs text-center py-2">{t.empty}</p>
       ) : (
         <>
-          <p className="text-gray-300 text-xs font-medium pt-1">{t.total(totalMinutes)}</p>
+          <p className="text-gray-300 text-xs font-medium pt-1">{t.total(formatMinutes(totalSeconds, t))}</p>
           <div className="space-y-1 max-h-48 overflow-y-auto">
             {logs.map((l) => (
               <div key={l.date} className="flex justify-between text-xs">
                 <span className="text-gray-500">{l.date}</span>
-                <span className="text-gray-300">{t.minute(Math.floor(l.seconds / 60))}</span>
+                <span className="text-gray-300">{formatMinutes(l.seconds, t)}</span>
               </div>
             ))}
           </div>
