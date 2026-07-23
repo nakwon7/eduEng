@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
 
   const { data } = await admin
     .from("profiles")
-    .select("session_token, total_seconds")
+    .select("session_token")
     .eq("id", userId)
     .single();
 
@@ -21,38 +21,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { error: updateError } = await admin
-    .from("profiles")
-    .update({ total_seconds: (data.total_seconds || 0) + seconds })
-    .eq("id", userId);
-
-  if (updateError) console.error("[call/end] total_seconds update error:", updateError);
-
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(new Date());
 
-  // call_logs는 (user_id, date) unique 제약이 있어서, 그날 이미 행이 있으면
-  // insert 대신 seconds를 누적하는 update를 해야 함 (그냥 insert하면 하루 중 두 번째
-  // 저장부터 전부 23505 중복키 에러로 조용히 실패해서 통화시간이 누락됐음)
-  const { data: existingLog } = await admin
-    .from("call_logs")
-    .select("seconds")
-    .eq("user_id", userId)
-    .eq("date", today)
-    .maybeSingle();
+  // read-then-write는 동시 저장 요청(60초 주기 자동저장 + 통화종료 저장이 겹치는 경우 등)에서
+  // 레이스 컨디션으로 값을 잃어버리거나 call_logs unique 제약(user_id, date) 위반이 나므로,
+  // DB 함수 하나로 total_seconds 증가 + call_logs upsert를 원자적으로 처리
+  const { error } = await admin.rpc("record_call_time", {
+    p_user_id: userId,
+    p_date: today,
+    p_seconds: seconds,
+    p_topic: topic || null,
+  });
 
-  const { error: logError } = existingLog
-    ? await admin
-        .from("call_logs")
-        .update({ seconds: existingLog.seconds + seconds, ...(topic ? { topic } : {}) })
-        .eq("user_id", userId)
-        .eq("date", today)
-    : await admin
-        .from("call_logs")
-        .insert({ user_id: userId, date: today, seconds, ...(topic ? { topic } : {}) });
-
-  if (logError) {
-    console.error("[call/end] call_logs upsert error:", logError);
-    return NextResponse.json({ ok: true, logError: logError.message });
+  if (error) {
+    console.error("[call/end] record_call_time error:", error);
+    return NextResponse.json({ ok: true, logError: error.message });
   }
 
   return NextResponse.json({ ok: true });
