@@ -160,16 +160,22 @@ export default function KoPage() {
     setRequestingPayment(false);
   };
 
-  const saveElapsed = useCallback(() => {
+  const saveElapsed = useCallback(async () => {
     if (!userId || !sessionToken || callStateRef.current !== "active") return;
-    const unsaved = callDurationRef.current - lastSavedRef.current;
+    const savedBefore = lastSavedRef.current;
+    const unsaved = callDurationRef.current - savedBefore;
     if (unsaved <= 0) return;
-    lastSavedRef.current = callDurationRef.current;
-    fetch("/api/call/end", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, sessionToken, seconds: unsaved, topic }),
-    });
+    try {
+      const res = await fetch("/api/call/end", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, sessionToken, seconds: unsaved, topic }),
+      });
+      // 성공 확인 후에만 저장 완료로 표시 — 실패 시 다음 저장 시점에 다시 시도됨
+      if (res.ok) lastSavedRef.current = savedBefore + unsaved;
+    } catch {
+      // 네트워크 실패 시 lastSavedRef를 건드리지 않아 다음 저장에서 재시도됨
+    }
   }, [userId, sessionToken, topic]);
 
   const addMessage = useCallback((msg: Message) => {
@@ -197,7 +203,9 @@ export default function KoPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, sessionToken, seconds: unsaved, topic }),
-      });
+      })
+        .then((res) => { if (!res.ok) console.error("[call/end] save failed", res.status); })
+        .catch((err) => console.error("[call/end] save error", err));
       setWeeklySeconds((prev) => prev + unsaved);
     }
 
@@ -305,7 +313,7 @@ export default function KoPage() {
       const res = await fetch("/api/chat-ko", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: apiMessages, topic, profile, userId, sessionToken }),
+        body: JSON.stringify({ messages: apiMessages, topic, profile: { ...profile, tutor: effectiveTutor }, userId, sessionToken }),
       });
 
       if (!res.ok) {

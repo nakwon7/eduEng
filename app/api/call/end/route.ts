@@ -21,15 +21,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  await admin
+  const { error: updateError } = await admin
     .from("profiles")
     .update({ total_seconds: (data.total_seconds || 0) + seconds })
     .eq("id", userId);
 
+  if (updateError) console.error("[call/end] total_seconds update error:", updateError);
+
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(new Date());
-  await admin
+  const { error: insertError } = await admin
     .from("call_logs")
     .insert({ user_id: userId, date: today, seconds, ...(topic ? { topic } : {}) });
+
+  if (insertError) {
+    console.error("[call/end] call_logs insert error:", insertError);
+    return NextResponse.json({ ok: true, logError: insertError.message });
+  }
 
   return NextResponse.json({ ok: true });
 }

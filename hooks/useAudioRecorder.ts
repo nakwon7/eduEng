@@ -16,6 +16,7 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
+  const startedAtRef = useRef(0);
 
   const isSupported =
     typeof window !== "undefined" && "MediaRecorder" in window;
@@ -25,6 +26,7 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
       chunksRef.current = [];
+      startedAtRef.current = Date.now();
 
       const mimeType = MediaRecorder.isTypeSupported("audio/webm")
         ? "audio/webm"
@@ -61,8 +63,10 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
 
         const mimeType = recorder.mimeType || "audio/webm";
         const blob = new Blob(chunksRef.current, { type: mimeType });
+        const durationMs = Date.now() - startedAtRef.current;
 
-        if (blob.size < 1000) {
+        // 너무 짧은 녹음(탭)은 Whisper가 "Thank you" 같은 문구를 환각하므로 전송하지 않음
+        if (durationMs < 400 || blob.size < 1000) {
           resolve("");
           return;
         }
