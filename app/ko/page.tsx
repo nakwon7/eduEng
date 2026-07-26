@@ -47,6 +47,7 @@ export default function KoPage() {
   const [unlimited, setUnlimited] = useState(false);
   const [blocked, setBlocked] = useState(false);
   const [trialCalls, setTrialCalls] = useState(0);
+  const [streakCount, setStreakCount] = useState(0);
   const [trialMinutes, setTrialMinutes] = useState(5);
   const [weeklySeconds, setWeeklySeconds] = useState(0);
   const [loaded, setLoaded] = useState(false);
@@ -86,7 +87,7 @@ export default function KoPage() {
         const storedToken = localStorage.getItem("turingcall_session");
         const { data: profileData } = await supabase
           .from("profiles")
-          .select("username, name, level, ko_tutor, session_token, expires_at, unlimited, blocked, trial_calls, trial_minutes, ko_access, payment_requested_at, payment_reject_reason")
+          .select("username, name, level, ko_tutor, session_token, expires_at, unlimited, blocked, trial_calls, trial_minutes, ko_access, payment_requested_at, payment_reject_reason, streak_count")
           .eq("id", session.user.id)
           .single();
 
@@ -103,6 +104,7 @@ export default function KoPage() {
         setBlocked(profileData.blocked ?? false);
         setTrialCalls(profileData.trial_calls ?? 0);
         setTrialMinutes(profileData.trial_minutes ?? 5);
+        setStreakCount(profileData.streak_count ?? 0);
         setPaymentRequestedAt(profileData.payment_requested_at ?? null);
         setPaymentRejectReason(profileData.payment_reject_reason ?? null);
         setProfile({
@@ -423,6 +425,9 @@ export default function KoPage() {
             <span className="text-blue-400 text-xs font-medium bg-blue-900/40 px-2 py-0.5 rounded-full">
               🇰🇷 Korean for Foreigners
             </span>
+            {callState === "idle" && streakCount > 0 && (
+              <span className="text-orange-400 text-xs font-medium">🔥 {streakCount} day streak</span>
+            )}
           </div>
           {callState === "active" && (
             <p className="text-green-400 text-sm mt-1 font-mono">{formatTime(callDuration)}</p>

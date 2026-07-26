@@ -33,6 +33,7 @@ export default function Home() {
   const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [trialCalls, setTrialCalls] = useState<number>(0);
+  const [streakCount, setStreakCount] = useState<number>(0);
   const [trialMinutes, setTrialMinutes] = useState<number>(5);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [unlimited, setUnlimited] = useState(false);
@@ -74,7 +75,7 @@ export default function Home() {
       const storedToken = localStorage.getItem("turingcall_session");
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("name, level, tutor, username, session_token, trial_calls, trial_minutes, expires_at, unlimited, blocked, ko_access, payment_requested_at, payment_reject_reason")
+        .select("name, level, tutor, username, session_token, trial_calls, trial_minutes, expires_at, unlimited, blocked, ko_access, payment_requested_at, payment_reject_reason, streak_count")
         .eq("id", session.user.id)
         .single();
 
@@ -96,6 +97,7 @@ export default function Home() {
       setProfile({ name: profileData.name, level: profileData.level, tutor: profileData.tutor || "alex" });
       setTrialCalls(profileData.trial_calls ?? 0);
       setTrialMinutes(profileData.trial_minutes ?? 5);
+      setStreakCount(profileData.streak_count ?? 0);
       setExpiresAt(profileData.expires_at ?? null);
       setUnlimited(profileData.unlimited ?? false);
       setBlocked(profileData.blocked ?? false);
@@ -466,7 +468,10 @@ export default function Home() {
             {effectiveTutor === "rachel" ? "AI Tutor · Korean-American · From Seattle, WA" : "AI Tutor · From New York, NY"}
           </p>
           {profile && callState === "idle" && view === "home" && (
-            <p className="text-green-400 text-xs mt-1">안녕하세요, {profile.name}님 👋</p>
+            <p className="text-green-400 text-xs mt-1">
+              안녕하세요, {profile.name}님 👋
+              {streakCount > 0 && <span className="ml-2 text-orange-400">🔥 {streakCount}일 연속</span>}
+            </p>
           )}
           {callState === "active" && <p className="text-green-400 text-sm mt-1 font-mono">{formatTime(callDuration)}</p>}
           {callState === "calling" && <p className="text-yellow-400 text-sm mt-1 animate-pulse">연결 중...</p>}

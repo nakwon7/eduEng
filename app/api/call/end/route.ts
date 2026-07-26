@@ -38,5 +38,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, logError: error.message });
   }
 
+  const { error: streakError } = await admin.rpc("bump_streak", {
+    p_user_id: userId,
+    p_date: today,
+  });
+  if (streakError) {
+    console.error("[call/end] bump_streak error:", streakError);
+  }
+
   return NextResponse.json({ ok: true });
 }
