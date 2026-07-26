@@ -56,32 +56,26 @@ export default function SignupKoPage() {
     setLoading(true);
 
     try {
-      const { data: existing } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("username", username)
-        .single();
-      if (existing) throw new Error("This username is already taken");
-
-      const { data, error: authError } = await supabase.auth.signUp({ email, password });
-      if (authError) throw authError;
-
-      const userId = data.user?.id;
-      if (!userId) throw new Error("Sign up failed");
-
-      const { error: profileError } = await supabase.from("profiles").insert({
-        id: userId,
-        email,
-        username,
-        name,
-        level,
-        approved: true,
-        ko_access: true,
-        session_token: null,
+      const res = await fetch("/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, name, email, password, level, lang: "ko" }),
       });
-      if (profileError) throw profileError;
+      const result = await res.json();
 
-      await supabase.auth.signOut();
+      if (!res.ok) {
+        if (result.error === "rate_limited") {
+          throw new Error("Too many signup attempts. Please try again later");
+        }
+        if (result.error === "username_taken") {
+          throw new Error("This username is already taken");
+        }
+        if (result.error === "disposable_email") {
+          throw new Error("Disposable/temporary email addresses are not allowed");
+        }
+        throw new Error(result.error || "Sign up failed");
+      }
+
       setStep("done");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Sign up failed");

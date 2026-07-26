@@ -56,32 +56,26 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      // 아이디 중복 확인
-      const { data: existing } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("username", username)
-        .single();
-      if (existing) throw new Error("이미 사용 중인 아이디입니다");
-
-      const { data, error: authError } = await supabase.auth.signUp({ email, password });
-      if (authError) throw authError;
-
-      const userId = data.user?.id;
-      if (!userId) throw new Error("가입 실패");
-
-      const { error: profileError } = await supabase.from("profiles").insert({
-        id: userId,
-        email,
-        username,
-        name,
-        level,
-        approved: true,
-        session_token: null,
+      const res = await fetch("/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, name, email, password, level }),
       });
-      if (profileError) throw profileError;
+      const result = await res.json();
 
-      await supabase.auth.signOut();
+      if (!res.ok) {
+        if (result.error === "rate_limited") {
+          throw new Error("너무 많은 가입 시도가 있었습니다. 잠시 후 다시 시도해주세요");
+        }
+        if (result.error === "username_taken") {
+          throw new Error("이미 사용 중인 아이디입니다");
+        }
+        if (result.error === "disposable_email") {
+          throw new Error("일회용/임시 이메일 서비스는 사용할 수 없습니다");
+        }
+        throw new Error(result.error || "가입 실패");
+      }
+
       setStep("done");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "가입 실패");
