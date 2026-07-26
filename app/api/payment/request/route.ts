@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
 
   const { data } = await admin
     .from("profiles")
-    .select("session_token, username")
+    .select("session_token, username, ko_access")
     .eq("id", userId)
     .single();
 
@@ -35,8 +35,9 @@ export async function POST(req: NextRequest) {
     })
     .eq("id", userId);
 
+  const noteLabel = data.ko_access ? "PayPal 이메일" : "입금자명";
   await sendTelegramAlert(
-    `💰 [EduEng] 입금 확인 요청\n${data.username} · ${trimmedNote.slice(0, 200)}`,
+    `💰 [EduEng] 입금 확인 요청\n${data.username} · ${noteLabel}: ${trimmedNote.slice(0, 200)}`,
     `payment-${userId}-${Date.now()}`
   );
 
