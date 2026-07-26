@@ -84,7 +84,8 @@ export async function POST(req: NextRequest) {
     const recentMessages = messages.slice(-10);
 
     const stream = await getGroq().chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: "openai/gpt-oss-120b",
+      reasoning_effort: "low",
       max_tokens: 300,
       stream: true,
       messages: [{ role: "system", content: systemPrompt }, ...recentMessages],

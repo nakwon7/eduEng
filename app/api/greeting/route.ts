@@ -53,7 +53,8 @@ Generate ONE natural, engaging opening line to start the conversation — as if 
 Reply with ONLY the opening line. No quotes, no explanation.`;
 
     const completion = await getGroq().chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: "openai/gpt-oss-120b",
+      reasoning_effort: "low",
       max_tokens: 100,
       stream: false,
       messages: [{ role: "user", content: prompt }],

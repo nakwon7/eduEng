@@ -10,6 +10,20 @@ function containsJapanese(text: string): boolean {
   return JAPANESE_KANA_REGEX.test(text);
 }
 
+function normalize(text: string): string {
+  return text.toLowerCase().replace(/[^a-z0-9\s]/g, "").replace(/\s+/g, " ").trim();
+}
+
+// goodPhrases는 모델이 실제 대화에 없는 문장을 지어내는 경우가 있어,
+// 학생이 실제로 말한 텍스트에 포함된 것만 남긴다.
+function filterGoodPhrases(phrases: unknown, studentText: string): string[] {
+  if (!Array.isArray(phrases)) return [];
+  const normalizedStudentText = normalize(studentText);
+  return phrases.filter(
+    (p): p is string => typeof p === "string" && normalizedStudentText.includes(normalize(p))
+  );
+}
+
 // 재시도 후에도 일본어가 남아있을 때의 최후 수단: 가나 문자만 제거한다.
 function stripJapanese<T>(value: T): T {
   if (typeof value === "string") {
@@ -40,6 +54,11 @@ export async function POST(req: NextRequest) {
         `${m.role === "user" ? "Student" : "Tutor"}: ${m.content}`
       )
       .join("\n");
+
+    const studentText = messages
+      .filter((m: { role: string; content: string }) => m.role === "user")
+      .map((m: { role: string; content: string }) => m.content)
+      .join(" ");
 
     const levelLabel =
       profile?.level === "beginner" ? "초급" :
@@ -87,7 +106,8 @@ Rules:
     const maxAttempts = 2;
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       const completion = await client.chat.completions.create({
-        model: "llama-3.3-70b-versatile",
+        model: "openai/gpt-oss-120b",
+        reasoning_effort: "low",
         max_tokens: 800,
         messages: messagesForModel,
         response_format: { type: "json_object" },
@@ -101,6 +121,10 @@ Rules:
 
     if (feedback && containsJapanese(JSON.stringify(feedback))) {
       feedback = stripJapanese(feedback);
+    }
+
+    if (feedback) {
+      feedback.goodPhrases = filterGoodPhrases(feedback.goodPhrases, studentText);
     }
 
     return NextResponse.json(feedback);
