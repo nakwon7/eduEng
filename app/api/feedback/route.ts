@@ -1,5 +1,6 @@
 import Groq from "groq-sdk";
 import { NextRequest, NextResponse } from "next/server";
+import { sendTelegramAlert } from "@/lib/telegram";
 
 // 히라가나/가타카나는 한국어·영어에는 절대 나오지 않는 일본어 전용 문자 범위라
 // 이 범위가 감지되면 응답에 일본어가 섞였다는 확실한 신호로 판단한다.
@@ -103,6 +104,7 @@ Rules:
     ];
 
     let feedback;
+    let hadContamination = false;
     const maxAttempts = 2;
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       const completion = await client.chat.completions.create({
@@ -116,7 +118,17 @@ Rules:
       const text = completion.choices[0]?.message?.content || "{}";
       feedback = JSON.parse(text);
 
-      if (!containsJapanese(text) || attempt === maxAttempts) break;
+      if (!containsJapanese(text)) break;
+      hadContamination = true;
+      if (attempt === maxAttempts) break;
+    }
+
+    if (hadContamination) {
+      const stillContaminated = feedback && containsJapanese(JSON.stringify(feedback));
+      await sendTelegramAlert(
+        `⚠️ [EduEng] 피드백 응답에 일본어 오염 감지\n${stillContaminated ? "재시도 후에도 남아있어 가나 문자 제거됨" : "재시도로 정상 복구됨"}`,
+        "feedback-japanese"
+      );
     }
 
     if (feedback && containsJapanese(JSON.stringify(feedback))) {

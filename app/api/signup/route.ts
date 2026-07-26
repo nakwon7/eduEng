@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { isDisposableEmail } from "@/lib/disposableEmailDomains";
+import { sendTelegramAlert } from "@/lib/telegram";
 
 const USERNAME_REGEX = /^[A-Za-z][A-Za-z0-9]{1,19}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -89,6 +90,11 @@ export async function POST(req: NextRequest) {
   if (profileError) {
     return NextResponse.json({ error: profileError.message }, { status: 500 });
   }
+
+  await sendTelegramAlert(
+    `🎉 [EduEng] 신규 가입\n${lang === "ko" ? "한국어판" : "영어판"} · ${username} (${name})`,
+    `signup-${created.user.id}`
+  );
 
   return NextResponse.json({ ok: true });
 }

@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { sendTelegramAlert } from "@/lib/telegram";
 
 export async function POST(req: NextRequest) {
   const { userId, sessionToken, note } = await req.json();
@@ -17,7 +18,7 @@ export async function POST(req: NextRequest) {
 
   const { data } = await admin
     .from("profiles")
-    .select("session_token")
+    .select("session_token, username")
     .eq("id", userId)
     .single();
 
@@ -33,6 +34,11 @@ export async function POST(req: NextRequest) {
       payment_reject_reason: null,
     })
     .eq("id", userId);
+
+  await sendTelegramAlert(
+    `💰 [EduEng] 입금 확인 요청\n${data.username} · ${trimmedNote.slice(0, 200)}`,
+    `payment-${userId}-${Date.now()}`
+  );
 
   return NextResponse.json({ ok: true });
 }
