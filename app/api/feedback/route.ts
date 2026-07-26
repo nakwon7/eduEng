@@ -22,6 +22,8 @@ export async function POST(req: NextRequest) {
 
     const prompt = `You are an English teaching expert. Analyze this English phone conversation and give constructive feedback in Korean (except for English examples).
 
+IMPORTANT: All non-English text MUST be natural, pure Korean (한글). Do NOT use any Japanese words, particles, or Kanji-only expressions (e.g. no 正しく, 英語では, です, ます, の, は as a particle). Do NOT use Chinese characters either. If you need a word borrowed from English, write it in Korean transliteration, not in Japanese.
+
 Topic: ${topic}
 Student level: ${levelLabel}
 
@@ -48,6 +50,7 @@ Rules:
 - goodPhrases: English phrases the student used correctly and naturally (max 3). Empty array if none.
 - suggestions: 2-3 helpful English expressions relevant to the topic
 - Be warm and encouraging, not harsh
+- Every Korean sentence must be pure Korean only — no Japanese or Chinese words mixed in
 - JSON only, no markdown`;
 
     const completion = await client.chat.completions.create({
