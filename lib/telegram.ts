@@ -13,12 +13,16 @@ export async function sendTelegramAlert(message: string, key: string = "default"
   lastAlertTime[key] = now;
 
   try {
-    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ chat_id: chatId, text: message }),
     });
-  } catch {
-    // 알림 실패해도 메인 흐름에 영향 없음
+    if (!res.ok) {
+      console.error("Telegram alert failed:", res.status, await res.text());
+    }
+  } catch (error) {
+    // 알림 실패해도 메인 흐름에 영향 없음 — 다만 로그는 남겨서 원인 추적 가능하게 함
+    console.error("Telegram alert error:", error);
   }
 }
