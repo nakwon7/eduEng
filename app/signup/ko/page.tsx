@@ -70,6 +70,9 @@ export default function SignupKoPage() {
         if (result.error === "username_taken") {
           throw new Error("This username is already taken");
         }
+        if (result.error === "email_taken") {
+          throw new Error("This email is already registered");
+        }
         if (result.error === "disposable_email") {
           throw new Error("Disposable/temporary email addresses are not allowed");
         }

@@ -70,6 +70,9 @@ export default function SignupPage() {
         if (result.error === "username_taken") {
           throw new Error("이미 사용 중인 아이디입니다");
         }
+        if (result.error === "email_taken") {
+          throw new Error("이미 가입된 이메일입니다");
+        }
         if (result.error === "disposable_email") {
           throw new Error("일회용/임시 이메일 서비스는 사용할 수 없습니다");
         }

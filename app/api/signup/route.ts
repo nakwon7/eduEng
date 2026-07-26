@@ -60,6 +60,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "username_taken" }, { status: 409 });
   }
 
+  // Gmail은 점(.)과 +별칭을 무시해도 같은 받은편지함이라, 정규화한 값으로도 중복 체크
+  const { data: emailTaken } = await admin.rpc("is_normalized_email_taken", { p_email: email });
+  if (emailTaken) {
+    return NextResponse.json({ error: "email_taken" }, { status: 409 });
+  }
+
   const { data: created, error: authError } = await admin.auth.admin.createUser({
     email,
     password,
