@@ -11,7 +11,7 @@ const LEVELS = [
   { id: "advanced", label: "고급", desc: "자유로운 대화, 뉘앙스 학습" },
 ] as const;
 
-const USERNAME_REGEX = /^[A-Za-z][A-Za-z0-9]{1,19}$/;
+const USERNAME_REGEX = /^[A-Za-z][A-Za-z0-9]{3,19}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function SignupPage() {
@@ -41,7 +41,7 @@ export default function SignupPage() {
   const [agreedTerms, setAgreedTerms] = useState(false);
 
   const usernameError = username && !USERNAME_REGEX.test(username)
-    ? "영문자로 시작, 영문+숫자 2~20자"
+    ? "영문자로 시작, 영문+숫자 4~20자"
     : "";
   const emailError = email && !EMAIL_REGEX.test(email)
     ? "올바른 이메일 형식이 아닙니다"
@@ -131,7 +131,8 @@ export default function SignupPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
-              placeholder="영문자로 시작, 영문+숫자 2~20자"
+              maxLength={20}
+              placeholder="영문자로 시작, 영문+숫자 4~20자"
               className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
             />
             {usernameError && <p className="text-red-400 text-xs mt-1">{usernameError}</p>}
@@ -145,6 +146,7 @@ export default function SignupPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
+              maxLength={20}
               placeholder="e.g. Minjun"
               className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
             />
@@ -156,6 +158,7 @@ export default function SignupPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              maxLength={50}
               placeholder="example@email.com"
               className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
             />
@@ -170,6 +173,7 @@ export default function SignupPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
+              maxLength={20}
               placeholder="6자 이상"
               className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
             />

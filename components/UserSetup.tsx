@@ -59,6 +59,7 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
           value={name}
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+          maxLength={20}
           className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-500 placeholder-gray-600"
         />
       </div>

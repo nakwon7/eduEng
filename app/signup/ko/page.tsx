@@ -11,7 +11,7 @@ const LEVELS = [
   { id: "advanced", label: "Advanced", desc: "Fluent conversation, nuance & idioms" },
 ] as const;
 
-const USERNAME_REGEX = /^[A-Za-z][A-Za-z0-9]{1,19}$/;
+const USERNAME_REGEX = /^[A-Za-z][A-Za-z0-9]{3,19}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function SignupKoPage() {
@@ -41,7 +41,7 @@ export default function SignupKoPage() {
   const [agreedTerms, setAgreedTerms] = useState(false);
 
   const usernameError = username && !USERNAME_REGEX.test(username)
-    ? "Must start with a letter, 2–20 alphanumeric characters"
+    ? "Must start with a letter, 4–20 alphanumeric characters"
     : "";
   const emailError = email && !EMAIL_REGEX.test(email)
     ? "Please enter a valid email address"
@@ -131,7 +131,8 @@ export default function SignupKoPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
-              placeholder="Letters and numbers, 2–20 characters"
+              maxLength={20}
+              placeholder="Letters and numbers, 4–20 characters"
               className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
             />
             {usernameError && <p className="text-red-400 text-xs mt-1">{usernameError}</p>}
@@ -145,6 +146,7 @@ export default function SignupKoPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
+              maxLength={20}
               placeholder="e.g. Emily"
               className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -156,6 +158,7 @@ export default function SignupKoPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              maxLength={50}
               placeholder="example@email.com"
               className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -170,6 +173,7 @@ export default function SignupKoPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
+              maxLength={20}
               placeholder="At least 6 characters"
               className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
             />

@@ -5,7 +5,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { isDisposableEmail } from "@/lib/disposableEmailDomains";
 import { sendTelegramAlert } from "@/lib/telegram";
 
-const USERNAME_REGEX = /^[A-Za-z][A-Za-z0-9]{1,19}$/;
+const USERNAME_REGEX = /^[A-Za-z][A-Za-z0-9]{3,19}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const LEVELS = ["beginner", "intermediate", "advanced"];
 
@@ -23,9 +23,9 @@ export async function POST(req: NextRequest) {
 
   if (
     typeof username !== "string" || !USERNAME_REGEX.test(username) ||
-    typeof name !== "string" || !name.trim() ||
-    typeof email !== "string" || !EMAIL_REGEX.test(email) ||
-    typeof password !== "string" || password.length < 6 ||
+    typeof name !== "string" || !name.trim() || name.trim().length > 20 ||
+    typeof email !== "string" || !EMAIL_REGEX.test(email) || email.length > 50 ||
+    typeof password !== "string" || password.length < 6 || password.length > 20 ||
     !LEVELS.includes(level)
   ) {
     return NextResponse.json({ error: "invalid_input" }, { status: 400 });
