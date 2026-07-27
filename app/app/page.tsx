@@ -708,8 +708,8 @@ export default function Home() {
           {callState === "active" && <p className="text-gray-500 text-xs text-center mt-3">{micStatus}</p>}
         </div>
 
-        {/* 문의하기 */}
-        {callState === "idle" && view === "home" && !feedback && !isFetchingFeedback && (
+        {/* 문의하기 — 차단/한도초과/체험소진 화면엔 이미 자체 문의 링크가 있어 중복 노출 방지 */}
+        {callState === "idle" && view === "home" && !feedback && !isFetchingFeedback && !blocked && canMakeCall && (
           <div className="flex justify-center pb-5">
             <a
               href="https://open.kakao.com/o/sPanl0Ci"
@@ -726,7 +726,7 @@ export default function Home() {
         <div className="px-4 pb-4 text-center space-y-0.5">
           <p className="text-gray-700 text-xs">송랩 · 사업자등록번호: 857-28-01961</p>
           <p className="text-gray-700 text-xs">
-            <button onClick={() => setShowTerms(true)} className="hover:text-gray-500">이용약관 및 개인정보처리방침</button>
+            <button onClick={() => setShowTerms(true)} className="underline hover:text-gray-500">이용약관 및 개인정보처리방침</button>
           </p>
         </div>
 
