@@ -160,7 +160,6 @@ export default function TermsPage() {
           <p className="font-medium text-gray-500">사업자 정보</p>
           <p>상호: 송랩 | 사업자등록번호: 857-28-01961</p>
           <p>서비스명: 튜링콜 (turingcall.vercel.app)</p>
-          <p>문의: <a href="https://open.kakao.com/o/sPanl0Ci" className="text-green-400" target="_blank" rel="noopener noreferrer">카카오톡 채널</a></p>
         </section>
       </div>
     </main>
