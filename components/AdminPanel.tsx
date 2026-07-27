@@ -221,6 +221,7 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                         placeholder="반려 사유 (비우면 기본 문구로 전송)"
                         className="w-full bg-gray-800 text-white rounded-lg px-2 py-1.5 text-xs outline-none focus:ring-2 focus:ring-red-500 placeholder-gray-600"
                       />
+                      <p className="text-gray-600 text-xs text-right">{rejectReason.length}/100</p>
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleReject(u.id)}

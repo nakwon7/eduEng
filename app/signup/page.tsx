@@ -125,7 +125,10 @@ export default function SignupPage() {
 
         <form onSubmit={handleSignup} className="space-y-4">
           <div>
-            <label className="text-gray-400 text-xs mb-1 block">아이디</label>
+            <div className="flex justify-between items-center mb-1">
+              <label className="text-gray-400 text-xs">아이디</label>
+              <span className="text-gray-600 text-xs">{username.length}/20</span>
+            </div>
             <input
               type="text"
               value={username}
@@ -138,9 +141,12 @@ export default function SignupPage() {
             {usernameError && <p className="text-red-400 text-xs mt-1">{usernameError}</p>}
           </div>
           <div>
-            <label className="text-gray-400 text-xs mb-1 block">
-              영어 이름 <span className="text-gray-600">(AI 튜터가 부르는 이름)</span>
-            </label>
+            <div className="flex justify-between items-center mb-1">
+              <label className="text-gray-400 text-xs">
+                영어 이름 <span className="text-gray-600">(AI 튜터가 부르는 이름)</span>
+              </label>
+              <span className="text-gray-600 text-xs">{name.length}/20</span>
+            </div>
             <input
               type="text"
               value={name}
@@ -152,7 +158,10 @@ export default function SignupPage() {
             />
           </div>
           <div>
-            <label className="text-gray-400 text-xs mb-1 block">이메일</label>
+            <div className="flex justify-between items-center mb-1">
+              <label className="text-gray-400 text-xs">이메일</label>
+              <span className="text-gray-600 text-xs">{email.length}/50</span>
+            </div>
             <input
               type="email"
               value={email}
@@ -166,7 +175,10 @@ export default function SignupPage() {
             {emailError && <p className="text-red-400 text-xs mt-1">{emailError}</p>}
           </div>
           <div>
-            <label className="text-gray-400 text-xs mb-1 block">비밀번호</label>
+            <div className="flex justify-between items-center mb-1">
+              <label className="text-gray-400 text-xs">비밀번호</label>
+              <span className="text-gray-600 text-xs">{password.length}/20</span>
+            </div>
             <input
               type="password"
               value={password}

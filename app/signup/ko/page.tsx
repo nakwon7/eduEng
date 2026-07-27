@@ -125,7 +125,10 @@ export default function SignupKoPage() {
 
         <form onSubmit={handleSignup} className="space-y-4">
           <div>
-            <label className="text-gray-400 text-xs mb-1 block">Username</label>
+            <div className="flex justify-between items-center mb-1">
+              <label className="text-gray-400 text-xs">Username</label>
+              <span className="text-gray-600 text-xs">{username.length}/20</span>
+            </div>
             <input
               type="text"
               value={username}
@@ -138,9 +141,12 @@ export default function SignupKoPage() {
             {usernameError && <p className="text-red-400 text-xs mt-1">{usernameError}</p>}
           </div>
           <div>
-            <label className="text-gray-400 text-xs mb-1 block">
-              Your name <span className="text-gray-600">(your AI tutor will call you this)</span>
-            </label>
+            <div className="flex justify-between items-center mb-1">
+              <label className="text-gray-400 text-xs">
+                Your name <span className="text-gray-600">(your AI tutor will call you this)</span>
+              </label>
+              <span className="text-gray-600 text-xs">{name.length}/20</span>
+            </div>
             <input
               type="text"
               value={name}
@@ -152,7 +158,10 @@ export default function SignupKoPage() {
             />
           </div>
           <div>
-            <label className="text-gray-400 text-xs mb-1 block">Email</label>
+            <div className="flex justify-between items-center mb-1">
+              <label className="text-gray-400 text-xs">Email</label>
+              <span className="text-gray-600 text-xs">{email.length}/50</span>
+            </div>
             <input
               type="email"
               value={email}
@@ -166,7 +175,10 @@ export default function SignupKoPage() {
             {emailError && <p className="text-red-400 text-xs mt-1">{emailError}</p>}
           </div>
           <div>
-            <label className="text-gray-400 text-xs mb-1 block">Password</label>
+            <div className="flex justify-between items-center mb-1">
+              <label className="text-gray-400 text-xs">Password</label>
+              <span className="text-gray-600 text-xs">{password.length}/20</span>
+            </div>
             <input
               type="password"
               value={password}

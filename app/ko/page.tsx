@@ -444,7 +444,10 @@ export default function KoPage() {
               <h2 className="text-white text-sm font-bold">Setup</h2>
 
               <div>
-                <label className="text-gray-400 text-xs mb-1 block">Your Name</label>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="text-gray-400 text-xs">Your Name</label>
+                  <span className="text-gray-600 text-xs">{profile.name.length}/20</span>
+                </div>
                 <input
                   type="text"
                   value={profile.name}

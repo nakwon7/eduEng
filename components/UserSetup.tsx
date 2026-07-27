@@ -52,7 +52,10 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
       </p>
 
       <div className="mb-5">
-        <label className="text-gray-400 text-xs mb-2 block">이름 (영어로)</label>
+        <div className="flex justify-between items-center mb-2">
+          <label className="text-gray-400 text-xs">이름 (영어로)</label>
+          <span className="text-gray-600 text-xs">{name.length}/20</span>
+        </div>
         <input
           type="text"
           placeholder="e.g. Minjun"
