@@ -25,6 +25,18 @@ function filterGoodPhrases(phrases: unknown, studentText: string): string[] {
   );
 }
 
+// corrections는 모델이 original/corrected를 (아포스트로피 종류 등) 눈에 안 보이는
+// 차이만 남기고 사실상 동일한 문장으로 반환하는 경우가 있어, 정규화 후 같으면 제외한다.
+function filterCorrections(corrections: unknown): unknown[] {
+  if (!Array.isArray(corrections)) return [];
+  return corrections.filter((c) => {
+    if (!c || typeof c !== "object") return false;
+    const { original, corrected } = c as { original?: unknown; corrected?: unknown };
+    if (typeof original !== "string" || typeof corrected !== "string") return false;
+    return normalize(original) !== normalize(corrected);
+  });
+}
+
 // 재시도 후에도 일본어가 남아있을 때의 최후 수단: 가나 문자만 제거한다.
 function stripJapanese<T>(value: T): T {
   if (typeof value === "string") {
@@ -137,6 +149,7 @@ Rules:
 
     if (feedback) {
       feedback.goodPhrases = filterGoodPhrases(feedback.goodPhrases, studentText);
+      feedback.corrections = filterCorrections(feedback.corrections);
     }
 
     return NextResponse.json(feedback);
