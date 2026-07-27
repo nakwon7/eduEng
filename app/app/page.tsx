@@ -41,6 +41,7 @@ export default function Home() {
   const [micError, setMicError] = useState(false);
   const [micPermState, setMicPermState] = useState<PermissionState | null>(null);
   const [showTerms, setShowTerms] = useState(false);
+  const [showStreakInfo, setShowStreakInfo] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [feedback, setFeedback] = useState<FeedbackData | null>(null);
   const [isFetchingFeedback, setIsFetchingFeedback] = useState(false);
@@ -468,10 +469,24 @@ export default function Home() {
             {effectiveTutor === "rachel" ? "AI Tutor · Korean-American · From Seattle, WA" : "AI Tutor · From New York, NY"}
           </p>
           {profile && callState === "idle" && view === "home" && (
-            <p className="text-green-400 text-xs mt-1">
-              안녕하세요, {profile.name}님 👋
-              {streakCount > 0 && <span className="ml-2 text-orange-400">🔥 {streakCount}일 연속</span>}
-            </p>
+            <div className="text-green-400 text-xs mt-1 relative inline-block">
+              <p>
+                안녕하세요, {profile.name}님 👋
+                {streakCount > 0 && (
+                  <button
+                    onClick={() => setShowStreakInfo((v) => !v)}
+                    className="ml-2 text-orange-400"
+                  >
+                    🔥 {streakCount}일 연속 통화중 <span className="text-gray-400">ⓘ</span>
+                  </button>
+                )}
+              </p>
+              {showStreakInfo && (
+                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-56 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-300 text-left shadow-lg z-10">
+                  짧게라도 하루 한 번 통화하면 연속일수가 올라가요.
+                </div>
+              )}
+            </div>
           )}
           {callState === "active" && <p className="text-green-400 text-sm mt-1 font-mono">{formatTime(callDuration)}</p>}
           {callState === "calling" && <p className="text-yellow-400 text-sm mt-1 animate-pulse">연결 중...</p>}
