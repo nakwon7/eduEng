@@ -585,7 +585,7 @@ export default function Home() {
               <TopicSelector selected={topic} onSelect={setTopic} />
             </div>
           ) : (
-            <TranscriptBox messages={messages} interimTranscript="" isAiTyping={isAiTyping || isTranscribing} />
+            <TranscriptBox messages={messages} interimTranscript="" isAiTyping={isAiTyping || isTranscribing} tutorLabel={`${tutorDisplayName} (AI Tutor)`} />
           )}
         </div>
 

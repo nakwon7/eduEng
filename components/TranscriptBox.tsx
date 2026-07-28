@@ -11,12 +11,14 @@ interface TranscriptBoxProps {
   messages: Message[];
   interimTranscript: string;
   isAiTyping: boolean;
+  tutorLabel?: string;
 }
 
 export default function TranscriptBox({
   messages,
   interimTranscript,
   isAiTyping,
+  tutorLabel = "Alex (AI Tutor)",
 }: TranscriptBoxProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -44,7 +46,7 @@ export default function TranscriptBox({
             }`}
           >
             {msg.role === "assistant" && (
-              <p className="text-xs text-gray-400 mb-1">Alex (AI Tutor)</p>
+              <p className="text-xs text-gray-400 mb-1">{tutorLabel}</p>
             )}
             {msg.content}
           </div>

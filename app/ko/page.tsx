@@ -676,7 +676,7 @@ export default function KoPage() {
               </div>
             </div>
           ) : (
-            <TranscriptBox messages={messages} interimTranscript="" isAiTyping={isAiTyping || isTranscribing} />
+            <TranscriptBox messages={messages} interimTranscript="" isAiTyping={isAiTyping || isTranscribing} tutorLabel={`${tutorName} (AI Tutor)`} />
           )}
         </div>
 
