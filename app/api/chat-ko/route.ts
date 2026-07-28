@@ -173,6 +173,12 @@ export async function POST(req: NextRequest) {
     // 3단계: 한글 사이에 끼어든 영어 제거 (예: 타bose요 → 타요)
     const filtered = fullText
       .replace(/<[^>]+>/g, "")
+      // 스마트 따옴표/대시 등을 ASCII로 정규화 — 안 하면 이 문자가 포함된 토큰 전체가
+      // "비한글 문자 포함" 판정으로 통째로 날아가서 인용된 한글 단어까지 같이 사라짐
+      .replace(/[‘’]/g, "'")
+      .replace(/[“”]/g, '"')
+      .replace(/[–—]/g, "-")
+      .replace(/…/g, "...")
       .replace(/[\(\[【][A-Za-z][A-Za-z\s]*[\)\]】]/g, "")
       .split(/(\s+)/)
       .map(token => badCharPattern.test(token) ? "" : token)
