@@ -432,7 +432,12 @@ export default function Home() {
             <>
               <div className="absolute top-4 right-4 flex gap-2">
                 <button onClick={() => setView("help")} className="flex items-center gap-1 px-2.5 py-1.5 bg-gray-700 hover:bg-gray-600 rounded-xl text-gray-300 text-xs transition-all">
-                  <span>❓</span><span>도움말</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M9.5 9a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 2-2.4 3.7" />
+                    <circle cx="12" cy="17" r="0.5" fill="currentColor" stroke="none" />
+                  </svg>
+                  <span>도움말</span>
                 </button>
                 <button onClick={() => setView("settings")} className="flex items-center gap-1 px-2.5 py-1.5 bg-gray-700 hover:bg-gray-600 rounded-xl text-gray-300 text-xs transition-all">
                   <span>⚙️</span><span>설정</span>
