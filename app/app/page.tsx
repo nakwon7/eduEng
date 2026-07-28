@@ -503,17 +503,53 @@ export default function Home() {
             <div className="flex-1 overflow-y-auto px-2 py-4 space-y-4">
               <h2 className="text-white text-sm font-bold text-center mb-2">사용 방법</h2>
               {[
-                { emoji: "📞", title: "통화 시작", desc: "홈 화면에서 주제를 선택하고 '통화 시작' 버튼을 누르세요." },
-                { emoji: "🎤", title: "말하기", desc: "마이크 버튼을 누르고 있는 동안 영어로 말하세요. 손을 떼면 AI가 인식합니다." },
-                { emoji: "🔊", title: "AI 응답", desc: "Alex 또는 Rachel이 음성으로 답변합니다. AI가 말하는 중엔 마이크가 비활성화돼요." },
-                { emoji: "✍️", title: "문법 교정", desc: "틀린 표현이 있으면 대화 말미에 'Quick tip:' 으로 부드럽게 알려줘요." },
-                { emoji: "📵", title: "통화 종료", desc: "빨간 버튼을 누르면 통화가 종료됩니다." },
-                { emoji: "⚙️", title: "설정", desc: "우측 상단 설정에서 이름, AI 튜터, 영어 레벨을 변경할 수 있어요.\n📱 모바일에서는 Rachel이 고정돼요. Alex 선택은 PC에서 가능해요." },
-                { emoji: "🌐", title: "권장 브라우저", desc: "Chrome 또는 Samsung 브라우저를 사용하세요. 다른 브라우저는 음성 인식이 불안정할 수 있어요." },
-                { emoji: "📲", title: "앱으로 설치하기", desc: "iPhone: Safari에서 접속 → 하단 공유(□↑) → 홈 화면에 추가\nAndroid: Chrome에서 접속 → 우상단 메뉴(⋮) → 홈 화면에 추가\nPC: 주소창 오른쪽 설치(+) 버튼 클릭" },
+                {
+                  color: "bg-green-500/15 text-green-400",
+                  icon: <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.574 2.81.7A2 2 0 0 1 22 16.92z" />,
+                  title: "통화 시작", desc: "홈 화면에서 주제를 선택하고 '통화 시작' 버튼을 누르세요.",
+                },
+                {
+                  color: "bg-blue-500/15 text-blue-400",
+                  icon: <><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" y1="19" x2="12" y2="23" /><line x1="8" y1="23" x2="16" y2="23" /></>,
+                  title: "말하기", desc: "마이크 버튼을 누르고 있는 동안 영어로 말하세요. 손을 떼면 AI가 인식합니다.",
+                },
+                {
+                  color: "bg-purple-500/15 text-purple-400",
+                  icon: <><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07" /><path d="M19.07 4.93a10 10 0 0 1 0 14.14" /></>,
+                  title: "AI 응답", desc: "Alex 또는 Rachel이 음성으로 답변합니다. AI가 말하는 중엔 마이크가 비활성화돼요.",
+                },
+                {
+                  color: "bg-amber-500/15 text-amber-400",
+                  icon: <><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></>,
+                  title: "문법 교정", desc: "틀린 표현이 있으면 대화 말미에 'Quick tip:' 으로 부드럽게 알려줘요.",
+                },
+                {
+                  color: "bg-red-500/15 text-red-400",
+                  icon: <><path d="M22.63 16.75l-3.7-.5a2 2 0 0 0-1.71.53l-1.75 1.75a15.7 15.7 0 0 1-6.8-6.8l1.75-1.75a2 2 0 0 0 .53-1.71l-.5-3.7A2 2 0 0 0 8.46 2H5.5A2 2 0 0 0 3.5 4.24" /><line x1="1" y1="1" x2="23" y2="23" /></>,
+                  title: "통화 종료", desc: "빨간 버튼을 누르면 통화가 종료됩니다.",
+                },
+                {
+                  color: "bg-slate-500/15 text-slate-300",
+                  icon: <><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" /></>,
+                  title: "설정", desc: "우측 상단 설정에서 이름, AI 튜터, 영어 레벨을 변경할 수 있어요.\n📱 모바일에서는 Rachel이 고정돼요. Alex 선택은 PC에서 가능해요.",
+                },
+                {
+                  color: "bg-cyan-500/15 text-cyan-400",
+                  icon: <><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></>,
+                  title: "권장 브라우저", desc: "Chrome 또는 Samsung 브라우저를 사용하세요. 다른 브라우저는 음성 인식이 불안정할 수 있어요.",
+                },
+                {
+                  color: "bg-indigo-500/15 text-indigo-400",
+                  icon: <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></>,
+                  title: "앱으로 설치하기", desc: "iPhone: Safari에서 접속 → 하단 공유(□↑) → 홈 화면에 추가\nAndroid: Chrome에서 접속 → 우상단 메뉴(⋮) → 홈 화면에 추가\nPC: 주소창 오른쪽 설치(+) 버튼 클릭",
+                },
               ].map((item) => (
                 <div key={item.title} className="flex gap-3 bg-gray-800 rounded-2xl p-4">
-                  <span className="text-2xl">{item.emoji}</span>
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${item.color}`}>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px]">
+                      {item.icon}
+                    </svg>
+                  </div>
                   <div>
                     <p className="text-white text-sm font-medium">{item.title}</p>
                     <p className="text-gray-400 text-xs mt-0.5 leading-relaxed whitespace-pre-line">{item.desc}</p>
