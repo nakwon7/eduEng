@@ -127,47 +127,59 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
         {existing ? "저장" : "시작하기"}
       </button>
 
-      <div className="mt-6 bg-gray-900 rounded-xl p-4 space-y-2">
-        <p className="text-gray-400 text-xs font-medium">멤버십 요금</p>
-        <div className="flex items-baseline gap-1">
-          <span className="text-white text-lg font-bold">9,900원</span>
-          <span className="text-gray-500 text-xs">/ 월 · 매월 900분 제공</span>
+      {hasActiveMembership ? (
+        <div className="mt-6 bg-gray-900 rounded-xl p-4 flex items-center justify-between gap-2">
+          <p className="text-green-400 text-xs font-medium">
+            ✅ 멤버십 이용중{expiresAt ? ` · ${new Date(expiresAt).toLocaleDateString("ko-KR")}까지` : ""}
+          </p>
+          <a
+            href="https://open.kakao.com/o/sPanl0Ci"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-shrink-0 text-yellow-400 text-xs hover:text-yellow-300"
+          >
+            💬 문의
+          </a>
         </div>
-        <p className="text-gray-500 text-xs">무료 체험 2회(회당 최대 5분) 제공</p>
-        <p className="text-gray-500 text-xs flex items-center gap-1">KB국민은행 758637-00-012739<CopyButton text="758637-00-012739" /></p>
-        <p className="text-gray-500 text-xs">예금주: 송랩</p>
-        {onRequestPayment && (
-          hasActiveMembership ? (
-            <p className="mt-1 text-green-400 text-xs">
-              ✅ 멤버십 이용중{expiresAt ? ` · ${new Date(expiresAt).toLocaleDateString("ko-KR")}까지` : ""}
-            </p>
-          ) : paymentRequestedAt ? (
-            <p className="mt-1 text-emerald-400 text-xs">✅ 확인 요청됨 · 관리자 확인 후 곧 승인됩니다</p>
-          ) : (
-            <>
-              {paymentRejectReason && <PaymentRejectNotice reason={paymentRejectReason} lang="ko" />}
-              {onPaymentNoteChange && (
-                <PaymentNoteInput value={paymentNote || ""} onChange={onPaymentNoteChange} variant="bankName" />
-              )}
-              <button
-                onClick={onRequestPayment}
-                disabled={requestingPayment || !(paymentNote || "").trim()}
-                className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
-              >
-                {requestingPayment ? "요청 중..." : "✅ 입금 완료, 확인 요청하기"}
-              </button>
-            </>
-          )
-        )}
-        <a
-          href="https://open.kakao.com/o/sPanl0Ci"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block mt-1 text-yellow-400 text-xs hover:text-yellow-300"
-        >
-          💬 가입 문의 (카카오톡)
-        </a>
-      </div>
+      ) : (
+        <div className="mt-6 bg-gray-900 rounded-xl p-4 space-y-2">
+          <p className="text-gray-400 text-xs font-medium">멤버십 요금</p>
+          <div className="flex items-baseline gap-1">
+            <span className="text-white text-lg font-bold">9,900원</span>
+            <span className="text-gray-500 text-xs">/ 월 · 매월 900분 제공</span>
+          </div>
+          <p className="text-gray-500 text-xs">무료 체험 2회(회당 최대 5분) 제공</p>
+          <p className="text-gray-500 text-xs flex items-center gap-1">KB국민은행 758637-00-012739<CopyButton text="758637-00-012739" /></p>
+          <p className="text-gray-500 text-xs">예금주: 송랩</p>
+          {onRequestPayment && (
+            paymentRequestedAt ? (
+              <p className="mt-1 text-emerald-400 text-xs">✅ 확인 요청됨 · 관리자 확인 후 곧 승인됩니다</p>
+            ) : (
+              <>
+                {paymentRejectReason && <PaymentRejectNotice reason={paymentRejectReason} lang="ko" />}
+                {onPaymentNoteChange && (
+                  <PaymentNoteInput value={paymentNote || ""} onChange={onPaymentNoteChange} variant="bankName" />
+                )}
+                <button
+                  onClick={onRequestPayment}
+                  disabled={requestingPayment || !(paymentNote || "").trim()}
+                  className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
+                >
+                  {requestingPayment ? "요청 중..." : "✅ 입금 완료, 확인 요청하기"}
+                </button>
+              </>
+            )
+          )}
+          <a
+            href="https://open.kakao.com/o/sPanl0Ci"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block mt-1 text-yellow-400 text-xs hover:text-yellow-300"
+          >
+            💬 가입 문의 (카카오톡)
+          </a>
+        </div>
+      )}
 
       {userId && sessionToken && <UsageHistory userId={userId} sessionToken={sessionToken} lang="ko" />}
     </div>
