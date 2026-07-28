@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { UserProfile } from "@/hooks/useUserProfile";
 import CopyButton from "./CopyButton";
 import UsageHistory from "./UsageHistory";
@@ -29,8 +30,8 @@ const LEVELS = [
 ] as const;
 
 const TUTORS = [
-  { id: "alex", emoji: "🎓", label: "Alex", desc: "Friendly & Encouraging" },
-  { id: "rachel", emoji: "🌸", label: "Rachel", desc: "Warm & Patient" },
+  { id: "alex", label: "Alex", desc: "Friendly & Encouraging" },
+  { id: "rachel", label: "Rachel", desc: "Warm & Patient" },
 ] as const;
 
 export default function UserSetup({ onComplete, existing, paymentRequestedAt, requestingPayment, onRequestPayment, paymentNote, onPaymentNoteChange, paymentRejectReason, hasActiveMembership, expiresAt, userId, sessionToken }: UserSetupProps) {
@@ -82,10 +83,16 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
                 key={t.id}
                 onClick={() => setTutor(t.id)}
                 className={`px-4 py-3 rounded-xl text-center transition-all ${
-                  tutor === t.id ? "bg-green-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                  tutor === t.id ? "bg-green-600/15 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"
                 }`}
               >
-                <div className="text-2xl mb-1">{t.emoji}</div>
+                <div
+                  className={`relative w-14 h-14 mx-auto mb-2 rounded-full overflow-hidden ring-2 transition-all ${
+                    tutor === t.id ? "ring-green-400" : "ring-gray-700"
+                  }`}
+                >
+                  <Image src={`/tutors/${t.id}.png`} alt={t.label} fill className="object-cover object-top" />
+                </div>
                 <div className="font-medium text-sm">{t.label}</div>
                 <div className="text-xs opacity-70">{t.desc}</div>
               </button>
