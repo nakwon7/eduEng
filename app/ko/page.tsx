@@ -22,14 +22,46 @@ type KoProfile = {
 };
 
 const KO_TOPICS = [
-  { id: "greetings", label: "Greetings", emoji: "👋", value: "Greetings & Introductions (인사)" },
-  { id: "daily", label: "Daily Life", emoji: "☕", value: "Daily Conversation (일상대화)" },
-  { id: "food", label: "Food", emoji: "🍜", value: "Food & Restaurants (음식/식당)" },
-  { id: "shopping", label: "Shopping", emoji: "🛍️", value: "Shopping (쇼핑)" },
-  { id: "kdrama", label: "K-Drama", emoji: "🎬", value: "K-Drama & K-Pop Phrases" },
-  { id: "transport", label: "Transport", emoji: "🚇", value: "Transportation in Korea (교통)" },
-  { id: "culture", label: "Culture", emoji: "🏮", value: "Korean Culture (한국 문화)" },
-  { id: "word", label: "Word Practice", emoji: "📖", value: "Word Practice" },
+  {
+    id: "greetings", label: "Greetings", value: "Greetings & Introductions (인사)",
+    color: "bg-blue-500/15 text-blue-400",
+    icon: <><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></>,
+  },
+  {
+    id: "daily", label: "Daily Life", value: "Daily Conversation (일상대화)",
+    color: "bg-orange-500/15 text-orange-400",
+    icon: <><path d="M18 8h1a4 4 0 0 1 0 8h-1" /><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" /><line x1="6" y1="1" x2="6" y2="4" /><line x1="10" y1="1" x2="10" y2="4" /><line x1="14" y1="1" x2="14" y2="4" /></>,
+  },
+  {
+    id: "food", label: "Food", value: "Food & Restaurants (음식/식당)",
+    color: "bg-yellow-500/15 text-yellow-400",
+    icon: <><path d="M3 2v7c0 1.1.9 2 2 2h2a2 2 0 0 0 2-2V2" /><path d="M7 2v20" /><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7" /></>,
+  },
+  {
+    id: "shopping", label: "Shopping", value: "Shopping (쇼핑)",
+    color: "bg-rose-500/15 text-rose-400",
+    icon: <><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" /><path d="M3 6h18" /><path d="M16 10a4 4 0 0 1-8 0" /></>,
+  },
+  {
+    id: "kdrama", label: "K-Drama", value: "K-Drama & K-Pop Phrases",
+    color: "bg-purple-500/15 text-purple-400",
+    icon: <><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" /><line x1="7" y1="2" x2="7" y2="22" /><line x1="17" y1="2" x2="17" y2="22" /><line x1="2" y1="12" x2="22" y2="12" /><line x1="2" y1="7" x2="7" y2="7" /><line x1="2" y1="17" x2="7" y2="17" /><line x1="17" y1="17" x2="22" y2="17" /><line x1="17" y1="7" x2="22" y2="7" /></>,
+  },
+  {
+    id: "transport", label: "Transport", value: "Transportation in Korea (교통)",
+    color: "bg-cyan-500/15 text-cyan-400",
+    icon: <><rect x="4" y="3" width="16" height="14" rx="3" /><path d="M4 11h16" /><circle cx="8.5" cy="14.5" r="1.2" fill="currentColor" stroke="none" /><circle cx="15.5" cy="14.5" r="1.2" fill="currentColor" stroke="none" /><path d="M8 21l-2-3M16 21l2-3" /></>,
+  },
+  {
+    id: "culture", label: "Culture", value: "Korean Culture (한국 문화)",
+    color: "bg-amber-500/15 text-amber-400",
+    icon: <><line x1="3" y1="22" x2="21" y2="22" /><line x1="6" y1="18" x2="6" y2="11" /><line x1="10" y1="18" x2="10" y2="11" /><line x1="14" y1="18" x2="14" y2="11" /><line x1="18" y1="18" x2="18" y2="11" /><polygon points="12 2 21 8 3 8" /></>,
+  },
+  {
+    id: "word", label: "Word Practice", value: "Word Practice",
+    color: "bg-fuchsia-500/15 text-fuchsia-400",
+    icon: <><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></>,
+  },
 ];
 
 export default function KoPage() {
@@ -273,24 +305,38 @@ export default function KoPage() {
     unlockTTS();
     setCallState("calling");
 
-    setTimeout(() => {
-      setCallState("active");
-      setCallDuration(0);
-      callDurationRef.current = 0;
-      timerRef.current = setInterval(() => setCallDuration((d) => d + 1), 1000);
+    const tutorName = effectiveTutor === "jia" ? "지아" : "민준";
+    const tutorCopula = effectiveTutor === "jia" ? "지아예요" : "민준이에요";
+    const fallbackGreeting = `안녕하세요, ${profile.name}! 저는 ${tutorCopula}. 오늘도 한국어 연습 해봐요!`;
 
-      const tutorName = effectiveTutor === "jia" ? "지아" : "민준";
-      const tutorCopula = effectiveTutor === "jia" ? "지아예요" : "민준이에요";
-      const greeting =
-        topic === "Word Practice"
-          ? `안녕하세요, ${profile.name}! 저는 ${tutorCopula}. 오늘 단어 연습 해봐요! 준비됐어요?`
-          : topic.includes("인사")
-          ? `안녕하세요, ${profile.name}! 저는 ${tutorCopula}. 오늘 인사 연습 해봐요. 자기소개 해주세요!`
-          : `안녕하세요, ${profile.name}! 저는 ${tutorCopula}. 오늘도 한국어 연습 해봐요!`;
+    await new Promise((r) => setTimeout(r, 1500));
 
-      addMessage({ role: "assistant", content: greeting });
-      speak(greeting, effectiveTutor === "jia" ? "female" : "male");
-    }, 1500);
+    let greeting: string;
+    try {
+      const res = await fetch("/api/greeting", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topic,
+          firstName: profile.name,
+          tutorName,
+          tutor: effectiveTutor,
+          level: profile.level,
+        }),
+      });
+      const data = await res.json();
+      greeting = data.greeting || fallbackGreeting;
+    } catch {
+      greeting = fallbackGreeting;
+    }
+
+    setCallState("active");
+    setCallDuration(0);
+    callDurationRef.current = 0;
+    timerRef.current = setInterval(() => setCallDuration((d) => d + 1), 1000);
+
+    addMessage({ role: "assistant", content: greeting });
+    speak(greeting, effectiveTutor === "jia" ? "female" : "male");
   }, [topic, addMessage, speak, profile, unlockTTS, effectiveTutor, canMakeCall, isPaid, isUnlimited]);
 
   const handleMicPress = useCallback(async () => {
@@ -604,7 +650,11 @@ export default function KoPage() {
                           : "bg-gray-800 text-gray-300 hover:bg-gray-700"
                       }`}
                     >
-                      <span className="text-xl">{t.emoji}</span>
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${topic === t.value ? "bg-white/15 text-white" : t.color}`}>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px]">
+                          {t.icon}
+                        </svg>
+                      </div>
                       <p className="text-sm font-medium mt-1">{t.label}</p>
                     </button>
                   ))}
