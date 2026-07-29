@@ -28,11 +28,13 @@ export default function CallFeedback({ feedback, isLoading, onDismiss }: Props) 
 
   const handleShareSuggestions = async () => {
     if (!feedback?.suggestions?.length) return;
-    const shareText = feedback.suggestions.map((s) => `• ${s}`).join("\n");
+    const shareText = `오늘의 추천 표현\n\n${feedback.suggestions.map((s) => `• ${s}`).join("\n")}`;
 
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
-        await navigator.share({ title: "오늘의 추천 표현", text: shareText });
+        // title을 따로 넘기면 일부 공유 대상(카카오톡 등)이 title과 text를
+        // "제목 - 본문" 형태로 개행 없이 이어붙여서, 제목을 text 안에 직접 포함시킨다.
+        await navigator.share({ text: shareText });
       } catch {
         // 사용자가 공유를 취소한 경우 - 무시
       }
