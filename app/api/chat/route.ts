@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import Groq from "groq-sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { sendTelegramAlert } from "@/lib/telegram";
 
 const getGroq = () => new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -108,6 +109,11 @@ export async function POST(req: NextRequest) {
       headers: { "Content-Type": "text/plain; charset=utf-8" },
     });
   } catch (error) {
+    const status = (error as { status?: number })?.status;
+    if (status === 429) {
+      await sendTelegramAlert("⚠️ [EduEng] Groq 무료 한도 초과!\n채팅 API (영어) rate limit에 걸렸습니다.", "chat-en");
+      return NextResponse.json({ error: "RATE_LIMIT" }, { status: 429 });
+    }
     console.error("Chat API error:", error);
     return NextResponse.json({ error: "Failed to get response" }, { status: 500 });
   }

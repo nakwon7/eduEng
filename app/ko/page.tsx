@@ -101,7 +101,7 @@ export default function KoPage() {
   const isTrialCallRef = useRef(false);
   const lastSavedRef = useRef(0);
 
-  const { isRecording, isTranscribing, startRecording, stopRecording } = useAudioRecorderKo();
+  const { isRecording, isTranscribing, startRecording, stopRecording, consumeRateLimited } = useAudioRecorderKo();
   const { speak, stop: stopSpeaking, unlock: unlockTTS, isSpeaking } = useKoreanSpeech();
 
   const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -349,7 +349,12 @@ export default function KoPage() {
     if (!isRecording) return;
 
     const userText = (await stopRecording()).trim();
-    if (!userText) return;
+    if (!userText) {
+      if (consumeRateLimited()) {
+        addMessage({ role: "assistant", content: "죄송해요, 지금 서버가 많이 바빠요. 잠시 후 다시 시도해 주세요." });
+      }
+      return;
+    }
 
     addMessage({ role: "user", content: userText });
     setIsAiTyping(true);
@@ -374,6 +379,11 @@ export default function KoPage() {
         if (err.error === "SESSION_EXPIRED") {
           await supabase.auth.signOut();
           router.push("/login/ko");
+          return;
+        }
+        if (err.error === "RATE_LIMIT") {
+          setIsAiTyping(false);
+          addMessage({ role: "assistant", content: "죄송해요, 지금 서버가 많이 바빠요. 잠시 후 다시 시도해 주세요." });
           return;
         }
         throw new Error("API error");

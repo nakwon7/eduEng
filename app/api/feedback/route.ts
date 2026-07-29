@@ -103,7 +103,7 @@ Return a JSON object with this exact structure:
 Rules:
 - corrections: only real grammar/expression errors (max 3). Empty array if no errors.
 - goodPhrases: English phrases the student used correctly and naturally (max 3). Empty array if none.
-- suggestions: 2-3 helpful English expressions relevant to the topic
+- suggestions: up to 10 helpful English expressions relevant to the topic, ordered from most to least relevant/useful. Do not pad with generic filler just to reach 10 — fewer high-quality suggestions are better than 10 weak ones.
 - Be warm and encouraging, not harsh
 - JSON only, no markdown`;
 
@@ -122,7 +122,7 @@ Rules:
       const completion = await client.chat.completions.create({
         model: "openai/gpt-oss-120b",
         reasoning_effort: "low",
-        max_tokens: 800,
+        max_tokens: 1000,
         messages: messagesForModel,
         response_format: { type: "json_object" },
       });

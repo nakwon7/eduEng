@@ -8,6 +8,7 @@ interface UseAudioRecorderReturn {
   startRecording: () => Promise<boolean>;
   stopRecording: () => Promise<string>;
   isSupported: boolean;
+  consumeRateLimited: () => boolean;
 }
 
 export function useAudioRecorder(): UseAudioRecorderReturn {
@@ -17,6 +18,7 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
   const chunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
   const startedAtRef = useRef(0);
+  const rateLimitedRef = useRef(false);
 
   const isSupported =
     typeof window !== "undefined" && "MediaRecorder" in window;
@@ -27,6 +29,7 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
       streamRef.current = stream;
       chunksRef.current = [];
       startedAtRef.current = Date.now();
+      rateLimitedRef.current = false;
 
       const mimeType = MediaRecorder.isTypeSupported("audio/webm")
         ? "audio/webm"
@@ -82,6 +85,11 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
             body: formData,
           });
           const data = await res.json();
+          if (data.error === "RATE_LIMIT") {
+            rateLimitedRef.current = true;
+            resolve("");
+            return;
+          }
           resolve(data.text || "");
         } catch {
           resolve("");
@@ -94,5 +102,11 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
     });
   }, []);
 
-  return { isRecording, isTranscribing, startRecording, stopRecording, isSupported };
+  const consumeRateLimited = useCallback(() => {
+    const wasRateLimited = rateLimitedRef.current;
+    rateLimitedRef.current = false;
+    return wasRateLimited;
+  }, []);
+
+  return { isRecording, isTranscribing, startRecording, stopRecording, isSupported, consumeRateLimited };
 }

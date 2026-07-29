@@ -59,7 +59,7 @@ export default function Home() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const messagesRef = useRef<Message[]>([]);
 
-  const { isRecording, isTranscribing, startRecording, stopRecording } = useAudioRecorder();
+  const { isRecording, isTranscribing, startRecording, stopRecording, consumeRateLimited } = useAudioRecorder();
   const { speak, stop: stopSpeaking, unlock: unlockTTS, isSpeaking } = useSpeechSynthesis();
 
   useEffect(() => { callDurationRef.current = callDuration; }, [callDuration]);
@@ -348,7 +348,12 @@ export default function Home() {
     if (!isRecording) return;
 
     const userText = (await stopRecording()).trim();
-    if (!userText) return;
+    if (!userText) {
+      if (consumeRateLimited()) {
+        addMessage({ role: "assistant", content: "Sorry, our tutors are quite busy right now. Please try again in a moment." });
+      }
+      return;
+    }
 
     addMessage({ role: "user", content: userText });
     setIsAiTyping(true);
@@ -373,6 +378,11 @@ export default function Home() {
         if (err.error === "SESSION_EXPIRED") {
           await supabase.auth.signOut();
           router.push("/login");
+          return;
+        }
+        if (err.error === "RATE_LIMIT") {
+          setIsAiTyping(false);
+          addMessage({ role: "assistant", content: "Sorry, our tutors are quite busy right now. Please try again in a moment." });
           return;
         }
         throw new Error("API error");

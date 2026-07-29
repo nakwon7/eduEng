@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 export type FeedbackData = {
   summary: string;
   corrections: Array<{
@@ -18,7 +20,30 @@ type Props = {
   onDismiss: () => void;
 };
 
+const SUGGESTIONS_PREVIEW_COUNT = 3;
+
 export default function CallFeedback({ feedback, isLoading, onDismiss }: Props) {
+  const [showAllSuggestions, setShowAllSuggestions] = useState(false);
+  const [shareState, setShareState] = useState<"idle" | "copied">("idle");
+
+  const handleShareSuggestions = async () => {
+    if (!feedback?.suggestions?.length) return;
+    const shareText = feedback.suggestions.map((s) => `• ${s}`).join("\n");
+
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ title: "오늘의 추천 표현", text: shareText });
+      } catch {
+        // 사용자가 공유를 취소한 경우 - 무시
+      }
+      return;
+    }
+
+    await navigator.clipboard.writeText(shareText);
+    setShareState("copied");
+    setTimeout(() => setShareState("idle"), 2000);
+  };
+
   if (isLoading) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center gap-3">
@@ -87,13 +112,44 @@ export default function CallFeedback({ feedback, isLoading, onDismiss }: Props) 
           <div className="bg-gray-800 rounded-2xl p-4">
             <p className="text-purple-400 text-xs font-semibold mb-2">💡 이런 표현도 써보세요</p>
             <div className="space-y-1">
-              {feedback.suggestions.map((s, i) => (
+              {(showAllSuggestions
+                ? feedback.suggestions
+                : feedback.suggestions.slice(0, SUGGESTIONS_PREVIEW_COUNT)
+              ).map((s, i) => (
                 <div key={i} className="flex items-start gap-2">
                   <span className="text-purple-400 text-xs mt-0.5">•</span>
                   <span className="text-gray-200 text-xs">&ldquo;{s}&rdquo;</span>
                 </div>
               ))}
             </div>
+            {feedback.suggestions.length > SUGGESTIONS_PREVIEW_COUNT && (
+              <button
+                onClick={() => setShowAllSuggestions((v) => !v)}
+                className="mt-2 text-purple-400 hover:text-purple-300 text-xs underline"
+              >
+                {showAllSuggestions
+                  ? "접기"
+                  : `더보기 (+${feedback.suggestions.length - SUGGESTIONS_PREVIEW_COUNT})`}
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* 추천 표현 공유 */}
+        {feedback.suggestions && feedback.suggestions.length > 0 && (
+          <div className="bg-gray-800 rounded-2xl p-4">
+            <p className="text-purple-400 text-xs font-semibold mb-1">📤 추천 표현 공유하기</p>
+            <p className="text-gray-400 text-xs mb-3">오늘 배운 추천 표현을 공유해보세요</p>
+            <button
+              onClick={handleShareSuggestions}
+              className={`w-full py-2 rounded-xl text-xs font-semibold transition-colors ${
+                shareState === "copied"
+                  ? "bg-green-600 text-white"
+                  : "bg-purple-600 hover:bg-purple-500 text-white"
+              }`}
+            >
+              {shareState === "copied" ? "복사됨!" : "공유하기"}
+            </button>
           </div>
         )}
 
