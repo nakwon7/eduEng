@@ -439,63 +439,62 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-[700px]">
-        {/* Top nav bar (사진 배경 밖, 항상 솔리드 배경이라 가독성 문제 없음) */}
-        <div className="bg-gray-900 px-4 py-2.5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {(view === "settings" || view === "admin" || view === "help") ? (
-              <button onClick={() => setView("home")} className="text-gray-500 hover:text-gray-300 text-sm">← 뒤로</button>
-            ) : callState === "idle" && view === "home" ? (
-              username === "gooster" ? (
-                <>
-                  <button onClick={() => setView("admin")} className="text-yellow-500 hover:text-yellow-400 text-xs">관리자</button>
-                  {!isMobile && (
-                    <button onClick={() => router.push("/admin/stats")} className="text-emerald-400 hover:text-emerald-300 text-xs">통계</button>
-                  )}
-                  <button onClick={() => router.push("/ko")} className="text-blue-400 hover:text-blue-300 text-xs">🇰🇷 한국어판</button>
-                  <button onClick={handleLogout} className="text-gray-500 hover:text-gray-300 text-xs">로그아웃</button>
-                </>
-              ) : username === "mh1104" ? (
-                <>
-                  <button onClick={() => router.push("/ko")} className="text-blue-400 hover:text-blue-300 text-xs">🇰🇷 한국어판</button>
-                  <button onClick={handleLogout} className="text-gray-500 hover:text-gray-300 text-xs">로그아웃</button>
-                </>
-              ) : (
-                <button onClick={handleLogout} className="text-gray-500 hover:text-gray-300 text-xs">로그아웃</button>
-              )
-            ) : null}
-          </div>
-          {callState === "idle" && view === "home" && (
-            <div className="flex gap-2">
-              <button onClick={() => setView("help")} className="flex items-center gap-1 px-2.5 py-1.5 bg-gray-700 hover:bg-gray-600 rounded-xl text-gray-300 text-xs transition-all">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
-                  <circle cx="12" cy="12" r="9" />
-                  <path d="M9.5 9a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 2-2.4 3.7" />
-                  <circle cx="12" cy="17" r="0.5" fill="currentColor" stroke="none" />
-                </svg>
-                <span>도움말</span>
-              </button>
-              <button onClick={() => setView("settings")} className="flex items-center gap-1 px-2.5 py-1.5 bg-gray-700 hover:bg-gray-600 rounded-xl text-gray-300 text-xs transition-all">
-                <span>⚙️</span><span>설정</span>
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Header */}
-        <div className="bg-gray-800 px-6 pt-6 pb-6 text-center relative">
+        {/* Header (사진 배경이 상단 버튼 영역까지 확장, 이중 그라데이션으로 가독성 확보) */}
+        <div className="bg-gray-800 px-6 pt-3 pb-6 text-center relative">
           {monthlyBg && (
             <>
               <Image
                 src={`/tutors/bg/${monthlyBg.file}`}
                 alt={monthlyBg.label}
                 fill
-                className="object-cover"
+                className="object-cover object-[center_25%]"
                 priority
               />
+              <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/60 to-transparent" />
               <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent via-45% to-gray-900/95" />
             </>
           )}
           <div className="relative z-10">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              {(view === "settings" || view === "admin" || view === "help") ? (
+                <button onClick={() => setView("home")} className="text-gray-300 hover:text-white text-sm [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">← 뒤로</button>
+              ) : callState === "idle" && view === "home" ? (
+                username === "gooster" ? (
+                  <>
+                    <button onClick={() => setView("admin")} className="text-yellow-400 hover:text-yellow-300 text-xs [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">관리자</button>
+                    {!isMobile && (
+                      <button onClick={() => router.push("/admin/stats")} className="text-emerald-400 hover:text-emerald-300 text-xs [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">통계</button>
+                    )}
+                    <button onClick={() => router.push("/ko")} className="text-blue-400 hover:text-blue-300 text-xs [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">🇰🇷 한국어판</button>
+                    <button onClick={handleLogout} className="text-gray-300 hover:text-white text-xs [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">로그아웃</button>
+                  </>
+                ) : username === "mh1104" ? (
+                  <>
+                    <button onClick={() => router.push("/ko")} className="text-blue-400 hover:text-blue-300 text-xs [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">🇰🇷 한국어판</button>
+                    <button onClick={handleLogout} className="text-gray-300 hover:text-white text-xs [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">로그아웃</button>
+                  </>
+                ) : (
+                  <button onClick={handleLogout} className="text-gray-300 hover:text-white text-xs [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">로그아웃</button>
+                )
+              ) : null}
+            </div>
+            {callState === "idle" && view === "home" && (
+              <div className="flex gap-2">
+                <button onClick={() => setView("help")} className="flex items-center gap-1 px-2.5 py-1.5 bg-gray-700/80 hover:bg-gray-600/80 backdrop-blur-sm rounded-xl text-gray-200 text-xs transition-all">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M9.5 9a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 2-2.4 3.7" />
+                    <circle cx="12" cy="17" r="0.5" fill="currentColor" stroke="none" />
+                  </svg>
+                  <span>도움말</span>
+                </button>
+                <button onClick={() => setView("settings")} className="flex items-center gap-1 px-2.5 py-1.5 bg-gray-700/80 hover:bg-gray-600/80 backdrop-blur-sm rounded-xl text-gray-200 text-xs transition-all">
+                  <span>⚙️</span><span>설정</span>
+                </button>
+              </div>
+            )}
+          </div>
           <TutorAvatar tutor={effectiveTutor} fallbackBg="bg-green-600" />
           <h1 className="text-white text-lg font-semibold [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">
             {effectiveTutor === "rachel" ? "Rachel" : "Alex"}
