@@ -52,6 +52,9 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
   const [callLogs, setCallLogs] = useState<Record<string, { date: string; seconds: number }[]>>({});
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -153,6 +156,18 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
     setBusy(null);
   };
 
+  const filteredUsers = users.filter((u) => {
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      if (!u.username.toLowerCase().includes(q) && !u.name.toLowerCase().includes(q)) return false;
+    }
+    const signupDate = u.created_at?.slice(0, 10);
+    if (dateFrom && (!signupDate || signupDate < dateFrom)) return false;
+    if (dateTo && (!signupDate || signupDate > dateTo)) return false;
+    return true;
+  });
+  const hasFilter = !!(searchQuery || dateFrom || dateTo);
+
   return (
     <div className="flex-1 flex flex-col px-2 py-4 overflow-y-auto">
       <h2 className="text-white text-sm font-bold mb-4 text-center">회원 관리</h2>
@@ -187,13 +202,53 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
         </a>
       </div>
 
+      {!loading && users.length > 0 && (
+        <div className="mb-3 space-y-2">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="아이디 또는 이름 검색"
+            className="w-full bg-gray-800 text-white rounded-xl px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-600"
+          />
+          <div className="flex gap-2 items-center">
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="flex-1 min-w-0 bg-gray-800 text-gray-300 rounded-xl px-2 py-2 text-xs outline-none focus:ring-2 focus:ring-blue-500 [color-scheme:dark]"
+            />
+            <span className="text-gray-500 text-xs shrink-0">~</span>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="flex-1 min-w-0 bg-gray-800 text-gray-300 rounded-xl px-2 py-2 text-xs outline-none focus:ring-2 focus:ring-blue-500 [color-scheme:dark]"
+            />
+            {hasFilter && (
+              <button
+                onClick={() => { setSearchQuery(""); setDateFrom(""); setDateTo(""); }}
+                className="text-gray-500 hover:text-gray-300 text-xs whitespace-nowrap shrink-0"
+              >
+                초기화
+              </button>
+            )}
+          </div>
+          {hasFilter && (
+            <p className="text-gray-600 text-xs">{filteredUsers.length}명 표시 중 (전체 {users.length}명)</p>
+          )}
+        </div>
+      )}
+
       {loading ? (
         <p className="text-gray-500 text-xs text-center">불러오는 중...</p>
       ) : users.length === 0 ? (
         <p className="text-gray-500 text-xs text-center">가입된 회원이 없습니다</p>
+      ) : filteredUsers.length === 0 ? (
+        <p className="text-gray-500 text-xs text-center">검색 결과가 없습니다</p>
       ) : (
         <div className="space-y-3">
-          {users.map((u) => {
+          {filteredUsers.map((u) => {
             const status = statusLabel(u);
             return (
               <div
