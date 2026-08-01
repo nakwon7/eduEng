@@ -28,41 +28,49 @@ const KO_TOPICS = [
   {
     id: "greetings", label: "Greetings", value: "Greetings & Introductions (인사)",
     color: "bg-blue-500/15 text-blue-400",
+    cardTint: "bg-blue-500/5 border-blue-500/15",
     icon: <><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></>,
   },
   {
     id: "daily", label: "Daily Life", value: "Daily Conversation (일상대화)",
     color: "bg-orange-500/15 text-orange-400",
+    cardTint: "bg-orange-500/5 border-orange-500/15",
     icon: <><path d="M18 8h1a4 4 0 0 1 0 8h-1" /><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" /><line x1="6" y1="1" x2="6" y2="4" /><line x1="10" y1="1" x2="10" y2="4" /><line x1="14" y1="1" x2="14" y2="4" /></>,
   },
   {
     id: "food", label: "Food", value: "Food & Restaurants (음식/식당)",
     color: "bg-yellow-500/15 text-yellow-400",
+    cardTint: "bg-yellow-500/5 border-yellow-500/15",
     icon: <><path d="M3 2v7c0 1.1.9 2 2 2h2a2 2 0 0 0 2-2V2" /><path d="M7 2v20" /><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7" /></>,
   },
   {
     id: "shopping", label: "Shopping", value: "Shopping (쇼핑)",
     color: "bg-rose-500/15 text-rose-400",
+    cardTint: "bg-rose-500/5 border-rose-500/15",
     icon: <><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" /><path d="M3 6h18" /><path d="M16 10a4 4 0 0 1-8 0" /></>,
   },
   {
     id: "kdrama", label: "K-Drama", value: "K-Drama & K-Pop Phrases",
     color: "bg-purple-500/15 text-purple-400",
+    cardTint: "bg-purple-500/5 border-purple-500/15",
     icon: <><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" /><line x1="7" y1="2" x2="7" y2="22" /><line x1="17" y1="2" x2="17" y2="22" /><line x1="2" y1="12" x2="22" y2="12" /><line x1="2" y1="7" x2="7" y2="7" /><line x1="2" y1="17" x2="7" y2="17" /><line x1="17" y1="17" x2="22" y2="17" /><line x1="17" y1="7" x2="22" y2="7" /></>,
   },
   {
     id: "transport", label: "Transport", value: "Transportation in Korea (교통)",
     color: "bg-cyan-500/15 text-cyan-400",
+    cardTint: "bg-cyan-500/5 border-cyan-500/15",
     icon: <><rect x="4" y="3" width="16" height="14" rx="3" /><path d="M4 11h16" /><circle cx="8.5" cy="14.5" r="1.2" fill="currentColor" stroke="none" /><circle cx="15.5" cy="14.5" r="1.2" fill="currentColor" stroke="none" /><path d="M8 21l-2-3M16 21l2-3" /></>,
   },
   {
     id: "culture", label: "Culture", value: "Korean Culture (한국 문화)",
     color: "bg-amber-500/15 text-amber-400",
+    cardTint: "bg-amber-500/5 border-amber-500/15",
     icon: <><line x1="3" y1="22" x2="21" y2="22" /><line x1="6" y1="18" x2="6" y2="11" /><line x1="10" y1="18" x2="10" y2="11" /><line x1="14" y1="18" x2="14" y2="11" /><line x1="18" y1="18" x2="18" y2="11" /><polygon points="12 2 21 8 3 8" /></>,
   },
   {
     id: "word", label: "Word Practice", value: "Word Practice",
     color: "bg-fuchsia-500/15 text-fuchsia-400",
+    cardTint: "bg-fuchsia-500/5 border-fuchsia-500/15",
     icon: <><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></>,
   },
 ];
@@ -450,7 +458,7 @@ export default function KoPage() {
 
   return (
     <main className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-[700px]">
+      <div className="w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl ring-1 ring-white/5 overflow-hidden flex flex-col min-h-[700px]">
         {/* Header (사진 배경이 상단 버튼 영역까지 확장, 이중 그라데이션으로 가독성 확보) */}
         <div className="bg-gray-800 px-6 pt-3 pb-6 text-center relative">
           {monthlyBg && (
@@ -525,7 +533,7 @@ export default function KoPage() {
                   value={profile.name}
                   onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))}
                   maxLength={20}
-                  className="w-full bg-gray-800 text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full bg-gray-800 border border-white/5 text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -536,10 +544,10 @@ export default function KoPage() {
                     <button
                       key={lvl}
                       onClick={() => setProfile((p) => ({ ...p, level: lvl }))}
-                      className={`py-2 rounded-xl text-xs font-medium transition-all ${
+                      className={`py-2 rounded-xl border text-xs font-medium transition-all ${
                         profile.level === lvl
-                          ? "bg-blue-600 text-white"
-                          : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                          ? "bg-gradient-to-r from-blue-600 to-indigo-500 border-transparent text-white shadow-md shadow-blue-900/30"
+                          : "bg-blue-500/5 border-blue-500/10 text-gray-400 hover:bg-blue-500/10"
                       }`}
                     >
                       {lvl === "beginner" ? "Beginner" : lvl === "intermediate" ? "Intermediate" : "Advanced"}
@@ -551,7 +559,7 @@ export default function KoPage() {
               <div>
                 <label className="text-gray-400 text-xs mb-1 block">Tutor</label>
                 {isMobile ? (
-                  <div className="bg-gray-800 rounded-xl px-4 py-3 text-xs text-gray-400">
+                  <div className="bg-gray-800 border border-white/5 rounded-xl px-4 py-3 text-xs text-gray-400">
                     Tutor selection is available on PC. On mobile, you'll chat with Jia.
                   </div>
                 ) : (
@@ -560,10 +568,10 @@ export default function KoPage() {
                       <button
                         key={t}
                         onClick={() => setProfile((p) => ({ ...p, tutor: t }))}
-                        className={`py-3 rounded-xl text-sm font-medium transition-all ${
+                        className={`py-3 rounded-xl border text-sm font-medium transition-all ${
                           profile.tutor === t
-                            ? "bg-blue-600 text-white"
-                            : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                            ? "bg-gradient-to-r from-blue-600 to-indigo-500 border-transparent text-white shadow-md shadow-blue-900/30"
+                            : "bg-blue-500/5 border-blue-500/10 text-gray-400 hover:bg-blue-500/10"
                         }`}
                       >
                         {t === "jia" ? "🌸 Jia" : "🎓 MinJun"}
@@ -584,12 +592,12 @@ export default function KoPage() {
                   }
                   setShowSetup(false);
                 }}
-                className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-semibold text-sm"
+                className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 text-white rounded-2xl font-semibold text-sm shadow-lg shadow-blue-900/30"
               >
                 Save
               </button>
 
-              <div className="mt-4 bg-gray-900 rounded-xl p-4 space-y-2">
+              <div className="mt-4 bg-blue-500/5 border border-blue-500/15 rounded-xl p-4 space-y-2">
                 <p className="text-gray-400 text-xs font-medium">Membership</p>
                 <div className="flex items-baseline gap-1">
                   <span className="text-white text-lg font-bold">$3</span>
@@ -601,7 +609,7 @@ export default function KoPage() {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={handlePaypalClick}
-                  className="inline-block w-full py-2 bg-blue-500 hover:bg-blue-400 text-white text-xs font-semibold rounded-xl text-center mt-1"
+                  className="inline-block w-full py-2 bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 text-white text-xs font-semibold rounded-xl text-center mt-1 shadow-md shadow-blue-900/30"
                 >
                   💳 Pay with PayPal
                 </a>
@@ -643,7 +651,7 @@ export default function KoPage() {
               <div className="mt-4">
                 <button
                   onClick={async () => { await supabase.auth.signOut(); localStorage.removeItem("turingcall_session"); router.push("/login/ko"); }}
-                  className="w-full py-3 bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-2xl text-sm"
+                  className="w-full py-3 bg-gray-800 border border-white/5 hover:bg-gray-700 text-gray-400 rounded-2xl text-sm"
                 >
                   Log out
                 </button>
@@ -671,10 +679,10 @@ export default function KoPage() {
                     <button
                       key={t.id}
                       onClick={() => setTopic(t.value)}
-                      className={`p-3 rounded-xl text-left transition-all ${
+                      className={`p-3 rounded-xl border text-left transition-all ${
                         topic === t.value
-                          ? "bg-blue-600 text-white"
-                          : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                          ? "bg-gradient-to-br from-blue-600 to-indigo-500 border-transparent text-white shadow-lg shadow-blue-900/30"
+                          : `${t.cardTint} text-gray-300 hover:bg-white/5`
                       }`}
                     >
                       <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${topic === t.value ? "bg-white/15 text-white" : t.color}`}>
@@ -726,7 +734,7 @@ export default function KoPage() {
                 </p>
               )}
               {hasActiveMembership && (
-                <div className="bg-gray-800 rounded-xl px-4 py-2 mb-2 text-center">
+                <div className="bg-blue-500/5 border border-blue-500/15 rounded-xl px-4 py-2 mb-2 text-center">
                   <p className="text-blue-400 text-xs font-medium">Active membership</p>
                   <p className="text-gray-300 text-xs mt-0.5">
                     Until {new Date(expiresAt!).toLocaleString("en-US", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}
@@ -767,7 +775,7 @@ export default function KoPage() {
               )}
               <button
                 onClick={startCall}
-                className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-semibold text-lg transition-all active:scale-95 shadow-lg"
+                className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 text-white rounded-2xl font-semibold text-lg transition-all active:scale-95 shadow-lg shadow-blue-900/40"
               >
                 📞 Start Call
               </button>

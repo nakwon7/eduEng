@@ -65,12 +65,12 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
           maxLength={20}
-          className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-500 placeholder-gray-600"
+          className="w-full bg-gray-800 border border-white/5 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-500 placeholder-gray-600"
         />
       </div>
 
       {isMobile && (
-        <div className="mb-5 bg-gray-800 rounded-xl px-4 py-3 text-xs text-gray-400">
+        <div className="mb-5 bg-gray-800 border border-white/5 rounded-xl px-4 py-3 text-xs text-gray-400">
           튜터 선택은 PC에서 가능해요. 모바일에서는 Rachel과 대화해요.
         </div>
       )}
@@ -83,8 +83,8 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
               <button
                 key={t.id}
                 onClick={() => setTutor(t.id)}
-                className={`px-4 py-3 rounded-xl text-center transition-all ${
-                  tutor === t.id ? "bg-green-600/15 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                className={`px-4 py-3 rounded-xl border text-center transition-all ${
+                  tutor === t.id ? "bg-green-600/15 border-green-500/30 text-white" : "bg-green-500/5 border-green-500/10 text-gray-300 hover:bg-green-500/10"
                 }`}
               >
                 <div
@@ -109,8 +109,10 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
             <button
               key={l.id}
               onClick={() => setLevel(l.id)}
-              className={`w-full px-4 py-3 rounded-xl text-left transition-all ${
-                level === l.id ? "bg-green-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+              className={`w-full px-4 py-3 rounded-xl border text-left transition-all ${
+                level === l.id
+                  ? "bg-gradient-to-r from-green-600 to-emerald-500 border-transparent text-white shadow-md shadow-green-900/30"
+                  : "bg-green-500/5 border-green-500/10 text-gray-300 hover:bg-green-500/10"
               }`}
             >
               <span className="font-medium text-sm">{l.label}</span>
@@ -123,13 +125,13 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
       <button
         onClick={handleSubmit}
         disabled={!name.trim()}
-        className="w-full py-3 bg-green-600 hover:bg-green-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-xl font-semibold transition-all"
+        className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 disabled:bg-none disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-xl font-semibold transition-all shadow-lg shadow-green-900/30"
       >
         {existing ? "저장" : "시작하기"}
       </button>
 
       {hasActiveMembership ? (
-        <div className="mt-6 bg-gray-900 rounded-xl p-4 flex items-center justify-between gap-2">
+        <div className="mt-6 bg-green-500/5 border border-green-500/15 rounded-xl p-4 flex items-center justify-between gap-2">
           <p className="text-green-400 text-xs font-medium">
             ✅ 멤버십 이용중{expiresAt ? ` · ${new Date(expiresAt).toLocaleDateString("ko-KR")}까지` : ""}
           </p>
@@ -143,7 +145,7 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
           </a>
         </div>
       ) : (
-        <div className="mt-6 bg-gray-900 rounded-xl p-4 space-y-2">
+        <div className="mt-6 bg-green-500/5 border border-green-500/15 rounded-xl p-4 space-y-2">
           <p className="text-gray-400 text-xs font-medium">멤버십 요금</p>
           <div className="flex items-baseline gap-1">
             <span className="text-white text-lg font-bold">9,900원</span>

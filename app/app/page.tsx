@@ -452,7 +452,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-[700px]">
+      <div className="w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl ring-1 ring-white/5 overflow-hidden flex flex-col min-h-[700px]">
         {/* Header (사진 배경이 상단 버튼 영역까지 확장, 이중 그라데이션으로 가독성 확보) */}
         <div className="bg-gray-800 px-6 pt-3 pb-6 text-center relative">
           {monthlyBg && (
@@ -661,7 +661,7 @@ export default function Home() {
                   </p>
                 )}
                 {isPaid && expiresAt && (
-                  <div className="bg-gray-800 rounded-xl px-4 py-2 mb-2 text-center">
+                  <div className="bg-green-500/5 border border-green-500/15 rounded-xl px-4 py-2 mb-2 text-center">
                     <p className="text-green-400 text-xs font-medium">멤버십 이용 중</p>
                     <p className="text-gray-300 text-xs mt-0.5">
                       {new Date(expiresAt).toLocaleString("ko-KR", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}까지
@@ -700,7 +700,7 @@ export default function Home() {
                     )}
                   </div>
                 )}
-                <button onClick={startCall} className="w-full py-4 bg-green-600 hover:bg-green-500 text-white rounded-2xl font-semibold text-lg transition-all active:scale-95 shadow-lg">
+                <button onClick={startCall} className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white rounded-2xl font-semibold text-lg transition-all active:scale-95 shadow-lg shadow-green-900/40">
                   📞 통화 시작
                 </button>
               </div>
