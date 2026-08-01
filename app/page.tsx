@@ -109,7 +109,7 @@ export default function LandingPage() {
       {/* Pricing */}
       <div className="px-6 pb-10 max-w-sm mx-auto">
         <div className="bg-green-500/5 rounded-2xl p-6 text-center border border-green-500/40">
-          <p className="text-green-400 text-xs font-medium mb-1">베타 특가</p>
+          <p className="text-green-400 text-xs font-medium mb-1">런칭 특가</p>
           <p className="text-4xl font-bold mb-1">9,900<span className="text-xl">원</span></p>
           <p className="text-gray-400 text-sm mb-4">/ 월 · 매월 900분 제공</p>
           <div className="bg-gray-900/60 rounded-xl p-3 text-xs text-gray-300 text-left space-y-1">
@@ -156,7 +156,7 @@ export default function LandingPage() {
           </svg>
           카카오톡 문의하기
         </a>
-        <p className="text-gray-600 text-xs">TuringCall Beta v0.1 · Chrome / Samsung 브라우저 권장</p>
+        <p className="text-gray-600 text-xs">TuringCall v1.0 · Chrome / Samsung 브라우저 권장</p>
       </div>
 
       {/* Footer */}

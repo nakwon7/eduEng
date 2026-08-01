@@ -103,7 +103,7 @@ export default function LandingKoPage() {
       {/* Pricing */}
       <div className="px-6 pb-10 max-w-sm mx-auto">
         <div className="bg-blue-500/5 rounded-2xl p-6 text-center border border-blue-500/40">
-          <p className="text-blue-400 text-xs font-medium mb-1">Beta Pricing</p>
+          <p className="text-blue-400 text-xs font-medium mb-1">Launch Pricing</p>
           <p className="text-4xl font-bold mb-1">$3</p>
           <p className="text-gray-400 text-sm mb-4">/ week · unlimited during subscription</p>
           <div className="bg-gray-900/60 rounded-xl p-3 text-xs text-gray-300 text-left space-y-1">
@@ -162,7 +162,7 @@ export default function LandingKoPage() {
           </svg>
           Contact us on KakaoTalk
         </a>
-        <p className="text-gray-600 text-xs">TuringCall Beta v0.1 · Chrome / Samsung Browser recommended</p>
+        <p className="text-gray-600 text-xs">TuringCall v1.0 · Chrome / Samsung Browser recommended</p>
       </div>
 
       {/* Footer */}

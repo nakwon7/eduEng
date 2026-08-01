@@ -2,7 +2,7 @@
 
 export const TOPICS = [
   {
-    id: "word-desc", label: "단어 설명하기", en: "Word Description", isNew: true,
+    id: "word-desc", label: "단어 설명하기", en: "Word Description",
     color: "bg-fuchsia-500/15 text-fuchsia-400",
     cardTint: "bg-fuchsia-500/5 border-fuchsia-500/15",
     icon: <><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></>,
@@ -85,19 +85,12 @@ export default function TopicSelector({ selected, onSelect }: TopicSelectorProps
           <button
             key={topic.id}
             onClick={() => onSelect(topic.en)}
-            className={`p-3 rounded-xl border text-left transition-all relative ${
+            className={`p-3 rounded-xl border text-left transition-all ${
               selected === topic.en
                 ? "bg-gradient-to-br from-green-600 to-emerald-500 border-transparent text-white shadow-lg shadow-green-900/30"
-                : topic.isNew
-                ? `${topic.cardTint} text-gray-300 hover:bg-white/5 ring-2 ring-yellow-400 ring-opacity-70`
                 : `${topic.cardTint} text-gray-300 hover:bg-white/5`
             }`}
           >
-            {topic.isNew && (
-              <span className="absolute top-2 right-2 bg-yellow-400 text-gray-900 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                NEW
-              </span>
-            )}
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${selected === topic.en ? "bg-white/15 text-white" : topic.color}`}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px]">
                 {topic.icon}

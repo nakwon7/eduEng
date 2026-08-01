@@ -52,7 +52,7 @@ export default function TermsPage() {
             <h3 className="font-semibold text-sm text-gray-200">제5조 (서비스 이용 및 요금)</h3>
             <ul className="text-gray-400 text-sm leading-relaxed space-y-1 list-disc list-inside">
               <li>무료 체험: 가입 후 2회 제공 (회당 최대 5분), 별도 결제 불필요</li>
-              <li>멤버십: 월 9,900원 (베타 기간 기준), 계좌이체로 결제</li>
+              <li>멤버십: 월 9,900원, 계좌이체로 결제</li>
               <li className="flex items-center gap-1">
                 KB국민은행 758637-00-012739
                 <CopyButton text="758637-00-012739" />
