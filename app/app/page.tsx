@@ -53,6 +53,8 @@ export default function Home() {
   const [requestingPayment, setRequestingPayment] = useState(false);
   const [paymentNote, setPaymentNote] = useState("");
   const [paymentRejectReason, setPaymentRejectReason] = useState<string | null>(null);
+  const [showCallEndedNotice, setShowCallEndedNotice] = useState(false);
+  const callEndedNoticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isTrialCallRef = useRef(false);
   const topicRef = useRef(topic);
   const callDurationRef = useRef(0);
@@ -242,9 +244,9 @@ export default function Home() {
       }
     }
 
-    // Generate feedback if there were at least 2 user turns
+    // Generate feedback if there were at least FEEDBACK_MIN_TURNS user turns
     const userTurns = capturedMessages.filter((m) => m.role === "user").length;
-    if (userTurns >= 2 && capturedProfile) {
+    if (userTurns >= FEEDBACK_MIN_TURNS && capturedProfile) {
       setFeedback(null);
       setIsFetchingFeedback(true);
       fetch("/api/feedback", {
@@ -255,8 +257,18 @@ export default function Home() {
         .then((res) => (res.ok ? res.json() : null))
         .then((data) => { if (data && !data.error) setFeedback(data); })
         .finally(() => setIsFetchingFeedback(false));
+    } else {
+      // 대화가 짧아 피드백이 생성되지 않는 경우, 홈으로 조용히 돌아가면
+      // 통화가 실제로 종료된 건지 앱이 그냥 닫힌 건지 헷갈릴 수 있어 안내를 띄움
+      setShowCallEndedNotice(true);
+      if (callEndedNoticeTimerRef.current) clearTimeout(callEndedNoticeTimerRef.current);
+      callEndedNoticeTimerRef.current = setTimeout(() => setShowCallEndedNotice(false), 3200);
     }
   }, [stopSpeaking, userId, sessionToken, topic, profile]);
+
+  useEffect(() => {
+    return () => { if (callEndedNoticeTimerRef.current) clearTimeout(callEndedNoticeTimerRef.current); };
+  }, []);
 
   // 탭 전환/전화 착신 시 즉시 저장
   useEffect(() => {
@@ -422,6 +434,8 @@ export default function Home() {
 
   const isBusy = isTranscribing || isAiTyping || isSpeaking;
   const tutorDisplayName = effectiveTutor === "rachel" ? "Rachel" : "Alex";
+  const userTurnCount = messages.filter((m) => m.role === "user").length;
+  const FEEDBACK_MIN_TURNS = 2;
   const micStatus = isRecording ? "듣는 중... 손을 떼면 전송"
     : isTranscribing ? "인식 중..."
     : isAiTyping ? `${tutorDisplayName}가 생각 중...`
@@ -523,6 +537,15 @@ export default function Home() {
             </div>
           )}
           {callState === "active" && <p className="text-green-400 text-sm mt-1 font-mono [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">{formatTime(callDuration)}</p>}
+          {callState === "active" && (
+            <p className="text-xs mt-1 [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">
+              {userTurnCount >= FEEDBACK_MIN_TURNS ? (
+                <span className="text-emerald-400">✅ 피드백 받을 준비 완료</span>
+              ) : (
+                <span className="text-gray-300">대화 {FEEDBACK_MIN_TURNS - userTurnCount}번 더 하면 피드백을 받을 수 있어요</span>
+              )}
+            </p>
+          )}
           {callState === "calling" && <p className="text-yellow-400 text-sm mt-1 animate-pulse [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">연결 중...</p>}
           </div>
         </div>
@@ -757,7 +780,14 @@ export default function Home() {
 
           {callState !== "idle" && (
             <div className="flex items-center justify-center gap-6">
-              <button onClick={endCall} className="w-16 h-16 bg-red-600 hover:bg-red-500 rounded-full flex items-center justify-center text-2xl transition-all active:scale-95 shadow-lg">📵</button>
+              <div className="flex flex-col items-center gap-1.5">
+                <button onClick={endCall} aria-label="통화 종료" className="w-16 h-16 bg-red-600 hover:bg-red-500 rounded-full flex items-center justify-center transition-all active:scale-95 shadow-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="w-7 h-7">
+                    <path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08c-.18-.17-.29-.42-.29-.7 0-.28.11-.53.29-.71C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71 0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28-.79-.74-1.69-1.36-2.67-1.85-.33-.16-.56-.5-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z" />
+                  </svg>
+                </button>
+                <span className="text-gray-500 text-[10px]">통화 종료</span>
+              </div>
               <button
                 onMouseDown={handleMicPress}
                 onMouseUp={handleMicRelease}
@@ -802,6 +832,16 @@ export default function Home() {
         </div>
 
         {showTerms && <TermsModal onClose={() => setShowTerms(false)} />}
+
+        <div
+          className={`fixed left-1/2 bottom-24 z-50 -translate-x-1/2 transition-all duration-300 ease-out ${
+            showCallEndedNotice ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"
+          }`}
+        >
+          <div className="bg-gray-800 border border-green-700 text-white text-xs px-4 py-3 rounded-xl shadow-xl max-w-[260px] text-center">
+            통화가 종료되었어요.<br />대화를 조금 더 나누면 피드백을 받을 수 있어요.
+          </div>
+        </div>
       </div>
     </main>
   );
