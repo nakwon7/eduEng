@@ -2,6 +2,8 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { useMonthlyBg } from "@/hooks/useMonthlyBg";
 import TopicSelector from "@/components/TopicSelector";
 import CopyButton from "@/components/CopyButton";
 import TranscriptBox, { Message } from "@/components/TranscriptBox";
@@ -43,6 +45,7 @@ export default function Home() {
   const [showTerms, setShowTerms] = useState(false);
   const [showStreakInfo, setShowStreakInfo] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const monthlyBg = useMonthlyBg();
   const [feedback, setFeedback] = useState<FeedbackData | null>(null);
   const [isFetchingFeedback, setIsFetchingFeedback] = useState(false);
   const [monthlySeconds, setMonthlySeconds] = useState(0);
@@ -436,55 +439,72 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-[700px]">
-        {/* Header */}
-        <div className="bg-gray-800 px-6 pt-14 pb-6 text-center relative">
-          {callState === "idle" && view === "home" && (
-            <>
-              <div className="absolute top-4 right-4 flex gap-2">
-                <button onClick={() => setView("help")} className="flex items-center gap-1 px-2.5 py-1.5 bg-gray-700 hover:bg-gray-600 rounded-xl text-gray-300 text-xs transition-all">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
-                    <circle cx="12" cy="12" r="9" />
-                    <path d="M9.5 9a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 2-2.4 3.7" />
-                    <circle cx="12" cy="17" r="0.5" fill="currentColor" stroke="none" />
-                  </svg>
-                  <span>도움말</span>
-                </button>
-                <button onClick={() => setView("settings")} className="flex items-center gap-1 px-2.5 py-1.5 bg-gray-700 hover:bg-gray-600 rounded-xl text-gray-300 text-xs transition-all">
-                  <span>⚙️</span><span>설정</span>
-                </button>
-              </div>
-              {username === "gooster" ? (
-                <div className="absolute top-4 left-4 flex flex-col gap-3">
+        {/* Top nav bar (사진 배경 밖, 항상 솔리드 배경이라 가독성 문제 없음) */}
+        <div className="bg-gray-900 px-4 py-2.5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {(view === "settings" || view === "admin" || view === "help") ? (
+              <button onClick={() => setView("home")} className="text-gray-500 hover:text-gray-300 text-sm">← 뒤로</button>
+            ) : callState === "idle" && view === "home" ? (
+              username === "gooster" ? (
+                <>
                   <button onClick={() => setView("admin")} className="text-yellow-500 hover:text-yellow-400 text-xs">관리자</button>
                   {!isMobile && (
                     <button onClick={() => router.push("/admin/stats")} className="text-emerald-400 hover:text-emerald-300 text-xs">통계</button>
                   )}
                   <button onClick={() => router.push("/ko")} className="text-blue-400 hover:text-blue-300 text-xs">🇰🇷 한국어판</button>
                   <button onClick={handleLogout} className="text-gray-500 hover:text-gray-300 text-xs">로그아웃</button>
-                </div>
+                </>
               ) : username === "mh1104" ? (
-                <div className="absolute top-4 left-4 flex flex-col gap-3">
+                <>
                   <button onClick={() => router.push("/ko")} className="text-blue-400 hover:text-blue-300 text-xs">🇰🇷 한국어판</button>
                   <button onClick={handleLogout} className="text-gray-500 hover:text-gray-300 text-xs">로그아웃</button>
-                </div>
+                </>
               ) : (
-                <button onClick={handleLogout} className="absolute top-4 left-4 text-gray-500 hover:text-gray-300 text-xs">로그아웃</button>
-              )}
+                <button onClick={handleLogout} className="text-gray-500 hover:text-gray-300 text-xs">로그아웃</button>
+              )
+            ) : null}
+          </div>
+          {callState === "idle" && view === "home" && (
+            <div className="flex gap-2">
+              <button onClick={() => setView("help")} className="flex items-center gap-1 px-2.5 py-1.5 bg-gray-700 hover:bg-gray-600 rounded-xl text-gray-300 text-xs transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M9.5 9a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 2-2.4 3.7" />
+                  <circle cx="12" cy="17" r="0.5" fill="currentColor" stroke="none" />
+                </svg>
+                <span>도움말</span>
+              </button>
+              <button onClick={() => setView("settings")} className="flex items-center gap-1 px-2.5 py-1.5 bg-gray-700 hover:bg-gray-600 rounded-xl text-gray-300 text-xs transition-all">
+                <span>⚙️</span><span>설정</span>
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Header */}
+        <div className="bg-gray-800 px-6 pt-6 pb-6 text-center relative overflow-hidden">
+          {monthlyBg && (
+            <>
+              <Image
+                src={`/tutors/bg/${monthlyBg.file}`}
+                alt={monthlyBg.label}
+                fill
+                className="object-cover"
+                priority
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent via-45% to-gray-900/95" />
             </>
           )}
-          {(view === "settings" || view === "admin" || view === "help") && (
-            <button onClick={() => setView("home")} className="absolute top-4 left-4 text-gray-500 hover:text-gray-300 text-sm">← 뒤로</button>
-          )}
-
+          <div className="relative z-10">
           <TutorAvatar tutor={effectiveTutor} fallbackBg="bg-green-600" />
-          <h1 className="text-white text-lg font-semibold">
+          <h1 className="text-white text-lg font-semibold [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">
             {effectiveTutor === "rachel" ? "Rachel" : "Alex"}
           </h1>
-          <p className="text-gray-400 text-sm">
+          <p className="text-gray-300 text-sm [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">
             {effectiveTutor === "rachel" ? "AI Tutor · Korean-American · From Seattle, WA" : "AI Tutor · From New York, NY"}
           </p>
           {profile && callState === "idle" && view === "home" && (
-            <div className="text-green-400 text-xs mt-1 relative inline-block">
+            <div className="text-green-400 text-xs mt-1 relative inline-block [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">
               <p>
                 안녕하세요, {profile.name}님 👋
                 {streakCount > 0 && (
@@ -503,8 +523,9 @@ export default function Home() {
               )}
             </div>
           )}
-          {callState === "active" && <p className="text-green-400 text-sm mt-1 font-mono">{formatTime(callDuration)}</p>}
-          {callState === "calling" && <p className="text-yellow-400 text-sm mt-1 animate-pulse">연결 중...</p>}
+          {callState === "active" && <p className="text-green-400 text-sm mt-1 font-mono [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">{formatTime(callDuration)}</p>}
+          {callState === "calling" && <p className="text-yellow-400 text-sm mt-1 animate-pulse [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">연결 중...</p>}
+          </div>
         </div>
 
         {/* Body */}

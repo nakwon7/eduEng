@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
+import Image from "next/image";
 import CopyButton from "@/components/CopyButton";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { useMonthlyBg } from "@/hooks/useMonthlyBg";
 import { useAudioRecorderKo } from "@/hooks/useAudioRecorderKo";
 import { useKoreanSpeech } from "@/hooks/useKoreanSpeech";
 import TranscriptBox, { Message } from "@/components/TranscriptBox";
@@ -84,6 +86,7 @@ export default function KoPage() {
   const [weeklySeconds, setWeeklySeconds] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [showSetup, setShowSetup] = useState(false);
+  const monthlyBg = useMonthlyBg();
   const [micError, setMicError] = useState(false);
   const [micPermState, setMicPermState] = useState<PermissionState | null>(null);
   const [showTerms, setShowTerms] = useState(false);
@@ -447,50 +450,63 @@ export default function KoPage() {
   return (
     <main className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-[700px]">
+        {/* Top nav bar (사진 배경 밖, 항상 솔리드 배경이라 가독성 문제 없음) */}
+        {callState === "idle" && (
+          <div className="bg-gray-900 px-4 py-2.5 flex items-center justify-between">
+            <button
+              onClick={async () => {
+                if (showSetup) { setShowSetup(false); return; }
+                if (username === "gooster") { router.push("/app"); return; }
+                await supabase.auth.signOut();
+                localStorage.removeItem("turingcall_session");
+                router.push("/login/ko");
+              }}
+              className="text-gray-500 hover:text-gray-300 text-xs"
+            >
+              {showSetup || username === "gooster" ? "← Back" : "Logout"}
+            </button>
+            <button
+              onClick={() => setShowSetup(!showSetup)}
+              className="flex items-center gap-1 px-2.5 py-1.5 bg-gray-700 hover:bg-gray-600 rounded-xl text-gray-300 text-xs"
+            >
+              ⚙️ Setup
+            </button>
+          </div>
+        )}
+
         {/* Header */}
-        <div className="bg-gray-800 px-6 pt-14 pb-6 text-center relative">
-          {callState === "idle" && (
+        <div className="bg-gray-800 px-6 pt-6 pb-6 text-center relative overflow-hidden">
+          {monthlyBg && (
             <>
-              <button
-                onClick={async () => {
-                  if (showSetup) { setShowSetup(false); return; }
-                  if (username === "gooster") { router.push("/app"); return; }
-                  await supabase.auth.signOut();
-                  localStorage.removeItem("turingcall_session");
-                  router.push("/login/ko");
-                }}
-                className="absolute top-4 left-4 text-gray-500 hover:text-gray-300 text-xs"
-              >
-                {showSetup || username === "gooster" ? "← Back" : "Logout"}
-              </button>
-              <div className="absolute top-4 right-4 flex gap-2">
-                <button
-                  onClick={() => setShowSetup(!showSetup)}
-                  className="flex items-center gap-1 px-2.5 py-1.5 bg-gray-700 hover:bg-gray-600 rounded-xl text-gray-300 text-xs"
-                >
-                  ⚙️ Setup
-                </button>
-              </div>
+              <Image
+                src={`/tutors/bg/${monthlyBg.file}`}
+                alt={monthlyBg.label}
+                fill
+                className="object-cover"
+                priority
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent via-45% to-gray-900/95" />
             </>
           )}
-
+          <div className="relative z-10">
           <TutorAvatar tutor={effectiveTutor} fallbackBg="bg-blue-600" />
-          <h1 className="text-white text-lg font-semibold">{tutorName}</h1>
-          <p className="text-gray-400 text-sm">Korean Tutor</p>
+          <h1 className="text-white text-lg font-semibold [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">{tutorName}</h1>
+          <p className="text-gray-300 text-sm [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">Korean Tutor</p>
           <div className="flex items-center justify-center gap-2 mt-1">
             <span className="text-blue-400 text-xs font-medium bg-blue-900/40 px-2 py-0.5 rounded-full">
               🇰🇷 Korean for Foreigners
             </span>
             {callState === "idle" && streakCount > 0 && (
-              <span className="text-orange-400 text-xs font-medium">🔥 {streakCount} day streak</span>
+              <span className="text-orange-400 text-xs font-medium [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">🔥 {streakCount} day streak</span>
             )}
           </div>
           {callState === "active" && (
-            <p className="text-green-400 text-sm mt-1 font-mono">{formatTime(callDuration)}</p>
+            <p className="text-green-400 text-sm mt-1 font-mono [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">{formatTime(callDuration)}</p>
           )}
           {callState === "calling" && (
-            <p className="text-yellow-400 text-sm mt-1 animate-pulse">Connecting...</p>
+            <p className="text-yellow-400 text-sm mt-1 animate-pulse [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">Connecting...</p>
           )}
+          </div>
         </div>
 
         {/* Body */}

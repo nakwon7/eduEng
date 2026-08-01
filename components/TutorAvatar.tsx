@@ -2,22 +2,6 @@
 
 import Image from "next/image";
 
-// 월별 배경 이미지 (1~12월, public/tutors/bg/ 에 01.jpg ~ 12.jpg 넣으면 됨)
-const MONTHLY_BG: Record<number, { file: string; label: string }> = {
-  1:  { file: "01.jpg", label: "Winter snow" },
-  2:  { file: "02.jpg", label: "Snowy forest" },
-  3:  { file: "03.jpg", label: "Early cherry blossoms" },
-  4:  { file: "04.jpg", label: "Cherry blossoms in full bloom" },
-  5:  { file: "05.jpg", label: "Green fields" },
-  6:  { file: "06.jpg", label: "Rainy café window" },
-  7:  { file: "07.jpg", label: "Summer beach" },
-  8:  { file: "08.jpg", label: "Sunflower field" },
-  9:  { file: "09.jpg", label: "Cosmos flowers" },
-  10: { file: "10.jpg", label: "Autumn leaves" },
-  11: { file: "11.jpg", label: "Late autumn fog" },
-  12: { file: "12.jpg", label: "Christmas snow" },
-};
-
 // 튜터별 캐릭터 이미지 (public/tutors/ 에 넣으면 됨)
 const TUTOR_IMAGE: Record<string, string> = {
   rachel: "/tutors/rachel.png",
@@ -36,34 +20,17 @@ const TUTOR_EMOJI: Record<string, string> = {
 
 type Props = {
   tutor: string;
-  /** 배경 원 색상 — 이미지 없을 때만 보임 */
+  /** 배경 원 색상 — 캐릭터 이미지 없을 때만 보임 */
   fallbackBg?: string;
 };
 
+// 배경은 헤더 전체에 깔리므로(useMonthlyBg), 여기서는 캐릭터만 투명하게 얹는다.
 export default function TutorAvatar({ tutor, fallbackBg = "bg-green-600" }: Props) {
-  const month = new Date().getMonth() + 1; // 1~12
-  const bg = MONTHLY_BG[month];
   const charSrc = TUTOR_IMAGE[tutor];
-  const bgSrc = bg ? `/tutors/bg/${bg.file}` : null;
 
-  // 캐릭터 이미지가 있으면 배경+캐릭터 레이어 구조
-  // 없으면 기존 이모지 fallback
   if (charSrc) {
     return (
-      <div className="relative w-28 h-28 rounded-full overflow-hidden mx-auto mb-3 shadow-lg">
-        {/* 배경 레이어 */}
-        {bgSrc ? (
-          <Image
-            src={bgSrc}
-            alt={bg?.label ?? ""}
-            fill
-            className="object-cover"
-            priority
-          />
-        ) : (
-          <div className={`absolute inset-0 ${fallbackBg}`} />
-        )}
-        {/* 캐릭터 레이어 */}
+      <div className="relative w-28 h-28 rounded-full overflow-hidden mx-auto mb-3 shadow-lg ring-4 ring-white/10">
         <Image
           src={charSrc}
           alt={tutor}
