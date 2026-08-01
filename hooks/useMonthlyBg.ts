@@ -1,17 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MONTHLY_BG, MonthlyBg, pickRandomBg } from "@/lib/monthlyBg";
+import { getMonthlyBg, MonthlyBg } from "@/lib/monthlyBg";
 
-// 서버/클라이언트 첫 렌더는 항상 같은 값(0번째 후보)으로 맞춰 하이드레이션 불일치를 피하고,
-// 마운트 후에 후보 중 하나를 랜덤으로 골라 교체한다.
-export function useMonthlyBg(): MonthlyBg | null {
-  const month = new Date().getMonth() + 1; // 1~12
-  const [bg, setBg] = useState<MonthlyBg | null>(() => MONTHLY_BG[month]?.[0] ?? null);
+// 서버/클라이언트 첫 렌더는 항상 같은 값(1번 슬롯)으로 맞춰 하이드레이션 불일치를 피하고,
+// 마운트 후에 클라이언트의 현재 시각 기준 시간대 배경으로 교체한다.
+export function useMonthlyBg(): MonthlyBg {
+  const [bg, setBg] = useState<MonthlyBg>(() => getMonthlyBg(new Date(new Date().setHours(6, 0, 0, 0))));
 
   useEffect(() => {
-    setBg(pickRandomBg(month));
-  }, [month]);
+    setBg(getMonthlyBg(new Date()));
+  }, []);
 
   return bg;
 }

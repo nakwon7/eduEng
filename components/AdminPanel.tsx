@@ -404,7 +404,7 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                 )}
                 <button
                   onClick={() => handleToggleLogs(u.id)}
-                  className="text-gray-500 hover:text-gray-300 text-xs text-left transition-colors"
+                  className="block text-gray-500 hover:text-gray-300 text-xs text-left transition-colors"
                 >
                   누적 사용: {u.total_seconds > 0 ? formatTime(u.total_seconds) : "없음"} {u.total_seconds > 0 ? (expandedUserId === u.id ? "▲" : "▼") : ""}
                 </button>
@@ -427,7 +427,7 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
 
                 <button
                   onClick={() => handleTogglePayments(u.id)}
-                  className="text-gray-500 hover:text-gray-300 text-xs text-left transition-colors"
+                  className="block text-gray-500 hover:text-gray-300 text-xs text-left transition-colors"
                 >
                   결제 {u.payment_count}회 {u.payment_count > 0 ? (expandedPaymentId === u.id ? "▲" : "▼") : ""}
                 </button>
