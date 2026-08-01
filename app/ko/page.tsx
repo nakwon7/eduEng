@@ -475,7 +475,7 @@ export default function KoPage() {
         )}
 
         {/* Header */}
-        <div className="bg-gray-800 px-6 pt-6 pb-6 text-center relative overflow-hidden">
+        <div className="bg-gray-800 px-6 pt-6 pb-6 text-center relative">
           {monthlyBg && (
             <>
               <Image
