@@ -766,7 +766,7 @@ export default function KoPage() {
                   ) : (
                     <>
                       <p className="text-gray-400 text-xs">Tap the button below to allow microphone access</p>
-                      <button onClick={startCall} className="mt-1 px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-semibold">
+                      <button onClick={startCall} className="mt-1 px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 text-white rounded-xl text-sm font-semibold shadow-md shadow-blue-900/30">
                         🎙️ Allow Microphone
                       </button>
                     </>
@@ -789,7 +789,7 @@ export default function KoPage() {
                     : "It resets next Monday"}
                 </p>
                 <p className="text-gray-400 text-xs">Want more time now? Pay early for extra minutes.</p>
-                <div className="bg-gray-800 rounded-xl p-3 text-xs text-gray-300 space-y-1">
+                <div className="bg-blue-500/5 border border-blue-500/15 rounded-xl p-3 text-xs text-gray-300 space-y-1">
                   <a
                     href="https://www.paypal.com/ncp/payment/DC7LDXNCBE4NY"
                     target="_blank"
@@ -831,7 +831,7 @@ export default function KoPage() {
                 <p className="text-gray-400 text-xs leading-relaxed">
                   Subscribe to continue<br />$3 / week
                 </p>
-                <div className="bg-gray-800 rounded-xl p-3 text-xs text-gray-300 space-y-1">
+                <div className="bg-blue-500/5 border border-blue-500/15 rounded-xl p-3 text-xs text-gray-300 space-y-1">
                   <a
                     href="https://www.paypal.com/ncp/payment/DC7LDXNCBE4NY"
                     target="_blank"
@@ -893,7 +893,7 @@ export default function KoPage() {
                 className={`w-20 h-20 rounded-full flex items-center justify-center text-3xl transition-all shadow-lg select-none ${
                   isRecording ? "bg-red-500 scale-110 ring-4 ring-red-400 ring-opacity-50"
                   : isBusy ? "bg-gray-600 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-500 active:scale-95"
+                  : "bg-gradient-to-br from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 shadow-blue-900/40 active:scale-95"
                 }`}
               >
                 {isRecording ? "🔴" : isTranscribing ? "⏳" : isSpeaking ? "🔊" : "🎤"}

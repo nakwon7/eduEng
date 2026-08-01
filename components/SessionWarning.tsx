@@ -21,7 +21,7 @@ export default function SessionWarning({ onRelogin }: SessionWarningProps) {
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="w-full max-w-sm bg-gray-900 rounded-3xl p-8 text-center shadow-2xl">
+      <div className="w-full max-w-sm bg-gray-900 rounded-3xl p-8 text-center shadow-2xl ring-1 ring-orange-500/20">
         <div className="text-5xl mb-4">⚠️</div>
         <h2 className="text-white text-lg font-bold mb-2">다른 기기에서 로그인됨</h2>
         <p className="text-gray-400 text-sm leading-relaxed mb-6">
@@ -32,7 +32,7 @@ export default function SessionWarning({ onRelogin }: SessionWarningProps) {
         <button
           onClick={handleRelogin}
           disabled={loading}
-          className="w-full py-3 bg-green-600 hover:bg-green-500 text-white rounded-xl font-semibold transition-all"
+          className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white rounded-xl font-semibold transition-all shadow-lg shadow-green-900/30"
         >
           {loading ? "이동 중..." : "다시 로그인하기"}
         </button>

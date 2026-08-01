@@ -38,9 +38,9 @@ function Bar({ value, max, color = "bg-blue-500" }: { value: number; max: number
   );
 }
 
-function SummaryCard({ label, value }: { label: string; value: string }) {
+function SummaryCard({ label, value, tint }: { label: string; value: string; tint: string }) {
   return (
-    <div className="bg-gray-800 rounded-xl p-4">
+    <div className={`border rounded-xl p-4 ${tint}`}>
       <p className="text-gray-400 text-xs mb-1">{label}</p>
       <p className="text-white text-xl font-bold">{value}</p>
     </div>
@@ -116,10 +116,10 @@ export default function StatsPage() {
 
         {/* 요약 카드 */}
         <div className="grid grid-cols-4 gap-4">
-          <SummaryCard label="전체 회원" value={`${totalUsers}명`} />
-          <SummaryCard label="유료 회원" value={`${paidUsers}명`} />
-          <SummaryCard label="최근 30일 통화" value={`${totalCalls}건`} />
-          <SummaryCard label="누적 통화 시간" value={fmt(totalSeconds)} />
+          <SummaryCard label="전체 회원" value={`${totalUsers}명`} tint="bg-blue-500/5 border-blue-500/15" />
+          <SummaryCard label="유료 회원" value={`${paidUsers}명`} tint="bg-green-500/5 border-green-500/15" />
+          <SummaryCard label="최근 30일 통화" value={`${totalCalls}건`} tint="bg-purple-500/5 border-purple-500/15" />
+          <SummaryCard label="누적 통화 시간" value={fmt(totalSeconds)} tint="bg-amber-500/5 border-amber-500/15" />
         </div>
 
         {/* 탭 */}
@@ -139,7 +139,7 @@ export default function StatsPage() {
 
         {/* 일별 */}
         {tab === "daily" && (
-          <div className="bg-gray-900 rounded-2xl p-6 space-y-3">
+          <div className="bg-blue-500/5 border border-blue-500/15 rounded-2xl p-6 space-y-3">
             <h2 className="text-sm font-semibold text-gray-300 mb-4">최근 30일 통화 시간</h2>
             {stats.daily.length === 0 ? (
               <p className="text-gray-500 text-sm">데이터 없음</p>
@@ -160,7 +160,7 @@ export default function StatsPage() {
 
         {/* 월별 */}
         {tab === "monthly" && (
-          <div className="bg-gray-900 rounded-2xl p-6 space-y-3">
+          <div className="bg-indigo-500/5 border border-indigo-500/15 rounded-2xl p-6 space-y-3">
             <h2 className="text-sm font-semibold text-gray-300 mb-4">최근 12개월 통화 시간</h2>
             {stats.monthly.length === 0 ? (
               <p className="text-gray-500 text-sm">데이터 없음</p>
@@ -181,7 +181,7 @@ export default function StatsPage() {
 
         {/* 연별 */}
         {tab === "yearly" && (
-          <div className="bg-gray-900 rounded-2xl p-6 space-y-3">
+          <div className="bg-purple-500/5 border border-purple-500/15 rounded-2xl p-6 space-y-3">
             <h2 className="text-sm font-semibold text-gray-300 mb-4">연별 통화 시간</h2>
             {stats.yearly.length === 0 ? (
               <p className="text-gray-500 text-sm">데이터 없음</p>
@@ -202,7 +202,7 @@ export default function StatsPage() {
 
         {/* 주제별 */}
         {tab === "topic" && (
-          <div className="bg-gray-900 rounded-2xl p-6 space-y-3">
+          <div className="bg-emerald-500/5 border border-emerald-500/15 rounded-2xl p-6 space-y-3">
             <h2 className="text-sm font-semibold text-gray-300 mb-4">주제별 사용 현황</h2>
             {stats.byTopic.length === 0 ? (
               <p className="text-gray-500 text-sm">데이터 없음</p>
@@ -223,7 +223,7 @@ export default function StatsPage() {
 
         {/* 사용자별 */}
         {tab === "user" && (
-          <div className="bg-gray-900 rounded-2xl overflow-hidden">
+          <div className="bg-gray-900 border border-white/5 rounded-2xl overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-800">

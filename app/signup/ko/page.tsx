@@ -98,7 +98,7 @@ export default function SignupKoPage() {
   if (step === "done") {
     return (
       <main className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
-        <div className="w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl p-8 text-center">
+        <div className="w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl ring-1 ring-white/5 p-8 text-center">
           <div className="text-5xl mb-4">🎉</div>
           <h2 className="text-white text-lg font-bold mb-2">You&apos;re all set!</h2>
           <p className="text-gray-400 text-sm leading-relaxed">
@@ -114,10 +114,12 @@ export default function SignupKoPage() {
 
   return (
     <main className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl p-8">
+      <div className="w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl ring-1 ring-white/5 p-8">
         <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-3">
-            🇰🇷
+          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg shadow-blue-900/40">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8">
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+            </svg>
           </div>
           <h1 className="text-white text-xl font-bold">Learn Korean with AI</h1>
           <p className="text-gray-400 text-xs mt-1">2 free trial sessions included</p>
@@ -136,7 +138,7 @@ export default function SignupKoPage() {
               required
               maxLength={20}
               placeholder="Letters and numbers, 4–20 characters"
-              className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-gray-800 border border-white/5 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
             />
             {usernameError && <p className="text-red-400 text-xs mt-1">{usernameError}</p>}
           </div>
@@ -154,7 +156,7 @@ export default function SignupKoPage() {
               required
               maxLength={20}
               placeholder="e.g. Emily"
-              className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-gray-800 border border-white/5 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
@@ -169,7 +171,7 @@ export default function SignupKoPage() {
               required
               maxLength={50}
               placeholder="example@email.com"
-              className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-gray-800 border border-white/5 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
             />
             <p className="text-gray-600 text-xs mt-1">Used for things like password reset — please use a real email you can access</p>
             {emailError && <p className="text-red-400 text-xs mt-1">{emailError}</p>}
@@ -187,7 +189,7 @@ export default function SignupKoPage() {
               minLength={6}
               maxLength={20}
               placeholder="At least 6 characters"
-              className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-gray-800 border border-white/5 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
@@ -198,8 +200,10 @@ export default function SignupKoPage() {
                   key={l.id}
                   type="button"
                   onClick={() => setLevel(l.id)}
-                  className={`w-full px-4 py-2 rounded-xl text-left transition-all ${
-                    level === l.id ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-300"
+                  className={`w-full px-4 py-2 rounded-xl border text-left transition-all ${
+                    level === l.id
+                      ? "bg-gradient-to-r from-blue-600 to-indigo-500 border-transparent text-white shadow-md shadow-blue-900/30"
+                      : "bg-blue-500/5 border-blue-500/10 text-gray-300 hover:bg-blue-500/10"
                   }`}
                 >
                   <span className="font-medium text-sm">{l.label}</span>
@@ -229,7 +233,7 @@ export default function SignupKoPage() {
           <button
             type="submit"
             disabled={loading || !!usernameError || !!emailError || !agreedTerms}
-            className="w-full py-3 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700 text-white rounded-xl font-semibold transition-all"
+            className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 disabled:bg-none disabled:bg-gray-700 text-white rounded-xl font-semibold transition-all shadow-lg shadow-blue-900/30"
           >
             {loading ? "Creating account..." : "Sign up for free"}
           </button>

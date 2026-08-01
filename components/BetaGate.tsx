@@ -13,7 +13,7 @@ export default function BetaGate({ onConfirm }: BetaGateProps) {
         <p className="text-gray-400 text-xs mt-1">TuringCall Beta v0.1</p>
       </div>
 
-      <div className="bg-gray-800 rounded-2xl p-4 mb-6 space-y-2 text-gray-300 text-sm">
+      <div className="bg-green-500/5 border border-green-500/15 rounded-2xl p-4 mb-6 space-y-2 text-gray-300 text-sm">
         <p>✅ AI 튜터 Alex와 실시간 영어 대화</p>
         <p>✅ 음성 인식 + 음성 응답</p>
         <p>✅ 문법 교정 피드백</p>
@@ -25,7 +25,7 @@ export default function BetaGate({ onConfirm }: BetaGateProps) {
 
       <button
         onClick={onConfirm}
-        className="w-full py-4 bg-green-600 hover:bg-green-500 text-white rounded-2xl font-semibold text-lg transition-all active:scale-95"
+        className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white rounded-2xl font-semibold text-lg transition-all active:scale-95 shadow-lg shadow-green-900/30"
       >
         확인하고 시작하기
       </button>

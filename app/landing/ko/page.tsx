@@ -43,6 +43,7 @@ export default function LandingKoPage() {
               <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.95.36 1.87.7 2.75a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.33-1.27a2 2 0 0 1 2.11-.45c.88.34 1.8.57 2.75.7A2 2 0 0 1 22 16.92z" />
             ),
             accent: "bg-blue-500/15 text-blue-400",
+            cardTint: "bg-blue-500/5 border-blue-500/15",
             title: "AI Phone-style Conversations",
             desc: "Talk with AI tutor MinJun or Jia just like a real phone call",
           },
@@ -56,6 +57,7 @@ export default function LandingKoPage() {
               </>
             ),
             accent: "bg-violet-500/15 text-violet-400",
+            cardTint: "bg-violet-500/5 border-violet-500/15",
             title: "Voice Recognition",
             desc: "Speak naturally — your voice is recognized in real time",
           },
@@ -67,6 +69,7 @@ export default function LandingKoPage() {
               </>
             ),
             accent: "bg-emerald-500/15 text-emerald-400",
+            cardTint: "bg-emerald-500/5 border-emerald-500/15",
             title: "Grammar Correction",
             desc: "Get gentle corrections so you improve with every session",
           },
@@ -78,11 +81,12 @@ export default function LandingKoPage() {
               </>
             ),
             accent: "bg-amber-500/15 text-amber-400",
+            cardTint: "bg-amber-500/5 border-amber-500/15",
             title: "Everyday Topics",
             desc: "Greetings, daily life, food, K-drama, shopping & more",
           },
         ].map((f) => (
-          <div key={f.title} className="flex items-start gap-4 bg-gray-900 rounded-2xl p-4">
+          <div key={f.title} className={`flex items-start gap-4 border rounded-2xl p-4 ${f.cardTint}`}>
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${f.accent}`}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
                 {f.icon}
@@ -98,11 +102,11 @@ export default function LandingKoPage() {
 
       {/* Pricing */}
       <div className="px-6 pb-10 max-w-sm mx-auto">
-        <div className="bg-gray-900 rounded-2xl p-6 text-center border border-blue-600">
+        <div className="bg-blue-500/5 rounded-2xl p-6 text-center border border-blue-500/40">
           <p className="text-blue-400 text-xs font-medium mb-1">Beta Pricing</p>
           <p className="text-4xl font-bold mb-1">$3</p>
           <p className="text-gray-400 text-sm mb-4">/ week · unlimited during subscription</p>
-          <div className="bg-gray-800 rounded-xl p-3 text-xs text-gray-300 text-left space-y-1">
+          <div className="bg-gray-900/60 rounded-xl p-3 text-xs text-gray-300 text-left space-y-1">
             <p className="text-blue-400 font-medium mb-2">Free trial included</p>
             <p>✅ 2 free sessions upon sign-up (5 min each)</p>
             <p>✅ Unlimited calls during your subscription week</p>
@@ -114,19 +118,19 @@ export default function LandingKoPage() {
       <div className="px-6 pb-16 max-w-sm mx-auto space-y-3">
         <a
           href="/signup/ko"
-          className="block w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-semibold text-lg text-center transition-all active:scale-95 shadow-lg"
+          className="block w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 text-white rounded-2xl font-semibold text-lg text-center transition-all active:scale-95 shadow-lg shadow-blue-900/40"
         >
           Start for free
         </a>
         <a
           href="/login/ko"
-          className="block w-full py-3 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-2xl font-medium text-sm text-center transition-all"
+          className="block w-full py-3 bg-gray-800 border border-white/5 hover:bg-gray-700 text-gray-300 rounded-2xl font-medium text-sm text-center transition-all"
         >
           Log in
         </a>
 
         {/* Install as app */}
-        <div className="bg-gray-900 rounded-2xl p-4 text-xs text-gray-400 space-y-2">
+        <div className="bg-gray-900 border border-white/5 rounded-2xl p-4 text-xs text-gray-400 space-y-2">
           <p className="text-white text-xs font-semibold">📲 Install as an app (free · no app store needed)</p>
           <p>🍎 <span className="text-gray-300">iPhone</span> — Open in Safari → Share (□↑) → Add to Home Screen</p>
           <p>🤖 <span className="text-gray-300">Android</span> — Open in Chrome → Menu (⋮) → Add to Home Screen</p>
@@ -139,7 +143,7 @@ export default function LandingKoPage() {
           href="https://www.paypal.com/ncp/payment/DC7LDXNCBE4NY"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 px-6 py-3 bg-blue-500 hover:bg-blue-400 text-white text-sm font-semibold rounded-xl transition-all"
+          className="inline-flex items-center gap-1.5 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 text-white text-sm font-semibold rounded-xl transition-all shadow-md shadow-blue-900/30"
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
             <rect x="1" y="4" width="22" height="16" rx="2.5" />

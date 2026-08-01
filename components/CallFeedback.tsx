@@ -69,14 +69,14 @@ export default function CallFeedback({ feedback, isLoading, onDismiss }: Props) 
         <h2 className="text-white text-sm font-bold text-center">📋 통화 피드백</h2>
 
         {/* 종합 평가 */}
-        <div className="bg-gray-800 rounded-2xl p-4">
+        <div className="bg-green-500/5 border border-green-500/15 rounded-2xl p-4">
           <p className="text-green-400 text-xs font-semibold mb-1">종합 평가</p>
           <p className="text-gray-200 text-xs leading-relaxed">{feedback.summary}</p>
         </div>
 
         {/* 문법 교정 */}
         {feedback.corrections && feedback.corrections.length > 0 && (
-          <div className="bg-gray-800 rounded-2xl p-4 space-y-3">
+          <div className="bg-yellow-500/5 border border-yellow-500/15 rounded-2xl p-4 space-y-3">
             <p className="text-yellow-400 text-xs font-semibold">✏️ 표현 교정</p>
             {feedback.corrections.map((c, i) => (
               <div key={i} className="space-y-1">
@@ -96,7 +96,7 @@ export default function CallFeedback({ feedback, isLoading, onDismiss }: Props) 
 
         {/* 잘한 표현 */}
         {feedback.goodPhrases && feedback.goodPhrases.length > 0 && (
-          <div className="bg-gray-800 rounded-2xl p-4">
+          <div className="bg-blue-500/5 border border-blue-500/15 rounded-2xl p-4">
             <p className="text-blue-400 text-xs font-semibold mb-2">👍 잘 쓴 표현</p>
             <div className="space-y-1">
               {feedback.goodPhrases.map((phrase, i) => (
@@ -111,7 +111,7 @@ export default function CallFeedback({ feedback, isLoading, onDismiss }: Props) 
 
         {/* 추천 표현 */}
         {feedback.suggestions && feedback.suggestions.length > 0 && (
-          <div className="bg-gray-800 rounded-2xl p-4">
+          <div className="bg-purple-500/5 border border-purple-500/15 rounded-2xl p-4">
             <p className="text-purple-400 text-xs font-semibold mb-2">💡 이런 표현도 써보세요</p>
             <div className="space-y-1">
               {(showAllSuggestions
@@ -139,15 +139,15 @@ export default function CallFeedback({ feedback, isLoading, onDismiss }: Props) 
 
         {/* 추천 표현 공유 */}
         {feedback.suggestions && feedback.suggestions.length > 0 && (
-          <div className="bg-gray-800 rounded-2xl p-4">
+          <div className="bg-purple-500/5 border border-purple-500/15 rounded-2xl p-4">
             <p className="text-purple-400 text-xs font-semibold mb-1">📤 추천 표현 공유하기</p>
             <p className="text-gray-400 text-xs mb-3">오늘 배운 추천 표현을 공유해보세요</p>
             <button
               onClick={handleShareSuggestions}
-              className={`w-full py-2 rounded-xl text-xs font-semibold transition-colors ${
+              className={`w-full py-2 rounded-xl text-xs font-semibold transition-colors shadow-md ${
                 shareState === "copied"
-                  ? "bg-green-600 text-white"
-                  : "bg-purple-600 hover:bg-purple-500 text-white"
+                  ? "bg-gradient-to-r from-green-600 to-emerald-500 text-white shadow-green-900/30"
+                  : "bg-gradient-to-r from-purple-600 to-fuchsia-500 hover:from-purple-500 hover:to-fuchsia-400 text-white shadow-purple-900/30"
               }`}
             >
               {shareState === "copied" ? "복사됨!" : "공유하기"}
@@ -157,7 +157,7 @@ export default function CallFeedback({ feedback, isLoading, onDismiss }: Props) 
 
         {/* 레벨 팁 */}
         {feedback.levelTip && (
-          <div className="bg-gray-800 rounded-2xl p-4">
+          <div className="bg-orange-500/5 border border-orange-500/15 rounded-2xl p-4">
             <p className="text-orange-400 text-xs font-semibold mb-1">🎯 오늘의 팁</p>
             <p className="text-gray-200 text-xs leading-relaxed">{feedback.levelTip}</p>
           </div>
@@ -166,7 +166,7 @@ export default function CallFeedback({ feedback, isLoading, onDismiss }: Props) 
 
       <button
         onClick={onDismiss}
-        className="mt-3 w-full py-3 bg-green-600 hover:bg-green-500 text-white rounded-2xl font-semibold text-sm transition-all active:scale-95"
+        className="mt-3 w-full py-3 bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white rounded-2xl font-semibold text-sm transition-all active:scale-95 shadow-lg shadow-green-900/30"
       >
         🏠 메인으로 돌아가기
       </button>

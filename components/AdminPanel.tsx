@@ -45,6 +45,13 @@ function statusLabel(u: User) {
   return { text: "체험 소진", color: "text-red-400" };
 }
 
+function statusTint(u: User) {
+  if (u.unlimited) return "bg-purple-500/5 border-purple-500/15";
+  if (u.expires_at && new Date(u.expires_at) > new Date()) return "bg-green-500/5 border-green-500/15";
+  if (u.trial_calls > 0) return "bg-yellow-500/5 border-yellow-500/15";
+  return "bg-red-500/5 border-red-500/15";
+}
+
 function hasActiveMembership(u: User) {
   return !!u.expires_at && new Date(u.expires_at) > new Date();
 }
@@ -252,7 +259,7 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
       </div>
 
       {!loading && users.length > 0 && (
-        <div className="mb-3 bg-gray-800 rounded-2xl p-3">
+        <div className="mb-3 bg-gray-800 border border-white/5 rounded-2xl p-3">
           <div className="flex items-center gap-2">
             <input
               type="month"
@@ -299,7 +306,7 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="아이디 또는 이름 검색"
-              className="flex-1 min-w-0 bg-gray-800 text-white rounded-xl px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-600"
+              className="flex-1 min-w-0 bg-gray-800 border border-white/5 text-white rounded-xl px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-600"
             />
             <button
               onClick={() => setMembershipOnly((v) => !v)}
@@ -340,7 +347,7 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
             return (
               <div
                 key={u.id}
-                className={`bg-gray-800 rounded-2xl p-4 space-y-2 ${u.payment_requested_at ? "ring-2 ring-emerald-500" : ""}`}
+                className={`border rounded-2xl p-4 space-y-2 ${statusTint(u)} ${u.payment_requested_at ? "ring-2 ring-emerald-500" : ""}`}
               >
                 {u.payment_requested_at && (
                   <p className="text-emerald-400 text-xs font-medium">
