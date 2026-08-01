@@ -646,7 +646,7 @@ export default function Home() {
                     </p>
                   </div>
                 )}
-                {!isUnlimited && (isPaid || trialCalls > 0) && (
+                {!isUnlimited && isPaid && (
                   <p className="text-gray-500 text-xs text-center mb-2">
                     이번달 {Math.floor(monthlySeconds / 60)}분 사용 · 잔여 {Math.max(0, 900 - Math.floor(monthlySeconds / 60))}분
                   </p>

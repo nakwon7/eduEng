@@ -734,7 +734,7 @@ export default function KoPage() {
                   </p>
                 </div>
               )}
-              {!isUnlimited && (isPaid || trialCalls > 0) && (
+              {!isUnlimited && isPaid && (
                 <p className="text-gray-500 text-xs text-center mb-2">
                   {Math.floor(weeklySeconds / 60)} min used this week · {Math.max(0, 200 - Math.floor(weeklySeconds / 60))} min left
                 </p>
