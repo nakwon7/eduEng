@@ -5,6 +5,7 @@ import Image from "next/image";
 import { UserProfile } from "@/hooks/useUserProfile";
 import CopyButton from "./CopyButton";
 import UsageHistory from "./UsageHistory";
+import ChangePassword from "./ChangePassword";
 import PaymentNoteInput from "./PaymentNoteInput";
 import PaymentRejectNotice from "./PaymentRejectNotice";
 
@@ -182,6 +183,7 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
       )}
 
       {userId && sessionToken && <UsageHistory userId={userId} sessionToken={sessionToken} lang="ko" />}
+      {userId && sessionToken && <ChangePassword userId={userId} sessionToken={sessionToken} lang="ko" />}
     </div>
   );
 }

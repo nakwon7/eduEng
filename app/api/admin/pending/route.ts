@@ -27,5 +27,12 @@ export async function POST(req: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  return NextResponse.json({ users: data });
+  const { data: historyRows } = await admin.from("payment_history").select("user_id");
+  const countMap = new Map<string, number>();
+  for (const row of historyRows || []) {
+    countMap.set(row.user_id, (countMap.get(row.user_id) || 0) + 1);
+  }
+  const users = (data || []).map((u) => ({ ...u, payment_count: countMap.get(u.id) || 0 }));
+
+  return NextResponse.json({ users });
 }

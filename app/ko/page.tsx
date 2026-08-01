@@ -12,6 +12,7 @@ import TranscriptBox, { Message } from "@/components/TranscriptBox";
 import TermsModalEn from "@/components/TermsModalEn";
 import TutorAvatar from "@/components/TutorAvatar";
 import UsageHistory from "@/components/UsageHistory";
+import ChangePassword from "@/components/ChangePassword";
 import PaymentNoteInput from "@/components/PaymentNoteInput";
 import PaymentRejectNotice from "@/components/PaymentRejectNotice";
 
@@ -638,6 +639,7 @@ export default function KoPage() {
               </div>
 
               {userId && sessionToken && <UsageHistory userId={userId} sessionToken={sessionToken} lang="en" />}
+              {userId && sessionToken && <ChangePassword userId={userId} sessionToken={sessionToken} lang="en" />}
 
               <div className="mt-4">
                 <button

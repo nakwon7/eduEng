@@ -17,6 +17,7 @@ interface User {
   ko_access: boolean;
   payment_requested_at: string | null;
   payment_note: string | null;
+  payment_count: number;
 }
 
 interface AdminPanelProps {
@@ -44,17 +45,25 @@ function statusLabel(u: User) {
   return { text: "체험 소진", color: "text-red-400" };
 }
 
+function hasActiveMembership(u: User) {
+  return !!u.expires_at && new Date(u.expires_at) > new Date();
+}
+
 export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
   const [callLogs, setCallLogs] = useState<Record<string, { date: string; seconds: number }[]>>({});
+  const [expandedPaymentId, setExpandedPaymentId] = useState<string | null>(null);
+  const [paymentHistory, setPaymentHistory] = useState<Record<string, { id: string; days: number; approved_at: string }[]>>({});
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  const [membershipOnly, setMembershipOnly] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState(() => new Date().toISOString().slice(0, 7));
+  const [statsOpen, setStatsOpen] = useState(false);
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -132,6 +141,38 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
     setCallLogs((prev) => ({ ...prev, [targetId]: data.logs || [] }));
   };
 
+  const handleTogglePayments = async (targetId: string) => {
+    if (expandedPaymentId === targetId) {
+      setExpandedPaymentId(null);
+      return;
+    }
+    setExpandedPaymentId(targetId);
+    if (paymentHistory[targetId]) return;
+    const res = await fetch("/api/admin/payment-history", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, sessionToken, targetId }),
+    });
+    const data = await res.json();
+    setPaymentHistory((prev) => ({ ...prev, [targetId]: data.history || [] }));
+  };
+
+  const handleDeletePayment = async (targetId: string, historyId: string) => {
+    if (!confirm("이 결제 이력을 삭제할까요? 멤버십 만료일이 남은 이력 기준으로 재계산됩니다.")) return;
+    setBusy(historyId + "_delpayment");
+    await fetch("/api/admin/payment-history/delete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, sessionToken, targetId, historyId }),
+    });
+    setPaymentHistory((prev) => ({
+      ...prev,
+      [targetId]: (prev[targetId] || []).filter((h) => h.id !== historyId),
+    }));
+    await fetchUsers();
+    setBusy(null);
+  };
+
   const handleReject = async (targetId: string) => {
     setBusy(targetId + "_reject");
     await fetch("/api/admin/reject-payment", {
@@ -161,12 +202,20 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
       const q = searchQuery.trim().toLowerCase();
       if (!u.username.toLowerCase().includes(q) && !u.name.toLowerCase().includes(q)) return false;
     }
-    const signupDate = u.created_at?.slice(0, 10);
-    if (dateFrom && (!signupDate || signupDate < dateFrom)) return false;
-    if (dateTo && (!signupDate || signupDate > dateTo)) return false;
+    if (membershipOnly && !hasActiveMembership(u)) return false;
+    if (selectedDay && u.created_at?.slice(0, 10) !== selectedDay) return false;
     return true;
   });
-  const hasFilter = !!(searchQuery || dateFrom || dateTo);
+  const hasFilter = !!(searchQuery || membershipOnly || selectedDay);
+
+  const monthUsers = users.filter((u) => u.created_at?.slice(0, 7) === selectedMonth);
+  const dailyBreakdown = Object.entries(
+    monthUsers.reduce<Record<string, number>>((acc, u) => {
+      const day = u.created_at.slice(0, 10);
+      acc[day] = (acc[day] || 0) + 1;
+      return acc;
+    }, {})
+  ).sort((a, b) => b[0].localeCompare(a[0]));
 
   return (
     <div className="flex-1 flex flex-col px-2 py-4 overflow-y-auto">
@@ -203,31 +252,66 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
       </div>
 
       {!loading && users.length > 0 && (
+        <div className="mb-3 bg-gray-800 rounded-2xl p-3">
+          <div className="flex items-center gap-2">
+            <input
+              type="month"
+              value={selectedMonth}
+              onChange={(e) => { setSelectedMonth(e.target.value); setSelectedDay(null); }}
+              className="bg-gray-900 text-gray-300 rounded-lg px-2 py-1.5 text-xs outline-none focus:ring-2 focus:ring-blue-500 [color-scheme:dark] shrink-0"
+            />
+            <button
+              onClick={() => setStatsOpen((v) => !v)}
+              className="flex-1 flex items-center justify-between text-gray-300 text-xs"
+            >
+              <span>가입자 {monthUsers.length}명</span>
+              <span className="text-gray-500">{statsOpen ? "▲" : "▼"}</span>
+            </button>
+          </div>
+          {statsOpen && (
+            <div className="mt-2 pt-2 border-t border-gray-700 space-y-1 max-h-48 overflow-y-auto">
+              {dailyBreakdown.length === 0 ? (
+                <p className="text-gray-600 text-xs text-center">가입자 없음</p>
+              ) : (
+                dailyBreakdown.map(([date, count]) => (
+                  <button
+                    key={date}
+                    onClick={() => setSelectedDay((d) => (d === date ? null : date))}
+                    className={`w-full flex justify-between text-xs rounded-lg px-2 py-1 transition-all ${
+                      selectedDay === date ? "bg-blue-700 text-white" : "hover:bg-gray-700 text-gray-500"
+                    }`}
+                  >
+                    <span className={selectedDay === date ? "text-white" : "text-gray-500"}>{date}</span>
+                    <span className={selectedDay === date ? "text-white" : "text-gray-300"}>{count}명</span>
+                  </button>
+                ))
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {!loading && users.length > 0 && (
         <div className="mb-3 space-y-2">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="아이디 또는 이름 검색"
-            className="w-full bg-gray-800 text-white rounded-xl px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-600"
-          />
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-2">
             <input
-              type="date"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-              className="flex-1 min-w-0 bg-gray-800 text-gray-300 rounded-xl px-2 py-2 text-xs outline-none focus:ring-2 focus:ring-blue-500 [color-scheme:dark]"
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="아이디 또는 이름 검색"
+              className="flex-1 min-w-0 bg-gray-800 text-white rounded-xl px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-600"
             />
-            <span className="text-gray-500 text-xs shrink-0">~</span>
-            <input
-              type="date"
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-              className="flex-1 min-w-0 bg-gray-800 text-gray-300 rounded-xl px-2 py-2 text-xs outline-none focus:ring-2 focus:ring-blue-500 [color-scheme:dark]"
-            />
+            <button
+              onClick={() => setMembershipOnly((v) => !v)}
+              className={`px-3 py-2 rounded-xl text-xs whitespace-nowrap shrink-0 transition-all ${
+                membershipOnly ? "bg-green-700 text-white" : "bg-gray-800 text-gray-400 hover:text-gray-300"
+              }`}
+            >
+              멤버십만
+            </button>
             {hasFilter && (
               <button
-                onClick={() => { setSearchQuery(""); setDateFrom(""); setDateTo(""); }}
+                onClick={() => { setSearchQuery(""); setMembershipOnly(false); setSelectedDay(null); }}
                 className="text-gray-500 hover:text-gray-300 text-xs whitespace-nowrap shrink-0"
               >
                 초기화
@@ -235,7 +319,10 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
             )}
           </div>
           {hasFilter && (
-            <p className="text-gray-600 text-xs">{filteredUsers.length}명 표시 중 (전체 {users.length}명)</p>
+            <p className="text-gray-600 text-xs">
+              {selectedDay && <>{selectedDay} 가입자만 · </>}
+              {filteredUsers.length}명 표시 중 (전체 {users.length}명)
+            </p>
           )}
         </div>
       )}
@@ -338,8 +425,42 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                   </div>
                 )}
 
+                <button
+                  onClick={() => handleTogglePayments(u.id)}
+                  className="text-gray-500 hover:text-gray-300 text-xs text-left transition-colors"
+                >
+                  결제 {u.payment_count}회 {u.payment_count > 0 ? (expandedPaymentId === u.id ? "▲" : "▼") : ""}
+                </button>
+                {expandedPaymentId === u.id && (
+                  <div className="bg-gray-900 rounded-xl p-2 space-y-1">
+                    {!paymentHistory[u.id] ? (
+                      <p className="text-gray-600 text-xs text-center">불러오는 중...</p>
+                    ) : paymentHistory[u.id].length === 0 ? (
+                      <p className="text-gray-600 text-xs text-center">기록 없음</p>
+                    ) : (
+                      paymentHistory[u.id].map((h) => (
+                        <div key={h.id} className="flex justify-between items-center text-xs">
+                          <span className="text-gray-500">
+                            {new Date(h.approved_at).toLocaleString("ko-KR", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                          <span className="flex items-center gap-2">
+                            <span className="text-gray-300">+{h.days}일</span>
+                            <button
+                              onClick={() => handleDeletePayment(u.id, h.id)}
+                              disabled={busy === h.id + "_delpayment"}
+                              className="text-red-500 hover:text-red-400 disabled:opacity-50"
+                            >
+                              삭제
+                            </button>
+                          </span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+
                 {(() => {
-                  const hasActiveMembership = !!u.expires_at && new Date(u.expires_at) > new Date();
+                  const activeMembership = hasActiveMembership(u);
                   return (
                     <div className="space-y-2 pt-1">
                       <div className="flex gap-2">
@@ -359,7 +480,7 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                         </button>
                         <button
                           onClick={() => handleToggleUnlimited(u.id, u.unlimited)}
-                          disabled={!!busy || hasActiveMembership || u.blocked}
+                          disabled={!!busy || activeMembership || u.blocked}
                           className={`flex-1 py-1.5 text-white text-xs rounded-xl transition-all disabled:bg-gray-700 disabled:opacity-50 ${
                             u.unlimited ? "bg-purple-700 hover:bg-purple-600" : "bg-gray-600 hover:bg-gray-500"
                           }`}
@@ -368,7 +489,7 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                         </button>
                         <button
                           onClick={() => handleResetTrial(u.id)}
-                          disabled={!!busy || hasActiveMembership || u.blocked}
+                          disabled={!!busy || activeMembership || u.blocked}
                           className="flex-1 py-1.5 bg-yellow-700 hover:bg-yellow-600 disabled:bg-gray-700 disabled:opacity-50 text-white text-xs rounded-xl transition-all"
                         >
                           {busy === u.id + "_trial" ? "..." : "체험초기화"}

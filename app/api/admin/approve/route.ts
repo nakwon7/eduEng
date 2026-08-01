@@ -29,5 +29,10 @@ export async function POST(req: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
+  const { error: historyError } = await admin
+    .from("payment_history")
+    .insert({ user_id: targetId, days });
+  if (historyError) console.error("payment_history insert failed:", historyError.message);
+
   return NextResponse.json({ ok: true });
 }
