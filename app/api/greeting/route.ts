@@ -62,7 +62,7 @@ Generate a natural opening in Korean that:
 - Briefly explains the game in one casual sentence (they practice using a Korean word/phrase in a sentence)
 - Immediately gives the first Korean word or phrase to practice, suited to a ${level || "beginner"} level student
 - Keep it to 2-3 sentences total, natural and warm
-- Respond ONLY in Korean and English — absolutely no other language
+- The entire opening must be in Korean. English is allowed only as a 1-3 word gloss for a single unfamiliar word, never as a full sentence
 
 Reply with ONLY the opening. No quotes, no explanation.`
         : `${LANGUAGE_LOCK}${persona}
@@ -77,7 +77,7 @@ Generate ONE natural, engaging opening line in Korean to start the conversation 
 - Jump straight into the topic with a question or scenario, in Korean
 - Keep it to 1-2 sentences max
 - Sound warm and human, not scripted
-- Respond ONLY in Korean and English — absolutely no other language
+- The entire opening must be in Korean. English is allowed only as a 1-3 word gloss for a single unfamiliar word, never as a full sentence
 
 Reply with ONLY the opening line. No quotes, no explanation.`;
 
