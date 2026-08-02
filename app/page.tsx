@@ -70,14 +70,14 @@ export default function LandingPage() {
           {
             icon: (
               <>
-                <path d="M12 20h9" />
-                <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                <path d="M9 11l3 3L22 4" />
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
               </>
             ),
             accent: "bg-emerald-500/15 text-emerald-400",
             cardTint: "bg-emerald-500/5 border-emerald-500/15",
-            title: "문법 교정",
-            desc: "틀린 표현을 부드럽게 교정해 드려요",
+            title: "통화 후 AI 피드백 리포트",
+            desc: "표현 교정, 잘한 표현, 추천 표현까지 통화가 끝나면 리포트로 받아보세요",
           },
           {
             icon: (

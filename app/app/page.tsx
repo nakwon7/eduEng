@@ -578,13 +578,19 @@ export default function Home() {
                   color: "bg-amber-500/15 text-amber-400",
                   cardTint: "bg-amber-500/5 border-amber-500/15",
                   icon: <><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></>,
-                  title: "문법 교정", desc: "틀린 표현이 있으면 대화 말미에 'Quick tip:' 으로 부드럽게 알려줘요.",
+                  title: "문법 교정", desc: "틀린 표현이 있으면 AI가 응답할 때마다 끝에 부드럽게 짚어줘요.",
                 },
                 {
                   color: "bg-red-500/15 text-red-400",
                   cardTint: "bg-red-500/5 border-red-500/15",
                   icon: <><path d="M22.63 16.75l-3.7-.5a2 2 0 0 0-1.71.53l-1.75 1.75a15.7 15.7 0 0 1-6.8-6.8l1.75-1.75a2 2 0 0 0 .53-1.71l-.5-3.7A2 2 0 0 0 8.46 2H5.5A2 2 0 0 0 3.5 4.24" /><line x1="1" y1="1" x2="23" y2="23" /></>,
                   title: "통화 종료", desc: "빨간 버튼을 누르면 통화가 종료됩니다.",
+                },
+                {
+                  color: "bg-emerald-500/15 text-emerald-400",
+                  cardTint: "bg-emerald-500/5 border-emerald-500/15",
+                  icon: <><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></>,
+                  title: "통화 후 AI 피드백", desc: "대화를 2번 이상 나누고 통화를 종료하면 종합평가·표현 교정·잘한 표현·추천 표현(최대 10개)·오늘의 팁이 담긴 리포트를 받아볼 수 있어요. 추천 표현은 공유하기 버튼으로 바로 공유할 수 있어요.",
                 },
                 {
                   color: "bg-slate-500/15 text-slate-300",
