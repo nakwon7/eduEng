@@ -433,12 +433,12 @@ export default function KoPage() {
   const canSkipPayment = unlimited || hasActiveMembership;
 
   const handlePaypalClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (!hasActiveMembership) return;
+    if (!canSkipPayment) return;
     e.preventDefault();
     setShowMembershipAlert(true);
     if (membershipAlertTimerRef.current) clearTimeout(membershipAlertTimerRef.current);
     membershipAlertTimerRef.current = setTimeout(() => setShowMembershipAlert(false), 2800);
-  }, [hasActiveMembership]);
+  }, [canSkipPayment]);
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60);
@@ -678,53 +678,65 @@ export default function KoPage() {
                 Save
               </button>
 
-              <div className="mt-4 bg-blue-500/5 border border-blue-500/15 rounded-xl p-4 space-y-2">
-                <p className="text-gray-400 text-xs font-medium">Membership</p>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-white text-lg font-bold">$3</span>
-                  <span className="text-gray-500 text-xs">/ week</span>
-                </div>
-                <p className="text-gray-500 text-xs">2 free trial sessions (up to 5 min each)</p>
-                <a
-                  href="https://www.paypal.com/ncp/payment/DC7LDXNCBE4NY"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={handlePaypalClick}
-                  className="inline-block w-full py-2 bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 text-white text-xs font-semibold rounded-xl text-center mt-1 shadow-md shadow-blue-900/30"
-                >
-                  💳 Pay with PayPal
-                </a>
-                <p className="text-gray-600 text-xs text-center">or bank transfer</p>
-                <p className="text-gray-500 text-xs flex items-center gap-1">KB Kookmin Bank 758637-00-012739<CopyButton text="758637-00-012739" label="Copy" copiedLabel="Copied!" /></p>
-                <p className="text-gray-500 text-xs">예금주: 송랩</p>
-                {isPaymentExempt ? null : canSkipPayment ? (
-                  <p className="mt-1 text-green-400 text-xs">
-                    ✅ Active membership{expiresAt ? ` — until ${new Date(expiresAt).toLocaleDateString("en-US")}` : ""}
+              {canSkipPayment || isPaymentExempt ? (
+                <div className="mt-4 bg-blue-500/5 border border-blue-500/15 rounded-xl p-4 flex items-center justify-between gap-2">
+                  <p className="text-blue-400 text-xs font-medium">
+                    ✅ Active membership{expiresAt && !unlimited ? ` — until ${new Date(expiresAt).toLocaleDateString("en-US")}` : ""}
                   </p>
-                ) : paymentRequestedAt ? (
-                  <p className="mt-1 text-emerald-400 text-xs">✅ Confirmation requested — admin will review shortly</p>
-                ) : (
-                  <>
-                    {paymentRejectReason && <PaymentRejectNotice reason={paymentRejectReason} lang="en" />}
-                    <PaymentNoteInput value={paymentNote} onChange={setPaymentNote} variant="email" />
-                    <button
-                      onClick={requestPaymentConfirmation}
-                      disabled={requestingPayment || !paymentNote.trim()}
-                      className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
-                    >
-                      {requestingPayment ? "Requesting..." : "✅ I've paid, request confirmation"}
-                    </button>
-                  </>
-                )}
-                <a
-                  href="https://open.kakao.com/o/sPanl0Ci"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block mt-1 text-yellow-400 text-xs hover:text-yellow-300"
-                >
-                  💬 Contact us (KakaoTalk)
-                </a>
-              </div>
+                  <a
+                    href="https://open.kakao.com/o/sPanl0Ci"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-shrink-0 text-yellow-400 text-xs hover:text-yellow-300"
+                  >
+                    💬 Contact
+                  </a>
+                </div>
+              ) : (
+                <div className="mt-4 bg-blue-500/5 border border-blue-500/15 rounded-xl p-4 space-y-2">
+                  <p className="text-gray-400 text-xs font-medium">Membership</p>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-white text-lg font-bold">$3</span>
+                    <span className="text-gray-500 text-xs">/ week</span>
+                  </div>
+                  <p className="text-gray-500 text-xs">2 free trial sessions (up to 5 min each)</p>
+                  <a
+                    href="https://www.paypal.com/ncp/payment/DC7LDXNCBE4NY"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={handlePaypalClick}
+                    className="inline-block w-full py-2 bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 text-white text-xs font-semibold rounded-xl text-center mt-1 shadow-md shadow-blue-900/30"
+                  >
+                    💳 Pay with PayPal
+                  </a>
+                  <p className="text-gray-600 text-xs text-center">or bank transfer</p>
+                  <p className="text-gray-500 text-xs flex items-center gap-1">KB Kookmin Bank 758637-00-012739<CopyButton text="758637-00-012739" label="Copy" copiedLabel="Copied!" /></p>
+                  <p className="text-gray-500 text-xs">예금주: 송랩</p>
+                  {paymentRequestedAt ? (
+                    <p className="mt-1 text-emerald-400 text-xs">✅ Confirmation requested — admin will review shortly</p>
+                  ) : (
+                    <>
+                      {paymentRejectReason && <PaymentRejectNotice reason={paymentRejectReason} lang="en" />}
+                      <PaymentNoteInput value={paymentNote} onChange={setPaymentNote} variant="email" />
+                      <button
+                        onClick={requestPaymentConfirmation}
+                        disabled={requestingPayment || !paymentNote.trim()}
+                        className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
+                      >
+                        {requestingPayment ? "Requesting..." : "✅ I've paid, request confirmation"}
+                      </button>
+                    </>
+                  )}
+                  <a
+                    href="https://open.kakao.com/o/sPanl0Ci"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block mt-1 text-yellow-400 text-xs hover:text-yellow-300"
+                  >
+                    💬 Contact us (KakaoTalk)
+                  </a>
+                </div>
+              )}
 
               {userId && sessionToken && <UsageHistory userId={userId} sessionToken={sessionToken} lang="en" />}
               {userId && sessionToken && <ChangePassword userId={userId} sessionToken={sessionToken} lang="en" />}
