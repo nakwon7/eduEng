@@ -590,7 +590,7 @@ export default function Home() {
                   color: "bg-emerald-500/15 text-emerald-400",
                   cardTint: "bg-emerald-500/5 border-emerald-500/15",
                   icon: <><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></>,
-                  title: "통화 후 AI 피드백", desc: "대화를 2번 이상 나누고 통화를 종료하면 종합평가·표현 교정·잘한 표현·추천 표현(최대 10개)·오늘의 팁이 담긴 리포트를 받아볼 수 있어요. 추천 표현은 공유하기 버튼으로 바로 공유할 수 있어요.",
+                  title: "통화 후 AI 피드백", desc: "대화를 어느 정도 나누고 통화를 종료하면 종합평가·표현 교정·잘한 표현·추천 표현·오늘의 팁이 담긴 리포트를 받아볼 수 있어요. 추천 표현은 공유하기 버튼으로 바로 공유할 수 있어요.",
                 },
                 {
                   color: "bg-slate-500/15 text-slate-300",
