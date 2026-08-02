@@ -7,7 +7,7 @@ export default function TermsPage() {
         <div>
           <a href="/" className="text-green-400 text-sm hover:text-green-300">← 홈으로</a>
           <h1 className="text-2xl font-bold mt-4 mb-1">이용약관 및 개인정보처리방침</h1>
-          <p className="text-gray-500 text-xs">최종 수정일: 2026년 7월 13일 · 시행일: 2026년 7월 13일</p>
+          <p className="text-gray-500 text-xs">최종 수정일: 2026년 8월 2일 · 시행일: 2026년 8월 2일</p>
         </div>
 
         {/* ───── 이용약관 ───── */}
@@ -139,7 +139,21 @@ export default function TermsPage() {
           </div>
 
           <div className="space-y-2">
-            <h3 className="font-semibold text-sm text-gray-200">5. 이용자 권리</h3>
+            <h3 className="font-semibold text-sm text-gray-200">5. 개인정보의 국외 이전</h3>
+            <p className="text-gray-400 text-sm leading-relaxed">
+              회사는 서비스 운영을 위해 아래와 같이 개인정보를 국외로 이전하여 처리하고 있습니다.
+            </p>
+            <ul className="text-gray-400 text-sm leading-relaxed space-y-1 list-disc list-inside">
+              <li>이전받는 자: Vercel Inc.(서버 호스팅), Supabase Inc.(데이터베이스)</li>
+              <li>이전되는 국가: 미국</li>
+              <li>이전 일시 및 방법: 서비스 이용 시 네트워크를 통해 실시간 전송·저장</li>
+              <li>이전 항목: 이메일, 아이디, 이름, 통화 기록 등 위 1항의 수집 항목 전체</li>
+              <li>이전받는 자의 보유·이용 기간: 회원 탈퇴 시까지</li>
+            </ul>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="font-semibold text-sm text-gray-200">6. 이용자 권리</h3>
             <p className="text-gray-400 text-sm leading-relaxed">
               회원은 언제든지 개인정보 조회, 수정, 삭제 및 처리 정지를 요청할 수 있습니다.
               카카오톡 채널을 통해 요청하시면 지체 없이 처리합니다.
@@ -147,7 +161,7 @@ export default function TermsPage() {
           </div>
 
           <div className="space-y-2">
-            <h3 className="font-semibold text-sm text-gray-200">6. 개인정보 보호책임자</h3>
+            <h3 className="font-semibold text-sm text-gray-200">7. 개인정보 보호책임자</h3>
             <div className="bg-gray-900 rounded-xl p-3 text-sm text-gray-400 space-y-1">
               <p>소속: 송랩</p>
               <p>문의: <a href="https://open.kakao.com/o/sPanl0Ci" className="text-green-400 hover:text-green-300" target="_blank" rel="noopener noreferrer">카카오톡 채널</a></p>

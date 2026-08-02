@@ -5,7 +5,7 @@ export default function TermsEnPage() {
         <div>
           <a href="/landing/ko" className="text-blue-400 text-sm hover:text-blue-300">← Home</a>
           <h1 className="text-2xl font-bold mt-4 mb-1">Terms of Service & Privacy Policy</h1>
-          <p className="text-gray-500 text-xs">Last updated: July 13, 2026 · Effective: July 13, 2026</p>
+          <p className="text-gray-500 text-xs">Last updated: August 2, 2026 · Effective: August 2, 2026</p>
         </div>
 
         {/* Terms of Service */}
@@ -131,7 +131,21 @@ export default function TermsEnPage() {
           </div>
 
           <div className="space-y-2">
-            <h3 className="font-semibold text-sm text-gray-200">5. Your Rights</h3>
+            <h3 className="font-semibold text-sm text-gray-200">5. Overseas Transfer of Personal Data</h3>
+            <p className="text-gray-400 text-sm leading-relaxed">
+              To operate the Service, the Company transfers and processes personal data overseas as follows.
+            </p>
+            <ul className="text-gray-400 text-sm leading-relaxed space-y-1 list-disc list-inside">
+              <li>Recipients: Vercel Inc. (server hosting), Supabase Inc. (database)</li>
+              <li>Destination country: United States</li>
+              <li>Timing & method: Transmitted and stored in real time over the network while using the Service</li>
+              <li>Items transferred: Email, username, name, call records, and all other items listed in Section 1</li>
+              <li>Retention period at recipient: Until account deletion</li>
+            </ul>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="font-semibold text-sm text-gray-200">6. Your Rights</h3>
             <p className="text-gray-400 text-sm leading-relaxed">
               You may request access, correction, deletion, or suspension of processing of your personal data at any time.
               Contact us via KakaoTalk and we will respond promptly.
@@ -139,7 +153,7 @@ export default function TermsEnPage() {
           </div>
 
           <div className="space-y-2">
-            <h3 className="font-semibold text-sm text-gray-200">6. Privacy Officer</h3>
+            <h3 className="font-semibold text-sm text-gray-200">7. Privacy Officer</h3>
             <div className="bg-gray-900 rounded-xl p-3 text-sm text-gray-400 space-y-1">
               <p>Company: SongLab</p>
               <p>Contact: <a href="https://open.kakao.com/o/sPanl0Ci" className="text-blue-400 hover:text-blue-300" target="_blank" rel="noopener noreferrer">KakaoTalk Channel</a></p>

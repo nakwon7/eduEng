@@ -99,12 +99,24 @@ export default function TermsModalEn({ onClose }: TermsModalEnProps) {
           </div>
 
           <div className="space-y-1">
-            <h3 className="font-semibold text-gray-200 text-xs">5. Your Rights</h3>
+            <h3 className="font-semibold text-gray-200 text-xs">5. Overseas Transfer of Personal Data</h3>
+            <p className="text-gray-400 text-xs leading-relaxed">To operate the Service, the Company transfers and processes personal data overseas as follows.</p>
+            <ul className="text-gray-400 text-xs leading-relaxed space-y-1 list-disc list-inside">
+              <li>Recipients: Vercel Inc. (server hosting), Supabase Inc. (database)</li>
+              <li>Destination country: United States</li>
+              <li>Timing & method: Transmitted and stored in real time over the network while using the Service</li>
+              <li>Items transferred: Email, username, name, call records, and all other items listed in Section 1</li>
+              <li>Retention period at recipient: Until account deletion</li>
+            </ul>
+          </div>
+
+          <div className="space-y-1">
+            <h3 className="font-semibold text-gray-200 text-xs">6. Your Rights</h3>
             <p className="text-gray-400 text-xs leading-relaxed">You may request access, correction, deletion, or suspension of processing of your personal data at any time. Contact us via KakaoTalk and we will respond promptly.</p>
           </div>
 
           <div className="space-y-1">
-            <h3 className="font-semibold text-gray-200 text-xs">6. Privacy Officer</h3>
+            <h3 className="font-semibold text-gray-200 text-xs">7. Privacy Officer</h3>
             <div className="bg-gray-900 rounded-xl p-3 text-xs text-gray-400 space-y-1">
               <p>Company: SongLab</p>
               <p>Contact: <a href="https://open.kakao.com/o/sPanl0Ci" className="text-blue-400" target="_blank" rel="noopener noreferrer">KakaoTalk Channel</a></p>
