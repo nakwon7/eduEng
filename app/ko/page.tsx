@@ -95,6 +95,7 @@ export default function KoPage() {
   const [weeklySeconds, setWeeklySeconds] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [showSetup, setShowSetup] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const monthlyBg = useMonthlyBg();
   const [micError, setMicError] = useState(false);
   const [micPermState, setMicPermState] = useState<PermissionState | null>(null);
@@ -479,6 +480,7 @@ export default function KoPage() {
             <div className="flex items-center justify-between mb-3">
               <button
                 onClick={async () => {
+                  if (showHelp) { setShowHelp(false); return; }
                   if (showSetup) { setShowSetup(false); return; }
                   if (username === "gooster") { router.push("/app"); return; }
                   await supabase.auth.signOut();
@@ -487,14 +489,27 @@ export default function KoPage() {
                 }}
                 className="text-gray-300 hover:text-white text-xs [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]"
               >
-                {showSetup || username === "gooster" ? "← Back" : "Logout"}
+                {showHelp || showSetup || username === "gooster" ? "← Back" : "Logout"}
               </button>
-              <button
-                onClick={() => setShowSetup(!showSetup)}
-                className="flex items-center gap-1 px-2.5 py-1.5 bg-gray-700/80 hover:bg-gray-600/80 backdrop-blur-sm rounded-xl text-gray-200 text-xs"
-              >
-                ⚙️ Setup
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { setShowSetup(false); setShowHelp(!showHelp); }}
+                  className="flex items-center gap-1 px-2.5 py-1.5 bg-gray-700/80 hover:bg-gray-600/80 backdrop-blur-sm rounded-xl text-gray-200 text-xs"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M9.5 9a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 2-2.4 3.7" />
+                    <circle cx="12" cy="17" r="0.5" fill="currentColor" stroke="none" />
+                  </svg>
+                  <span>Help</span>
+                </button>
+                <button
+                  onClick={() => { setShowHelp(false); setShowSetup(!showSetup); }}
+                  className="flex items-center gap-1 px-2.5 py-1.5 bg-gray-700/80 hover:bg-gray-600/80 backdrop-blur-sm rounded-xl text-gray-200 text-xs"
+                >
+                  ⚙️ Setup
+                </button>
+              </div>
             </div>
           )}
           <TutorAvatar tutor={effectiveTutor} fallbackBg="bg-blue-600" />
@@ -519,7 +534,73 @@ export default function KoPage() {
 
         {/* Body */}
         <div className="flex-1 flex flex-col px-4 py-4 min-h-0">
-          {showSetup && callState === "idle" ? (
+          {showHelp && callState === "idle" ? (
+            <div className="flex-1 overflow-y-auto px-2 py-4 space-y-4">
+              <h2 className="text-white text-sm font-bold text-center mb-2">How to Use</h2>
+              {[
+                {
+                  color: "bg-blue-500/15 text-blue-400",
+                  cardTint: "bg-blue-500/5 border-blue-500/15",
+                  icon: <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.574 2.81.7A2 2 0 0 1 22 16.92z" />,
+                  title: "Start a Call", desc: "Choose a topic on the home screen and tap 'Start Call'.",
+                },
+                {
+                  color: "bg-indigo-500/15 text-indigo-400",
+                  cardTint: "bg-indigo-500/5 border-indigo-500/15",
+                  icon: <><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" y1="19" x2="12" y2="23" /><line x1="8" y1="23" x2="16" y2="23" /></>,
+                  title: "Speak", desc: "Hold the mic button and speak in Korean. Release when you're done — the AI will recognize your speech.",
+                },
+                {
+                  color: "bg-purple-500/15 text-purple-400",
+                  cardTint: "bg-purple-500/5 border-purple-500/15",
+                  icon: <><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07" /><path d="M19.07 4.93a10 10 0 0 1 0 14.14" /></>,
+                  title: "AI Response", desc: "MinJun or Jia will reply by voice. The mic is disabled while the AI is speaking.",
+                },
+                {
+                  color: "bg-amber-500/15 text-amber-400",
+                  cardTint: "bg-amber-500/5 border-amber-500/15",
+                  icon: <><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></>,
+                  title: "Grammar Tips", desc: "If you make a mistake, the AI will gently point it out with a short tip at the end of its response.",
+                },
+                {
+                  color: "bg-red-500/15 text-red-400",
+                  cardTint: "bg-red-500/5 border-red-500/15",
+                  icon: <><path d="M22.63 16.75l-3.7-.5a2 2 0 0 0-1.71.53l-1.75 1.75a15.7 15.7 0 0 1-6.8-6.8l1.75-1.75a2 2 0 0 0 .53-1.71l-.5-3.7A2 2 0 0 0 8.46 2H5.5A2 2 0 0 0 3.5 4.24" /><line x1="1" y1="1" x2="23" y2="23" /></>,
+                  title: "End Call", desc: "Tap the red button to end the call.",
+                },
+                {
+                  color: "bg-slate-500/15 text-slate-300",
+                  cardTint: "bg-slate-500/5 border-slate-500/15",
+                  icon: <><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" /></>,
+                  title: "Setup", desc: "Change your name, tutor, or Korean level from Setup in the top right.\n📱 On mobile, Jia is fixed as your tutor. MinJun is available on PC.",
+                },
+                {
+                  color: "bg-cyan-500/15 text-cyan-400",
+                  cardTint: "bg-cyan-500/5 border-cyan-500/15",
+                  icon: <><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></>,
+                  title: "Recommended Browser", desc: "Use Chrome or Samsung Internet. Other browsers may have unstable speech recognition.",
+                },
+                {
+                  color: "bg-emerald-500/15 text-emerald-400",
+                  cardTint: "bg-emerald-500/5 border-emerald-500/15",
+                  icon: <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></>,
+                  title: "Install as an App", desc: "iPhone: Open in Safari → Share (□↑) → Add to Home Screen\nAndroid: Open in Chrome → Menu (⋮) → Add to Home Screen\nPC: Click the install (+) button in the address bar",
+                },
+              ].map((item) => (
+                <div key={item.title} className={`flex gap-3 border rounded-2xl p-4 ${item.cardTint}`}>
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${item.color}`}>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px]">
+                      {item.icon}
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-white text-sm font-medium">{item.title}</p>
+                    <p className="text-gray-400 text-xs mt-0.5 leading-relaxed whitespace-pre-line">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : showSetup && callState === "idle" ? (
             <div className="flex-1 space-y-4">
               <h2 className="text-white text-sm font-bold">Setup</h2>
 
