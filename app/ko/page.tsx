@@ -328,6 +328,18 @@ export default function KoPage() {
           sessionToken,
         }),
       });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        if (err.error === "SESSION_EXPIRED") {
+          setCallState("idle");
+          await supabase.auth.signOut();
+          router.push("/login/ko");
+          return;
+        }
+        setCallState("idle");
+        alert("Could not verify your access. Please refresh and try again.");
+        return;
+      }
       const data = await res.json();
       greeting = data.greeting || fallbackGreeting;
     } catch {
@@ -341,7 +353,7 @@ export default function KoPage() {
 
     addMessage({ role: "assistant", content: greeting });
     speak(greeting, effectiveTutor === "jia" ? "female" : "male");
-  }, [topic, addMessage, speak, profile, unlockTTS, effectiveTutor, canMakeCall, isPaid, isUnlimited, userId, sessionToken]);
+  }, [topic, addMessage, speak, profile, unlockTTS, effectiveTutor, canMakeCall, isPaid, isUnlimited, userId, sessionToken, router]);
 
   const handleMicPress = useCallback(async () => {
     if (isRecording || isSpeaking) return;

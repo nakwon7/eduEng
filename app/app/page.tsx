@@ -345,6 +345,20 @@ export default function Home() {
           sessionToken,
         }),
       });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        if (err.error === "SESSION_EXPIRED") {
+          setCallState("idle");
+          await supabase.auth.signOut();
+          router.push("/login");
+          return;
+        }
+        // 화면이 새로고침 안 된 채 멤버십/체험 상태가 바뀐 경우(관리자가 만료시킴 등) —
+        // 실제로는 권한이 없으니 가짜 인사말로 통화를 이어가지 않고 여기서 멈춘다
+        setCallState("idle");
+        alert("이용 권한을 확인할 수 없습니다. 새로고침 후 다시 시도해 주세요.");
+        return;
+      }
       const data = await res.json();
       greeting = data.greeting || `Hey ${firstName}! This is ${tutorName}. Ready to practice some English?`;
     } catch {
@@ -358,7 +372,7 @@ export default function Home() {
     timerRef.current = setInterval(() => setCallDuration((d) => d + 1), 1000);
     addMessage({ role: "assistant", content: greeting });
     speak(greeting, effectiveTutor === "rachel" ? "female" : "male");
-  }, [topic, addMessage, speak, profile, unlockTTS, canMakeCall, isPaid, username, userId, sessionToken]);
+  }, [topic, addMessage, speak, profile, unlockTTS, canMakeCall, isPaid, username, userId, sessionToken, router]);
 
   const handleMicPress = useCallback(async () => {
     if (isRecording || isSpeaking) return;
