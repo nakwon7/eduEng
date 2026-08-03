@@ -99,6 +99,10 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId, sessionToken, targetId, days, plan }),
     });
+    // 결제이력 캐시를 무효화하고 다시 불러옴 — 안 그러면 승인 전에 이미 펼쳐본 적
+    // 있는 유저는 방금 추가된 이력이 빠진 예전 목록이 계속 보임(펼침 상태일 때만
+    // 재요청하는 구조라 캐시가 있으면 handleTogglePayments가 재요청을 건너뜀)
+    if (paymentHistory[targetId]) await fetchPaymentHistory(targetId);
     await fetchUsers();
     setBusy(null);
   };
@@ -152,13 +156,7 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
     setCallLogs((prev) => ({ ...prev, [targetId]: data.logs || [] }));
   };
 
-  const handleTogglePayments = async (targetId: string) => {
-    if (expandedPaymentId === targetId) {
-      setExpandedPaymentId(null);
-      return;
-    }
-    setExpandedPaymentId(targetId);
-    if (paymentHistory[targetId]) return;
+  const fetchPaymentHistory = async (targetId: string) => {
     const res = await fetch("/api/admin/payment-history", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -166,6 +164,16 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
     });
     const data = await res.json();
     setPaymentHistory((prev) => ({ ...prev, [targetId]: data.history || [] }));
+  };
+
+  const handleTogglePayments = async (targetId: string) => {
+    if (expandedPaymentId === targetId) {
+      setExpandedPaymentId(null);
+      return;
+    }
+    setExpandedPaymentId(targetId);
+    if (paymentHistory[targetId]) return;
+    await fetchPaymentHistory(targetId);
   };
 
   const handleDeletePayment = async (targetId: string, historyId: string) => {

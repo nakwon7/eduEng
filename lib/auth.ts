@@ -5,8 +5,8 @@ export type AuthCheckResult =
   | { ok: false; error: string; status: number };
 
 // AI/음성 API(채팅, 인사말, 피드백, 전사)에 공통으로 쓰는 인증 체크.
-// 세션 불일치/차단/만료 여부를 확인하고, 체험(trial) 유저는 expires_at이 없어서 통과된다
-// (체험 소진 여부는 클라이언트의 canMakeCall에서만 다루고 여기서는 건드리지 않음).
+// 클라이언트의 canMakeCall(무제한 or 유료멤버십 or 체험횟수 남음)과 동일한 자격 판정을
+// 서버에서도 그대로 강제한다 — 멤버십 만료 + 체험 소진까지 둘 다 아니면 거부.
 export async function verifyActiveUser(
   admin: ReturnType<typeof supabaseAdmin>,
   userId: string | undefined | null,
@@ -18,7 +18,7 @@ export async function verifyActiveUser(
 
   const { data } = await admin
     .from("profiles")
-    .select("session_token, expires_at, unlimited, blocked")
+    .select("session_token, expires_at, unlimited, blocked, trial_calls")
     .eq("id", userId)
     .single();
 
@@ -28,7 +28,10 @@ export async function verifyActiveUser(
   if (data.blocked) {
     return { ok: false, error: "SUBSCRIPTION_EXPIRED", status: 403 };
   }
-  if (!data.unlimited && data.expires_at && new Date(data.expires_at) < new Date()) {
+
+  const isPaid = !!data.expires_at && new Date(data.expires_at) > new Date();
+  const canUse = data.unlimited || isPaid || (data.trial_calls ?? 0) > 0;
+  if (!canUse) {
     return { ok: false, error: "SUBSCRIPTION_EXPIRED", status: 403 };
   }
 
