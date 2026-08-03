@@ -35,6 +35,7 @@ export default function SignupKoPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
   const [level, setLevel] = useState<"beginner" | "intermediate" | "advanced">("beginner");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -48,10 +49,13 @@ export default function SignupKoPage() {
     : email && isDisposableEmail(email)
     ? "Disposable/temporary email addresses are not allowed"
     : "";
+  const passwordConfirmError = passwordConfirm && password !== passwordConfirm
+    ? "Passwords do not match"
+    : "";
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (usernameError || emailError || !agreedTerms) return;
+    if (usernameError || emailError || passwordConfirmError || !agreedTerms) return;
     setError("");
     setLoading(true);
 
@@ -193,6 +197,20 @@ export default function SignupKoPage() {
             />
           </div>
           <div>
+            <label className="text-gray-400 text-xs mb-1 block">Confirm password</label>
+            <input
+              type="password"
+              value={passwordConfirm}
+              onChange={(e) => setPasswordConfirm(e.target.value)}
+              required
+              minLength={6}
+              maxLength={20}
+              placeholder="Re-enter your password"
+              className="w-full bg-gray-800 border border-white/5 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {passwordConfirmError && <p className="text-red-400 text-xs mt-1">{passwordConfirmError}</p>}
+          </div>
+          <div>
             <label className="text-gray-400 text-xs mb-2 block">Korean level</label>
             <div className="space-y-2">
               {LEVELS.map((l) => (
@@ -232,7 +250,7 @@ export default function SignupKoPage() {
 
           <button
             type="submit"
-            disabled={loading || !!usernameError || !!emailError || !agreedTerms}
+            disabled={loading || !!usernameError || !!emailError || !!passwordConfirmError || !password || !passwordConfirm || !agreedTerms}
             className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 disabled:bg-none disabled:bg-gray-700 text-white rounded-xl font-semibold transition-all shadow-lg shadow-blue-900/30"
           >
             {loading ? "Creating account..." : "Sign up for free"}

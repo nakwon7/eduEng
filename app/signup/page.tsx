@@ -35,6 +35,7 @@ export default function SignupPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
   const [level, setLevel] = useState<"beginner" | "intermediate" | "advanced">("intermediate");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -48,10 +49,13 @@ export default function SignupPage() {
     : email && isDisposableEmail(email)
     ? "일회용/임시 이메일 서비스는 사용할 수 없습니다"
     : "";
+  const passwordConfirmError = passwordConfirm && password !== passwordConfirm
+    ? "비밀번호가 일치하지 않습니다"
+    : "";
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (usernameError || emailError || !agreedTerms) return;
+    if (usernameError || emailError || passwordConfirmError || !agreedTerms) return;
     setError("");
     setLoading(true);
 
@@ -193,6 +197,20 @@ export default function SignupPage() {
             />
           </div>
           <div>
+            <label className="text-gray-400 text-xs mb-1 block">비밀번호 확인</label>
+            <input
+              type="password"
+              value={passwordConfirm}
+              onChange={(e) => setPasswordConfirm(e.target.value)}
+              required
+              minLength={6}
+              maxLength={20}
+              placeholder="비밀번호를 한번 더 입력해주세요"
+              className="w-full bg-gray-800 border border-white/5 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
+            />
+            {passwordConfirmError && <p className="text-red-400 text-xs mt-1">{passwordConfirmError}</p>}
+          </div>
+          <div>
             <label className="text-gray-400 text-xs mb-2 block">영어 레벨</label>
             <div className="space-y-2">
               {LEVELS.map((l) => (
@@ -229,7 +247,7 @@ export default function SignupPage() {
 
           <button
             type="submit"
-            disabled={loading || !!usernameError || !!emailError || !agreedTerms}
+            disabled={loading || !!usernameError || !!emailError || !!passwordConfirmError || !password || !passwordConfirm || !agreedTerms}
             className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 disabled:bg-none disabled:bg-gray-700 text-white rounded-xl font-semibold transition-all shadow-lg shadow-green-900/30"
           >
             {loading ? "가입 중..." : "가입하기"}
