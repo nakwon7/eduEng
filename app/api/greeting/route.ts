@@ -2,6 +2,8 @@ export const dynamic = "force-dynamic";
 
 import Groq from "groq-sdk";
 import { NextRequest, NextResponse } from "next/server";
+import { supabaseAdmin } from "@/lib/supabase";
+import { verifyActiveUser } from "@/lib/auth";
 
 const getGroq = () => new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -33,7 +35,13 @@ function sanitizeKorean(text: string): string {
 
 export async function POST(req: NextRequest) {
   try {
-    const { topic, firstName, tutorName, tutor, level } = await req.json();
+    const { topic, firstName, tutorName, tutor, level, userId, sessionToken } = await req.json();
+
+    const auth = await verifyActiveUser(supabaseAdmin(), userId, sessionToken);
+    if (!auth.ok) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    }
+
     const isKorean = tutor === "minjun" || tutor === "jia";
 
     if (isKorean) {

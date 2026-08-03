@@ -4,6 +4,7 @@ import Groq from "groq-sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { sendTelegramAlert } from "@/lib/telegram";
+import { verifyActiveUser } from "@/lib/auth";
 
 const getGroq = () => new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -18,18 +19,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No audio file" }, { status: 400 });
     }
 
-    // 세션 토큰 검증
-    if (userId && sessionToken) {
-      const admin = supabaseAdmin();
-      const { data } = await admin
-        .from("profiles")
-        .select("session_token")
-        .eq("id", userId)
-        .single();
-
-      if (data?.session_token !== sessionToken) {
-        return NextResponse.json({ error: "SESSION_EXPIRED" }, { status: 401 });
-      }
+    const auth = await verifyActiveUser(supabaseAdmin(), userId, sessionToken);
+    if (!auth.ok) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
     const transcription = await getGroq().audio.transcriptions.create({

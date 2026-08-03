@@ -6,7 +6,7 @@ interface UseAudioRecorderKoReturn {
   isRecording: boolean;
   isTranscribing: boolean;
   startRecording: () => Promise<boolean>;
-  stopRecording: () => Promise<string>;
+  stopRecording: (userId: string | null, sessionToken: string | null) => Promise<string>;
   consumeRateLimited: () => boolean;
 }
 
@@ -47,7 +47,7 @@ export function useAudioRecorderKo(): UseAudioRecorderKoReturn {
     }
   }, []);
 
-  const stopRecording = useCallback(async (): Promise<string> => {
+  const stopRecording = useCallback(async (userId: string | null, sessionToken: string | null): Promise<string> => {
     return new Promise((resolve) => {
       const recorder = mediaRecorderRef.current;
       if (!recorder || recorder.state === "inactive") {
@@ -74,6 +74,8 @@ export function useAudioRecorderKo(): UseAudioRecorderKoReturn {
           const ext = mimeType.includes("mp4") ? "mp4" : mimeType.includes("ogg") ? "ogg" : "webm";
           const formData = new FormData();
           formData.append("file", blob, `audio.${ext}`);
+          if (userId) formData.append("userId", userId);
+          if (sessionToken) formData.append("sessionToken", sessionToken);
 
           const res = await fetch("/api/transcribe-ko", {
             method: "POST",

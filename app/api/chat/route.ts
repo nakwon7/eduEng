@@ -4,6 +4,7 @@ import Groq from "groq-sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { sendTelegramAlert } from "@/lib/telegram";
+import { verifyActiveUser } from "@/lib/auth";
 
 const getGroq = () => new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -35,30 +36,10 @@ export async function POST(req: NextRequest) {
   try {
     const { messages, topic, profile, sessionToken, userId } = await req.json();
 
-    // 세션 토큰 검증 (중복 로그인 차단)
-    if (userId && sessionToken) {
-      const admin = supabaseAdmin();
-      const { data } = await admin
-        .from("profiles")
-        .select("session_token")
-        .eq("id", userId)
-        .single();
-
-      if (data?.session_token !== sessionToken) {
-        return NextResponse.json({ error: "SESSION_EXPIRED" }, { status: 401 });
-      }
-
-      // 이용 기간 만료 확인
-      const { data: profile } = await admin
-        .from("profiles")
-        .select("expires_at, username, unlimited")
-        .eq("id", userId)
-        .single();
-
-      const isUnlimited = profile?.unlimited;
-      if (!isUnlimited && profile?.expires_at && new Date(profile.expires_at) < new Date()) {
-        return NextResponse.json({ error: "SUBSCRIPTION_EXPIRED" }, { status: 403 });
-      }
+    // 세션 검증 + 차단/만료 확인 (미인증 요청으로 Groq 비용이 새는 것 방지)
+    const auth = await verifyActiveUser(supabaseAdmin(), userId, sessionToken);
+    if (!auth.ok) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
     const levelGuide =

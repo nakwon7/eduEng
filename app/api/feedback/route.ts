@@ -1,6 +1,8 @@
 import Groq from "groq-sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { sendTelegramAlert } from "@/lib/telegram";
+import { supabaseAdmin } from "@/lib/supabase";
+import { verifyActiveUser } from "@/lib/auth";
 
 // 히라가나/가타카나는 한국어·영어에는 절대 나오지 않는 일본어 전용 문자 범위라
 // 이 범위가 감지되면 응답에 일본어가 섞였다는 확실한 신호로 판단한다.
@@ -56,7 +58,12 @@ function stripJapanese<T>(value: T): T {
 export async function POST(req: NextRequest) {
   const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
   try {
-    const { messages, topic, profile } = await req.json();
+    const { messages, topic, profile, userId, sessionToken } = await req.json();
+
+    const auth = await verifyActiveUser(supabaseAdmin(), userId, sessionToken);
+    if (!auth.ok) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    }
 
     if (!messages || messages.length < 3) {
       return NextResponse.json({ error: "Not enough conversation" }, { status: 400 });

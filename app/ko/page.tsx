@@ -324,6 +324,8 @@ export default function KoPage() {
           tutorName,
           tutor: effectiveTutor,
           level: profile.level,
+          userId,
+          sessionToken,
         }),
       });
       const data = await res.json();
@@ -339,7 +341,7 @@ export default function KoPage() {
 
     addMessage({ role: "assistant", content: greeting });
     speak(greeting, effectiveTutor === "jia" ? "female" : "male");
-  }, [topic, addMessage, speak, profile, unlockTTS, effectiveTutor, canMakeCall, isPaid, isUnlimited]);
+  }, [topic, addMessage, speak, profile, unlockTTS, effectiveTutor, canMakeCall, isPaid, isUnlimited, userId, sessionToken]);
 
   const handleMicPress = useCallback(async () => {
     if (isRecording || isSpeaking) return;
@@ -350,7 +352,7 @@ export default function KoPage() {
   const handleMicRelease = useCallback(async () => {
     if (!isRecording) return;
 
-    const userText = (await stopRecording()).trim();
+    const userText = (await stopRecording(userId, sessionToken)).trim();
     if (!userText) {
       if (consumeRateLimited()) {
         addMessage({ role: "assistant", content: "죄송해요, 지금 서버가 많이 바빠요. 잠시 후 다시 시도해 주세요." });

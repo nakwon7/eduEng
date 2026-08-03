@@ -257,7 +257,7 @@ export default function Home() {
       fetch("/api/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: capturedMessages, topic: capturedTopic, profile: capturedProfile }),
+        body: JSON.stringify({ messages: capturedMessages, topic: capturedTopic, profile: capturedProfile, userId, sessionToken }),
       })
         .then((res) => (res.ok ? res.json() : null))
         .then((data) => { if (data && !data.error) setFeedback(data); })
@@ -341,6 +341,8 @@ export default function Home() {
           tutorName,
           tutor: effectiveTutor,
           level: profile?.level || "intermediate",
+          userId,
+          sessionToken,
         }),
       });
       const data = await res.json();
@@ -356,7 +358,7 @@ export default function Home() {
     timerRef.current = setInterval(() => setCallDuration((d) => d + 1), 1000);
     addMessage({ role: "assistant", content: greeting });
     speak(greeting, effectiveTutor === "rachel" ? "female" : "male");
-  }, [topic, addMessage, speak, profile, unlockTTS, canMakeCall, isPaid, username]);
+  }, [topic, addMessage, speak, profile, unlockTTS, canMakeCall, isPaid, username, userId, sessionToken]);
 
   const handleMicPress = useCallback(async () => {
     if (isRecording || isSpeaking) return;
@@ -367,7 +369,7 @@ export default function Home() {
   const handleMicRelease = useCallback(async () => {
     if (!isRecording) return;
 
-    const userText = (await stopRecording()).trim();
+    const userText = (await stopRecording(userId, sessionToken)).trim();
     if (!userText) {
       if (consumeRateLimited()) {
         addMessage({ role: "assistant", content: "Sorry, our tutors are quite busy right now. Please try again in a moment." });
@@ -429,7 +431,7 @@ export default function Home() {
       setIsAiTyping(false);
       addMessage({ role: "assistant", content: "Sorry, I had a little trouble there. Could you say that again?" });
     }
-  }, [isRecording, stopRecording, addMessage, topic, speak, profile]);
+  }, [isRecording, stopRecording, addMessage, topic, speak, profile, userId, sessionToken]);
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60);
