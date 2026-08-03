@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     .eq("user_id", targetId);
   const { data: target } = await admin
     .from("profiles")
-    .select("plan, expires_at")
+    .select("plan, expires_at, total_seconds")
     .eq("id", targetId)
     .single();
   const isMidCycleLite = target?.plan === "lite" && !!target?.expires_at && new Date(target.expires_at) > new Date();
@@ -38,9 +38,19 @@ export async function POST(req: NextRequest) {
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + days);
 
+  // 승인 시점의 누적 사용량을 스냅샷으로 남겨서, 이번 사이클 사용량 = total_seconds - cycle_baseline_seconds로
+  // 계산할 수 있게 한다. 승인 전(체험 등) 사용량이 새 사이클 사용량으로 잘못 합산되는 걸 방지.
   const { error } = await admin
     .from("profiles")
-    .update({ approved: true, expires_at: expiresAt.toISOString(), plan: finalPlan, requested_plan: null, payment_requested_at: null, payment_reject_reason: null })
+    .update({
+      approved: true,
+      expires_at: expiresAt.toISOString(),
+      plan: finalPlan,
+      requested_plan: null,
+      payment_requested_at: null,
+      payment_reject_reason: null,
+      cycle_baseline_seconds: target?.total_seconds ?? 0,
+    })
     .eq("id", targetId);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

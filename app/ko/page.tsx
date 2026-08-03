@@ -159,21 +159,10 @@ export default function KoPage() {
         });
 
         if (!profileData.unlimited) {
-          let cycleStart: Date;
-          if (profileData.expires_at) {
-            cycleStart = new Date(new Date(profileData.expires_at).getTime() - 7 * 24 * 60 * 60 * 1000);
-          } else {
-            const now = new Date();
-            const day = now.getDay();
-            const diffToMonday = (day + 6) % 7;
-            cycleStart = new Date(now);
-            cycleStart.setDate(now.getDate() - diffToMonday);
-          }
-          const cycleStartStr = `${cycleStart.getFullYear()}-${String(cycleStart.getMonth() + 1).padStart(2, "0")}-${String(cycleStart.getDate()).padStart(2, "0")}`;
           const summaryRes = await fetch("/api/usage/summary", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userId: session.user.id, sessionToken: storedToken, sinceDate: cycleStartStr }),
+            body: JSON.stringify({ userId: session.user.id, sessionToken: storedToken }),
           });
           const summaryData = await summaryRes.json();
           setWeeklySeconds(summaryRes.ok ? summaryData.totalSeconds ?? 0 : 0);
