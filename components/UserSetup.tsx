@@ -3,18 +3,17 @@
 import { useState } from "react";
 import Image from "next/image";
 import { UserProfile } from "@/hooks/useUserProfile";
-import CopyButton from "./CopyButton";
+import { PlanId } from "@/lib/plans";
 import UsageHistory from "./UsageHistory";
 import ChangePassword from "./ChangePassword";
-import PaymentNoteInput from "./PaymentNoteInput";
-import PaymentRejectNotice from "./PaymentRejectNotice";
+import MembershipOffer from "./MembershipOffer";
 
 interface UserSetupProps {
   onComplete: (profile: UserProfile) => void;
   existing?: UserProfile;
   paymentRequestedAt?: string | null;
   requestingPayment?: boolean;
-  onRequestPayment?: () => void;
+  onRequestPayment?: (plan: PlanId) => void;
   paymentNote?: string;
   onPaymentNoteChange?: (note: string) => void;
   paymentRejectReason?: string | null;
@@ -22,6 +21,7 @@ interface UserSetupProps {
   expiresAt?: string | null;
   userId?: string | null;
   sessionToken?: string | null;
+  liteEligible?: boolean;
 }
 
 const LEVELS = [
@@ -35,7 +35,7 @@ const TUTORS = [
   { id: "rachel", label: "Rachel", desc: "Warm & Patient" },
 ] as const;
 
-export default function UserSetup({ onComplete, existing, paymentRequestedAt, requestingPayment, onRequestPayment, paymentNote, onPaymentNoteChange, paymentRejectReason, hasActiveMembership, expiresAt, userId, sessionToken }: UserSetupProps) {
+export default function UserSetup({ onComplete, existing, paymentRequestedAt, requestingPayment, onRequestPayment, paymentNote, onPaymentNoteChange, paymentRejectReason, hasActiveMembership, expiresAt, userId, sessionToken, liteEligible }: UserSetupProps) {
   const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   const [name, setName] = useState(existing?.name || "");
   const [level, setLevel] = useState<UserProfile["level"]>(existing?.level || "intermediate");
@@ -147,40 +147,16 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
       ) : (
         <div className="mt-6 bg-green-500/5 border border-green-500/15 rounded-xl p-4 space-y-2">
           <p className="text-gray-400 text-xs font-medium">멤버십 요금</p>
-          <div className="flex items-baseline gap-1">
-            <span className="text-white text-lg font-bold">9,900원</span>
-            <span className="text-gray-500 text-xs">/ 월 · 매월 900분 제공</span>
-          </div>
           <p className="text-gray-500 text-xs">무료 체험 2회(회당 최대 5분) 제공</p>
-          <p className="text-gray-500 text-xs flex items-center gap-1">KB국민은행 758637-00-012739<CopyButton text="758637-00-012739" /></p>
-          <p className="text-gray-500 text-xs">예금주: 송랩</p>
-          {onRequestPayment && (
-            paymentRequestedAt ? (
-              <p className="mt-1 text-emerald-400 text-xs">✅ 확인 요청됨 · 관리자 확인 후 곧 승인됩니다</p>
-            ) : (
-              <>
-                {paymentRejectReason && <PaymentRejectNotice reason={paymentRejectReason} lang="ko" />}
-                {onPaymentNoteChange && (
-                  <PaymentNoteInput value={paymentNote || ""} onChange={onPaymentNoteChange} variant="bankName" />
-                )}
-                <button
-                  onClick={onRequestPayment}
-                  disabled={requestingPayment || !(paymentNote || "").trim()}
-                  className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
-                >
-                  {requestingPayment ? "요청 중..." : "✅ 입금 완료, 확인 요청하기"}
-                </button>
-              </>
-            )
-          )}
-          <a
-            href="https://open.kakao.com/o/sPanl0Ci"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block mt-1 text-yellow-400 text-xs hover:text-yellow-300"
-          >
-            💬 가입 문의 (카카오톡)
-          </a>
+          <MembershipOffer
+            liteEligible={liteEligible}
+            paymentRequestedAt={paymentRequestedAt}
+            requestingPayment={requestingPayment}
+            onRequestPayment={onRequestPayment}
+            paymentNote={paymentNote}
+            onPaymentNoteChange={onPaymentNoteChange}
+            paymentRejectReason={paymentRejectReason}
+          />
         </div>
       )}
 

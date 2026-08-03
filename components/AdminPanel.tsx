@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { PLANS, PlanId } from "@/lib/plans";
 
 interface User {
   id: string;
@@ -18,6 +19,8 @@ interface User {
   payment_requested_at: string | null;
   payment_note: string | null;
   payment_count: number;
+  plan: PlanId;
+  requested_plan: PlanId | null;
 }
 
 interface AdminPanelProps {
@@ -63,7 +66,8 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
   const [callLogs, setCallLogs] = useState<Record<string, { date: string; seconds: number }[]>>({});
   const [expandedPaymentId, setExpandedPaymentId] = useState<string | null>(null);
-  const [paymentHistory, setPaymentHistory] = useState<Record<string, { id: string; days: number; approved_at: string }[]>>({});
+  const [paymentHistory, setPaymentHistory] = useState<Record<string, { id: string; days: number; approved_at: string; plan: PlanId }[]>>({});
+  const [selectedPlan, setSelectedPlan] = useState<Record<string, PlanId>>({});
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -88,12 +92,12 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
     fetchUsers();
   }, []);
 
-  const handleApprove = async (targetId: string, days: number) => {
+  const handleApprove = async (targetId: string, days: number, plan: PlanId) => {
     setBusy(targetId + "_approve" + days);
     await fetch("/api/admin/approve", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, sessionToken, targetId, days }),
+      body: JSON.stringify({ userId, sessionToken, targetId, days, plan }),
     });
     await fetchUsers();
     setBusy(null);
@@ -352,6 +356,7 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                 {u.payment_requested_at && (
                   <p className="text-emerald-400 text-xs font-medium">
                     💰 입금 확인 요청 · {new Date(u.payment_requested_at).toLocaleString("ko-KR", { month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                    {u.requested_plan && ` · 희망: ${PLANS[u.requested_plan].label}`}
                   </p>
                 )}
                 {u.payment_note && (
@@ -451,7 +456,7 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                             {new Date(h.approved_at).toLocaleString("ko-KR", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                           </span>
                           <span className="flex items-center gap-2">
-                            <span className="text-gray-300">+{h.days}일</span>
+                            <span className="text-gray-300">+{h.days}일 ({PLANS[h.plan]?.label ?? h.plan})</span>
                             <button
                               onClick={() => handleDeletePayment(u.id, h.id)}
                               disabled={busy === h.id + "_delpayment"}
@@ -468,18 +473,38 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
 
                 {(() => {
                   const activeMembership = hasActiveMembership(u);
+                  // 신규 첫 결제이거나, 이미 라이트를 이용 중(만료 전)인 조기결제 케이스에만 라이트 허용
+                  const isMidCycleLite = u.plan === "lite" && activeMembership;
+                  const eligibleForLite = u.payment_count === 0 || isMidCycleLite;
+                  const currentPlan: PlanId =
+                    selectedPlan[u.id] ?? (isMidCycleLite || u.requested_plan === "lite" ? "lite" : "standard");
                   return (
                     <div className="space-y-2 pt-1">
+                      {eligibleForLite && (
+                        <div className="flex gap-2">
+                          {(Object.values(PLANS)).map((p) => (
+                            <button
+                              key={p.id}
+                              onClick={() => setSelectedPlan((prev) => ({ ...prev, [u.id]: p.id }))}
+                              className={`flex-1 py-1 text-xs rounded-lg transition-all ${
+                                currentPlan === p.id ? "bg-emerald-700 text-white" : "bg-gray-800 text-gray-400 hover:text-gray-300"
+                              }`}
+                            >
+                              {p.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                       <div className="flex gap-2">
                         <button
-                          onClick={() => handleApprove(u.id, 7)}
+                          onClick={() => handleApprove(u.id, 7, eligibleForLite ? currentPlan : "standard")}
                           disabled={!!busy || u.blocked}
                           className="flex-1 py-1.5 bg-blue-700 hover:bg-blue-600 disabled:bg-gray-700 disabled:opacity-50 text-white text-xs rounded-xl transition-all"
                         >
                           {busy === u.id + "_approve7" ? "..." : "+7일"}
                         </button>
                         <button
-                          onClick={() => handleApprove(u.id, 30)}
+                          onClick={() => handleApprove(u.id, 30, eligibleForLite ? currentPlan : "standard")}
                           disabled={!!busy || u.blocked}
                           className="flex-1 py-1.5 bg-green-700 hover:bg-green-600 disabled:bg-gray-700 disabled:opacity-50 text-white text-xs rounded-xl transition-all"
                         >

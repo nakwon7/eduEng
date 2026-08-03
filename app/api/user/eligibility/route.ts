@@ -4,8 +4,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export async function POST(req: NextRequest) {
-  const { userId, sessionToken, targetId } = await req.json();
-  if (!userId || !sessionToken || !targetId) {
+  const { userId, sessionToken } = await req.json();
+  if (!userId || !sessionToken) {
     return NextResponse.json({ error: "Bad request" }, { status: 400 });
   }
 
@@ -13,19 +13,20 @@ export async function POST(req: NextRequest) {
 
   const { data: me } = await admin
     .from("profiles")
-    .select("session_token, username")
+    .select("session_token")
     .eq("id", userId)
     .single();
 
-  if (!me || me.session_token !== sessionToken || me.username !== "gooster") {
+  if (!me || me.session_token !== sessionToken) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { data: history } = await admin
+  const { count, error } = await admin
     .from("payment_history")
-    .select("id, days, approved_at, plan")
-    .eq("user_id", targetId)
-    .order("approved_at", { ascending: false });
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId);
 
-  return NextResponse.json({ history: history || [] });
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  return NextResponse.json({ paymentCount: count ?? 0 });
 }

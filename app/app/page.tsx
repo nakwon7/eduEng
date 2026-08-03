@@ -18,6 +18,8 @@ import TermsModal from "@/components/TermsModal";
 import TutorAvatar from "@/components/TutorAvatar";
 import PaymentNoteInput from "@/components/PaymentNoteInput";
 import PaymentRejectNotice from "@/components/PaymentRejectNotice";
+import MembershipOffer from "@/components/MembershipOffer";
+import { PlanId, planOf } from "@/lib/plans";
 
 type CallState = "idle" | "calling" | "active";
 type View = "home" | "settings" | "admin" | "help";
@@ -49,6 +51,8 @@ export default function Home() {
   const [feedback, setFeedback] = useState<FeedbackData | null>(null);
   const [isFetchingFeedback, setIsFetchingFeedback] = useState(false);
   const [monthlySeconds, setMonthlySeconds] = useState(0);
+  const [plan, setPlan] = useState<PlanId>("standard");
+  const [liteEligible, setLiteEligible] = useState(false);
   const [paymentRequestedAt, setPaymentRequestedAt] = useState<string | null>(null);
   const [requestingPayment, setRequestingPayment] = useState(false);
   const [paymentNote, setPaymentNote] = useState("");
@@ -81,7 +85,7 @@ export default function Home() {
       const storedToken = localStorage.getItem("turingcall_session");
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("name, level, tutor, username, session_token, trial_calls, trial_minutes, expires_at, unlimited, blocked, ko_access, payment_requested_at, payment_reject_reason, streak_count")
+        .select("name, level, tutor, username, session_token, trial_calls, trial_minutes, expires_at, unlimited, blocked, ko_access, payment_requested_at, payment_reject_reason, streak_count, plan")
         .eq("id", session.user.id)
         .single();
 
@@ -109,6 +113,15 @@ export default function Home() {
       setBlocked(profileData.blocked ?? false);
       setPaymentRequestedAt(profileData.payment_requested_at ?? null);
       setPaymentRejectReason(profileData.payment_reject_reason ?? null);
+      setPlan((profileData.plan as PlanId) ?? "standard");
+
+      const eligibilityRes = await fetch("/api/user/eligibility", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: session.user.id, sessionToken: storedToken }),
+      });
+      const eligibilityData = await eligibilityRes.json();
+      setLiteEligible(eligibilityRes.ok && (eligibilityData.paymentCount ?? 0) === 0);
 
       if (!profileData.unlimited) {
         let cycleStart: Date;
@@ -152,13 +165,13 @@ export default function Home() {
     router.push("/login");
   };
 
-  const requestPaymentConfirmation = async () => {
+  const requestPaymentConfirmation = async (requestedPlan: PlanId) => {
     if (!userId || !sessionToken || requestingPayment || !paymentNote.trim()) return;
     setRequestingPayment(true);
     const res = await fetch("/api/payment/request", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, sessionToken, note: paymentNote }),
+      body: JSON.stringify({ userId, sessionToken, note: paymentNote, requestedPlan }),
     });
     if (res.ok) {
       setPaymentRequestedAt(new Date().toISOString());
@@ -176,7 +189,7 @@ export default function Home() {
 
   const isPaid = !!expiresAt && new Date(expiresAt) > new Date();
   const isUnlimited = unlimited;
-  const monthlyLimitReached = !isUnlimited && monthlySeconds >= 54000;
+  const monthlyLimitReached = !isUnlimited && monthlySeconds >= planOf(plan).secondsPerMonth;
   const canMakeCall = !monthlyLimitReached && (isUnlimited || isPaid || trialCalls > 0);
 
   const saveElapsed = useCallback(async () => {
@@ -296,11 +309,11 @@ export default function Home() {
 
   // 일일 30분 한도 자동 종료 (무제한 제외)
   useEffect(() => {
-    if (callState === "active" && !unlimited && monthlySeconds + callDuration >= 54000) {
+    if (callState === "active" && !unlimited && monthlySeconds + callDuration >= planOf(plan).secondsPerMonth) {
       endCall();
-      alert("이번달 사용 시간(900분)을 모두 사용했습니다. 다음달에 다시 이용할 수 있어요.");
+      alert(`이번달 사용 시간(${planOf(plan).minutesPerMonth}분)을 모두 사용했습니다. 다음달에 다시 이용할 수 있어요.`);
     }
-  }, [callDuration, callState, unlimited, monthlySeconds, endCall]);
+  }, [callDuration, callState, unlimited, monthlySeconds, plan, endCall]);
 
   const startCall = useCallback(async () => {
     if (!canMakeCall) return;
@@ -640,6 +653,7 @@ export default function Home() {
               expiresAt={expiresAt}
               userId={userId}
               sessionToken={sessionToken}
+              liteEligible={liteEligible}
             />
           ) : callState === "idle" && (isFetchingFeedback || feedback) ? (
             <CallFeedback
@@ -684,7 +698,7 @@ export default function Home() {
                 )}
                 {!isUnlimited && isPaid && (
                   <p className="text-gray-500 text-xs text-center mb-2">
-                    이번달 {Math.floor(monthlySeconds / 60)}분 사용 · 잔여 {Math.max(0, 900 - Math.floor(monthlySeconds / 60))}분
+                    이번달 {Math.floor(monthlySeconds / 60)}분 사용 · 잔여 {Math.max(0, planOf(plan).minutesPerMonth - Math.floor(monthlySeconds / 60))}분
                   </p>
                 )}
                 {micError && (
@@ -720,7 +734,7 @@ export default function Home() {
               </div>
             ) : monthlyLimitReached ? (
               <div className="space-y-3 text-center py-2">
-                <p className="text-orange-400 text-sm font-medium">이번 결제 주기 사용량(900분)을 모두 사용했습니다</p>
+                <p className="text-orange-400 text-sm font-medium">이번 결제 주기 사용량({planOf(plan).minutesPerMonth}분)을 모두 사용했습니다</p>
                 <p className="text-gray-500 text-xs">
                   {expiresAt
                     ? <>멤버십 갱신 시 초기화돼요 (이용기간 종료: {new Date(expiresAt).toLocaleString("ko-KR", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })})</>
@@ -737,7 +751,7 @@ export default function Home() {
                       {paymentRejectReason && <PaymentRejectNotice reason={paymentRejectReason} lang="ko" />}
                       <PaymentNoteInput value={paymentNote} onChange={setPaymentNote} variant="bankName" />
                       <button
-                        onClick={requestPaymentConfirmation}
+                        onClick={() => requestPaymentConfirmation(plan)}
                         disabled={requestingPayment || !paymentNote.trim()}
                         className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
                       >
@@ -758,35 +772,19 @@ export default function Home() {
             ) : (
               <div className="space-y-3 text-center">
                 <p className="text-white text-sm font-medium">체험 횟수를 모두 사용했습니다</p>
-                <p className="text-gray-400 text-xs leading-relaxed">
-                  멤버십 가입 후 이용하세요<br />월 9,900원 · 매월 900분 제공
-                </p>
+                <p className="text-gray-400 text-xs leading-relaxed">멤버십 가입 후 이용하세요</p>
                 <div className="bg-green-500/5 border border-green-500/15 rounded-xl p-3 text-xs text-gray-300 space-y-1">
-                  <p className="flex items-center gap-1">KB국민은행 758637-00-012739<CopyButton text="758637-00-012739" /></p>
-                  <p>예금주: 송랩</p>
-                  {isPaymentExempt ? null : paymentRequestedAt ? (
-                    <p className="pt-1 text-emerald-400 text-xs">✅ 확인 요청됨 · 관리자 확인 후 곧 승인됩니다</p>
-                  ) : (
-                    <>
-                      {paymentRejectReason && <PaymentRejectNotice reason={paymentRejectReason} lang="ko" />}
-                      <PaymentNoteInput value={paymentNote} onChange={setPaymentNote} variant="bankName" />
-                      <button
-                        onClick={requestPaymentConfirmation}
-                        disabled={requestingPayment || !paymentNote.trim()}
-                        className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
-                      >
-                        {requestingPayment ? "요청 중..." : "✅ 입금 완료, 확인 요청하기"}
-                      </button>
-                    </>
-                  )}
-                  <a
-                    href="https://open.kakao.com/o/sPanl0Ci"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block text-yellow-400 hover:text-yellow-300 pt-1"
-                  >
-                    카카오톡 문의 →
-                  </a>
+                  <MembershipOffer
+                    liteEligible={liteEligible}
+                    paymentRequestedAt={paymentRequestedAt}
+                    requestingPayment={requestingPayment}
+                    onRequestPayment={isPaymentExempt ? undefined : requestPaymentConfirmation}
+                    paymentExempt={isPaymentExempt}
+                    paymentNote={paymentNote}
+                    onPaymentNoteChange={setPaymentNote}
+                    paymentRejectReason={paymentRejectReason}
+                    kakaoLabel="카카오톡 문의 →"
+                  />
                 </div>
               </div>
             )
