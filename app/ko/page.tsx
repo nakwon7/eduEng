@@ -318,7 +318,7 @@ export default function KoPage() {
   useEffect(() => {
     if (callState === "active" && !unlimited && callStartWeeklySecondsRef.current + callDuration >= 12000) {
       endCall();
-      alert("You've used all your time this week (200 minutes). It resets next Monday.");
+      alert("You've used all your time this week (200 minutes).\nIt resets next Monday.");
     }
   }, [callDuration, callState, unlimited, endCall]);
 
@@ -446,7 +446,7 @@ export default function KoPage() {
           });
           const summaryData = await summaryRes.json().catch(() => ({}));
           if (summaryRes.ok) setWeeklySeconds(summaryData.totalSeconds ?? 0);
-          alert("You've used all your call time for this week.");
+          alert("You've used all your call time for this week.\nIt resets next Monday.");
           return;
         }
         if (err.error === "SESSION_EXPIRED") {

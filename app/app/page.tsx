@@ -337,7 +337,7 @@ export default function Home() {
   useEffect(() => {
     if (callState === "active" && !unlimited && callStartMonthlySecondsRef.current + callDuration >= planOf(plan).seconds) {
       endCall();
-      alert(`이번${periodNoun} 사용 시간(${planOf(plan).minutes}분)을 모두 사용했습니다. 다음${periodNoun}에 다시 이용할 수 있어요.`);
+      alert(`이번${periodNoun} 사용 시간(${planOf(plan).minutes}분)을 모두 사용했습니다.\n다음${periodNoun}에 다시 이용할 수 있어요.`);
     }
   }, [callDuration, callState, unlimited, plan, periodNoun, endCall]);
 
@@ -467,7 +467,7 @@ export default function Home() {
           });
           const summaryData = await summaryRes.json().catch(() => ({}));
           if (summaryRes.ok) setMonthlySeconds(summaryData.totalSeconds ?? 0);
-          alert(`이번${periodNoun} 사용 시간(${planOf(plan).minutes}분)을 모두 사용했습니다.`);
+          alert(`이번${periodNoun} 사용 시간(${planOf(plan).minutes}분)을 모두 사용했습니다.\n다음${periodNoun}에 다시 이용할 수 있어요.`);
           return;
         }
         if (err.error === "SESSION_EXPIRED") {
