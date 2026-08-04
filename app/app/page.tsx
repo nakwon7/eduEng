@@ -197,6 +197,7 @@ export default function Home() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, sessionToken, seconds: unsaved, topic: topicRef.current }),
+        keepalive: true, // 탭 숨김/앱 강제종료 직후에도 브라우저가 요청을 이어서 완료시켜줌
       });
       // 성공 확인 후에만 저장 완료로 표시 — 실패 시 다음 저장 시점에 다시 시도됨
       // monthlySeconds도 여기서 같이 올려야 함 — 안 그러면 60초 자동저장분은 서버엔
@@ -239,6 +240,7 @@ export default function Home() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, sessionToken, seconds: unsaved, topic: capturedTopic }),
+        keepalive: true,
       })
         .then((res) => { if (!res.ok) console.error("[call/end] save failed", res.status); })
         .catch((err) => console.error("[call/end] save error", err));
