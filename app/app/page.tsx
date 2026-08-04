@@ -198,7 +198,12 @@ export default function Home() {
         body: JSON.stringify({ userId, sessionToken, seconds: unsaved, topic: topicRef.current }),
       });
       // 성공 확인 후에만 저장 완료로 표시 — 실패 시 다음 저장 시점에 다시 시도됨
-      if (res.ok) lastSavedRef.current = savedBefore + unsaved;
+      // monthlySeconds도 여기서 같이 올려야 함 — 안 그러면 60초 자동저장분은 서버엔
+      // 쌓이는데 화면/한도판정 값엔 반영이 안 돼서 실제 사용량보다 한참 적게 보임
+      if (res.ok) {
+        lastSavedRef.current = savedBefore + unsaved;
+        setMonthlySeconds((prev) => prev + unsaved);
+      }
     } catch {
       // 네트워크 실패 시 lastSavedRef를 건드리지 않아 다음 저장에서 재시도됨
     }
@@ -355,6 +360,18 @@ export default function Home() {
           router.push("/login");
           return;
         }
+        if (err.error === "QUOTA_EXCEEDED") {
+          setCallState("idle");
+          // 클라이언트 표시값이 낙관적 갱신 오차로 실제보다 낮게 남아있을 수 있어 서버 값으로 재동기화
+          const summaryRes = await fetch("/api/usage/summary", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId, sessionToken }),
+          });
+          const summaryData = await summaryRes.json().catch(() => ({}));
+          if (summaryRes.ok) setMonthlySeconds(summaryData.totalSeconds ?? 0);
+          return;
+        }
         // 화면이 새로고침 안 된 채 멤버십/체험 상태가 바뀐 경우(관리자가 만료시킴 등) —
         // 실제로는 권한이 없으니 가짜 인사말로 통화를 이어가지 않고 여기서 멈춘다
         setCallState("idle");
@@ -413,6 +430,18 @@ export default function Home() {
           alert("이용 기간이 만료됐습니다. 관리자에게 문의해 주세요.");
           return;
         }
+        if (err.error === "QUOTA_EXCEEDED") {
+          endCall();
+          const summaryRes = await fetch("/api/usage/summary", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId, sessionToken }),
+          });
+          const summaryData = await summaryRes.json().catch(() => ({}));
+          if (summaryRes.ok) setMonthlySeconds(summaryData.totalSeconds ?? 0);
+          alert(`이번${periodNoun} 사용 시간(${planOf(plan).minutes}분)을 모두 사용했습니다.`);
+          return;
+        }
         if (err.error === "SESSION_EXPIRED") {
           await supabase.auth.signOut();
           router.push("/login");
@@ -447,7 +476,7 @@ export default function Home() {
       setIsAiTyping(false);
       addMessage({ role: "assistant", content: "Sorry, I had a little trouble there. Could you say that again?" });
     }
-  }, [isRecording, stopRecording, addMessage, topic, speak, profile, userId, sessionToken]);
+  }, [isRecording, stopRecording, addMessage, topic, speak, profile, userId, sessionToken, plan, periodNoun, endCall]);
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60);

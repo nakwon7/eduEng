@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { sendTelegramAlert } from "@/lib/telegram";
 import { verifyActiveUser } from "@/lib/auth";
+import { planOf } from "@/lib/plans";
 
 const getGroq = () => new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -40,6 +41,9 @@ export async function POST(req: NextRequest) {
     const auth = await verifyActiveUser(supabaseAdmin(), userId, sessionToken);
     if (!auth.ok) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
+    }
+    if (auth.usedSeconds >= planOf(auth.plan).seconds) {
+      return NextResponse.json({ error: "QUOTA_EXCEEDED" }, { status: 403 });
     }
 
     const levelGuide =

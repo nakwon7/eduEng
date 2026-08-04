@@ -208,7 +208,12 @@ export default function KoPage() {
         body: JSON.stringify({ userId, sessionToken, seconds: unsaved, topic }),
       });
       // 성공 확인 후에만 저장 완료로 표시 — 실패 시 다음 저장 시점에 다시 시도됨
-      if (res.ok) lastSavedRef.current = savedBefore + unsaved;
+      // weeklySeconds도 여기서 같이 올려야 함 — 안 그러면 60초 자동저장분은 서버엔
+      // 쌓이는데 화면/한도판정 값엔 반영이 안 돼서 실제 사용량보다 한참 적게 보임
+      if (res.ok) {
+        lastSavedRef.current = savedBefore + unsaved;
+        setWeeklySeconds((prev) => prev + unsaved);
+      }
     } catch {
       // 네트워크 실패 시 lastSavedRef를 건드리지 않아 다음 저장에서 재시도됨
     }
@@ -336,6 +341,18 @@ export default function KoPage() {
           router.push("/login/ko");
           return;
         }
+        if (err.error === "QUOTA_EXCEEDED") {
+          setCallState("idle");
+          // 클라이언트 표시값이 낙관적 갱신 오차로 실제보다 낮게 남아있을 수 있어 서버 값으로 재동기화
+          const summaryRes = await fetch("/api/usage/summary", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId, sessionToken }),
+          });
+          const summaryData = await summaryRes.json().catch(() => ({}));
+          if (summaryRes.ok) setWeeklySeconds(summaryData.totalSeconds ?? 0);
+          return;
+        }
         setCallState("idle");
         alert("Could not verify your access. Please refresh and try again.");
         return;
@@ -390,6 +407,18 @@ export default function KoPage() {
         if (err.error === "SUBSCRIPTION_EXPIRED") {
           endCall();
           alert("Your membership has expired. Please contact the admin.");
+          return;
+        }
+        if (err.error === "QUOTA_EXCEEDED") {
+          endCall();
+          const summaryRes = await fetch("/api/usage/summary", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId, sessionToken }),
+          });
+          const summaryData = await summaryRes.json().catch(() => ({}));
+          if (summaryRes.ok) setWeeklySeconds(summaryData.totalSeconds ?? 0);
+          alert("You've used all your call time for this week.");
           return;
         }
         if (err.error === "SESSION_EXPIRED") {

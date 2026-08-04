@@ -114,6 +114,9 @@ export async function POST(req: NextRequest) {
     if (!auth.ok) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+    if (auth.usedSeconds >= 12000) {
+      return NextResponse.json({ error: "QUOTA_EXCEEDED" }, { status: 403 });
+    }
 
     const levelGuide =
       profile?.level === "beginner"
