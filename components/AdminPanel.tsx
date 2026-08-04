@@ -484,8 +484,12 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                   // 신규 첫 결제이거나, 이미 라이트를 이용 중(만료 전)인 조기결제 케이스에만 라이트 허용
                   const isMidCycleLite = u.plan === "lite" && activeMembership;
                   const eligibleForLite = u.payment_count === 0 || isMidCycleLite;
+                  // 결제이력을 전부 삭제하면 expires_at이 null이 되어 isMidCycleLite가 꺼지는데,
+                  // u.plan은 여전히 "lite"로 남아있는 경우가 있어 그 상태를 기본 선택에도 반영한다.
+                  // 안 그러면 버튼 기본값이 조용히 "스탠다드"로 바뀌어서, 관리자가 라이트를 다시
+                  // 안 누르고 그냥 승인하면 라이트 유저가 의도치 않게 스탠다드로 전환돼버린다.
                   const currentPlan: PlanId =
-                    selectedPlan[u.id] ?? (isMidCycleLite || u.requested_plan === "lite" ? "lite" : "standard");
+                    selectedPlan[u.id] ?? (isMidCycleLite || u.requested_plan === "lite" || u.plan === "lite" ? "lite" : "standard");
                   const liteSelected = eligibleForLite && currentPlan === "lite";
                   return (
                     <div className="space-y-2 pt-1">
