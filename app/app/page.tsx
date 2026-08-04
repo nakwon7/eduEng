@@ -928,13 +928,15 @@ export default function Home() {
           </div>
         )}
 
-        {/* 사업자 정보 */}
-        <div className="px-4 pb-4 text-center space-y-0.5">
-          <p className="text-gray-700 text-xs">송랩 · 사업자등록번호: 857-28-01961</p>
-          <p className="text-gray-700 text-xs">
-            <button onClick={() => setShowTerms(true)} className="underline hover:text-gray-500">이용약관 및 개인정보처리방침</button>
-          </p>
-        </div>
+        {/* 사업자 정보 — 통화 중엔 화면을 깔끔하게 유지하기 위해 숨김 */}
+        {callState === "idle" && (
+          <div className="px-4 pb-4 text-center space-y-0.5">
+            <p className="text-gray-700 text-xs">송랩 · 사업자등록번호: 857-28-01961</p>
+            <p className="text-gray-700 text-xs">
+              <button onClick={() => setShowTerms(true)} className="underline hover:text-gray-500">이용약관 및 개인정보처리방침</button>
+            </p>
+          </div>
+        )}
 
         {showTerms && <TermsModal onClose={() => setShowTerms(false)} />}
 

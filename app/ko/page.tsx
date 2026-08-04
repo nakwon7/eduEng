@@ -1070,13 +1070,15 @@ export default function KoPage() {
           )}
         </div>
 
-        {/* Business Info */}
-        <div className="px-4 pb-4 text-center space-y-0.5">
-          <p className="text-gray-700 text-xs">SongLab · Business Reg. No.: 857-28-01961</p>
-          <p className="text-gray-700 text-xs">
-            <button onClick={() => setShowTerms(true)} className="hover:text-gray-500">Terms &amp; Privacy Policy</button>
-          </p>
-        </div>
+        {/* Business Info — hidden during calls to keep the call screen clean */}
+        {callState === "idle" && (
+          <div className="px-4 pb-4 text-center space-y-0.5">
+            <p className="text-gray-700 text-xs">SongLab · Business Reg. No.: 857-28-01961</p>
+            <p className="text-gray-700 text-xs">
+              <button onClick={() => setShowTerms(true)} className="hover:text-gray-500">Terms &amp; Privacy Policy</button>
+            </p>
+          </div>
+        )}
 
         {showTerms && <TermsModalEn onClose={() => setShowTerms(false)} />}
 
