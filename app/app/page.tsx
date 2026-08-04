@@ -65,6 +65,7 @@ export default function Home() {
   const callDurationRef = useRef(0);
   const lastSavedRef = useRef(0);
   const callStateRef = useRef<CallState>("idle");
+  const callStartMonthlySecondsRef = useRef(0);
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const messagesRef = useRef<Message[]>([]);
@@ -307,12 +308,15 @@ export default function Home() {
   }, [callDuration, callState, trialMinutes, endCall]);
 
   // 일일 30분 한도 자동 종료 (무제한 제외)
+  // monthlySeconds는 60초 자동저장 때마다도 갱신되기 때문에(saveElapsed) 여기서 그대로 쓰면
+  // 이번 통화 경과분이 monthlySeconds와 callDuration 양쪽에 겹쳐 들어가 이중으로 카운트된다.
+  // 통화 시작 시점에 고정해둔 baseline(콜스타트 시점의 monthlySeconds)만 더한다.
   useEffect(() => {
-    if (callState === "active" && !unlimited && monthlySeconds + callDuration >= planOf(plan).seconds) {
+    if (callState === "active" && !unlimited && callStartMonthlySecondsRef.current + callDuration >= planOf(plan).seconds) {
       endCall();
       alert(`이번${periodNoun} 사용 시간(${planOf(plan).minutes}분)을 모두 사용했습니다. 다음${periodNoun}에 다시 이용할 수 있어요.`);
     }
-  }, [callDuration, callState, unlimited, monthlySeconds, plan, periodNoun, endCall]);
+  }, [callDuration, callState, unlimited, plan, periodNoun, endCall]);
 
   const startCall = useCallback(async () => {
     if (!canMakeCall) return;
@@ -388,10 +392,11 @@ export default function Home() {
     setCallDuration(0);
     callDurationRef.current = 0;
     lastSavedRef.current = 0;
+    callStartMonthlySecondsRef.current = monthlySeconds;
     timerRef.current = setInterval(() => setCallDuration((d) => d + 1), 1000);
     addMessage({ role: "assistant", content: greeting });
     speak(greeting, effectiveTutor === "rachel" ? "female" : "male");
-  }, [topic, addMessage, speak, profile, unlockTTS, canMakeCall, isPaid, username, userId, sessionToken, router]);
+  }, [topic, addMessage, speak, profile, unlockTTS, canMakeCall, isPaid, username, userId, sessionToken, router, monthlySeconds]);
 
   const handleMicPress = useCallback(async () => {
     if (isRecording || isSpeaking) return;

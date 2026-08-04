@@ -113,6 +113,7 @@ export default function KoPage() {
   const membershipAlertTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isTrialCallRef = useRef(false);
   const lastSavedRef = useRef(0);
+  const callStartWeeklySecondsRef = useRef(0);
 
   const { isRecording, isTranscribing, startRecording, stopRecording, consumeRateLimited } = useAudioRecorderKo();
   const { speak, stop: stopSpeaking, unlock: unlockTTS, isSpeaking } = useKoreanSpeech();
@@ -288,12 +289,15 @@ export default function KoPage() {
   }, [callDuration, callState, trialMinutes, endCall]);
 
   // 주간 200분 한도 자동 종료 (무제한 제외)
+  // weeklySeconds는 60초 자동저장 때마다도 갱신되므로(saveElapsed) 여기서 그대로 쓰면
+  // 이번 통화 경과분이 weeklySeconds와 callDuration 양쪽에 겹쳐 이중 카운트된다.
+  // 통화 시작 시점에 고정해둔 baseline만 더한다.
   useEffect(() => {
-    if (callState === "active" && !unlimited && weeklySeconds + callDuration >= 12000) {
+    if (callState === "active" && !unlimited && callStartWeeklySecondsRef.current + callDuration >= 12000) {
       endCall();
       alert("You've used all your time this week (200 minutes). It resets next Monday.");
     }
-  }, [callDuration, callState, unlimited, weeklySeconds, endCall]);
+  }, [callDuration, callState, unlimited, endCall]);
 
   const startCall = useCallback(async () => {
     if (!canMakeCall) return;
@@ -366,11 +370,12 @@ export default function KoPage() {
     setCallState("active");
     setCallDuration(0);
     callDurationRef.current = 0;
+    callStartWeeklySecondsRef.current = weeklySeconds;
     timerRef.current = setInterval(() => setCallDuration((d) => d + 1), 1000);
 
     addMessage({ role: "assistant", content: greeting });
     speak(greeting, effectiveTutor === "jia" ? "female" : "male");
-  }, [topic, addMessage, speak, profile, unlockTTS, effectiveTutor, canMakeCall, isPaid, isUnlimited, userId, sessionToken, router]);
+  }, [topic, addMessage, speak, profile, unlockTTS, effectiveTutor, canMakeCall, isPaid, isUnlimited, userId, sessionToken, router, weeklySeconds]);
 
   const handleMicPress = useCallback(async () => {
     if (isRecording || isSpeaking) return;
