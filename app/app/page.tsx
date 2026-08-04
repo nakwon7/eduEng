@@ -211,6 +211,21 @@ export default function Home() {
     }
   }, [userId, sessionToken]);
 
+  // 탭 숨김/앱 강제종료 시점 전용 저장 — fetch(keepalive)는 iOS Safari/PWA에서
+  // 페이지가 죽는 타이밍과 경쟁해서 실제로는 잘 안 먹히는 경우가 확인됨.
+  // sendBeacon은 브라우저가 페이지 종료 이후에도 전송을 보장해주는 표준 API라 이 시점엔 이걸 씀.
+  // 응답을 기다릴 수 없는 fire-and-forget이라 성공 여부와 무관하게 낙관적으로 반영한다.
+  const saveOnExit = useCallback(() => {
+    if (!userId || !sessionToken || callStateRef.current !== "active") return;
+    const savedBefore = lastSavedRef.current;
+    const unsaved = callDurationRef.current - savedBefore;
+    if (unsaved <= 0) return;
+    const payload = JSON.stringify({ userId, sessionToken, seconds: unsaved, topic: topicRef.current });
+    navigator.sendBeacon("/api/call/end", new Blob([payload], { type: "application/json" }));
+    lastSavedRef.current = savedBefore + unsaved;
+    setMonthlySeconds((prev) => prev + unsaved);
+  }, [userId, sessionToken]);
+
   const addMessage = useCallback((msg: Message) => {
     messagesRef.current = [...messagesRef.current, msg];
     setMessages([...messagesRef.current]);
@@ -285,14 +300,19 @@ export default function Home() {
     return () => { if (callEndedNoticeTimerRef.current) clearTimeout(callEndedNoticeTimerRef.current); };
   }, []);
 
-  // 탭 전환/전화 착신 시 즉시 저장
+  // 탭 전환/전화 착신/앱 강제종료 시 즉시 저장 — visibilitychange와 pagehide 둘 다 걸어서
+  // 브라우저/OS마다 다르게 동작해도 최대한 한쪽에서라도 걸리게 함
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.visibilityState === "hidden") saveElapsed();
+      if (document.visibilityState === "hidden") saveOnExit();
     };
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [saveElapsed]);
+    window.addEventListener("pagehide", saveOnExit);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("pagehide", saveOnExit);
+    };
+  }, [saveOnExit]);
 
   // 60초마다 주기적 저장
   useEffect(() => {
