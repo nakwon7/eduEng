@@ -111,12 +111,15 @@ export default function LandingPage() {
         <div className="bg-green-500/5 rounded-2xl p-6 text-center border border-green-500/40">
           <p className="text-green-400 text-xs font-medium mb-1">런칭 특가</p>
           <p className="text-4xl font-bold mb-1">9,900<span className="text-xl">원</span></p>
-          <p className="text-gray-400 text-sm mb-4">/ 월 · 매월 900분 제공</p>
+          <p className="text-gray-400 text-sm mb-4">/ 월 · 매월 600분 제공</p>
           <div className="bg-gray-900/60 rounded-xl p-3 text-xs text-gray-300 text-left space-y-1">
             <p className="text-green-400 font-medium mb-2">무료 체험 포함</p>
             <p>✅ 가입 즉시 2회 무료 통화 (회당 5분)</p>
-            <p>✅ 체험 후 멤버십 가입하면 매월 900분 이용</p>
+            <p>✅ 체험 후 멤버십 가입하면 매월 600분 이용</p>
           </div>
+          <p className="text-gray-500 text-xs mt-3">
+            첫 결제는 <span className="text-white font-medium">주 5,000원 · 주140분 라이트</span> 요금제로 더 가볍게 시작할 수도 있어요
+          </p>
         </div>
       </div>
 

@@ -46,14 +46,14 @@ export default function MembershipOffer({
               }`}
             >
               <div className="font-medium text-sm">{p.label}</div>
-              <div className="text-xs opacity-80">{p.priceWon.toLocaleString()}원 · 월 {p.minutesPerMonth}분</div>
+              <div className="text-xs opacity-80">{p.priceWon.toLocaleString()}원 · {p.periodLabel} {p.minutes}분</div>
             </button>
           ))}
         </div>
       ) : (
         <div className="flex items-baseline gap-1">
           <span className="text-white text-lg font-bold">{PLANS.standard.priceWon.toLocaleString()}원</span>
-          <span className="text-gray-500 text-xs">/ 월 · 매월 {PLANS.standard.minutesPerMonth}분 제공</span>
+          <span className="text-gray-500 text-xs">/ 월 · 매월 {PLANS.standard.minutes}분 제공</span>
         </div>
       )}
       <p className="text-gray-500 text-xs flex items-center gap-1">

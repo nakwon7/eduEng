@@ -181,7 +181,8 @@ export default function Home() {
 
   const isPaid = !!expiresAt && new Date(expiresAt) > new Date();
   const isUnlimited = unlimited;
-  const monthlyLimitReached = !isUnlimited && monthlySeconds >= planOf(plan).secondsPerMonth;
+  const periodNoun = planOf(plan).periodLabel === "주" ? "주" : "달";
+  const monthlyLimitReached = !isUnlimited && monthlySeconds >= planOf(plan).seconds;
   const canMakeCall = !monthlyLimitReached && (isUnlimited || isPaid || trialCalls > 0);
 
   const saveElapsed = useCallback(async () => {
@@ -301,11 +302,11 @@ export default function Home() {
 
   // 일일 30분 한도 자동 종료 (무제한 제외)
   useEffect(() => {
-    if (callState === "active" && !unlimited && monthlySeconds + callDuration >= planOf(plan).secondsPerMonth) {
+    if (callState === "active" && !unlimited && monthlySeconds + callDuration >= planOf(plan).seconds) {
       endCall();
-      alert(`이번달 사용 시간(${planOf(plan).minutesPerMonth}분)을 모두 사용했습니다. 다음달에 다시 이용할 수 있어요.`);
+      alert(`이번${periodNoun} 사용 시간(${planOf(plan).minutes}분)을 모두 사용했습니다. 다음${periodNoun}에 다시 이용할 수 있어요.`);
     }
-  }, [callDuration, callState, unlimited, monthlySeconds, plan, endCall]);
+  }, [callDuration, callState, unlimited, monthlySeconds, plan, periodNoun, endCall]);
 
   const startCall = useCallback(async () => {
     if (!canMakeCall) return;
@@ -706,7 +707,7 @@ export default function Home() {
                 )}
                 {!isUnlimited && isPaid && (
                   <p className="text-gray-500 text-xs text-center mb-2">
-                    이번달 {Math.floor(monthlySeconds / 60)}분 사용 · 잔여 {Math.max(0, planOf(plan).minutesPerMonth - Math.floor(monthlySeconds / 60))}분
+                    이번{periodNoun} {Math.floor(monthlySeconds / 60)}분 사용 · 잔여 {Math.max(0, planOf(plan).minutes - Math.floor(monthlySeconds / 60))}분
                   </p>
                 )}
                 {micError && (
@@ -742,7 +743,7 @@ export default function Home() {
               </div>
             ) : monthlyLimitReached ? (
               <div className="space-y-3 text-center py-2">
-                <p className="text-orange-400 text-sm font-medium">이번 결제 주기 사용량({planOf(plan).minutesPerMonth}분)을 모두 사용했습니다</p>
+                <p className="text-orange-400 text-sm font-medium">이번 결제 주기 사용량({planOf(plan).minutes}분)을 모두 사용했습니다</p>
                 <p className="text-gray-500 text-xs">
                   {expiresAt
                     ? <>멤버십 갱신 시 초기화돼요 (이용기간 종료: {new Date(expiresAt).toLocaleString("ko-KR", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })})</>
