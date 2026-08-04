@@ -147,11 +147,41 @@ export default function LandingPage() {
         </a>
 
         {/* 홈 화면 추가 안내 */}
-        <div className="bg-gray-900 border border-white/5 rounded-2xl p-4 text-xs text-gray-400 space-y-2">
-          <p className="text-white text-xs font-semibold">📲 앱처럼 설치하기 (무료 · 앱스토어 불필요)</p>
-          <p>🍎 <span className="text-gray-300">iPhone</span> — Safari에서 접속 → 하단 공유(□↑) → 홈 화면에 추가</p>
-          <p>🤖 <span className="text-gray-300">Android</span> — Chrome에서 접속 → 우상단 메뉴(⋮) → 홈 화면에 추가</p>
-          <p>💻 <span className="text-gray-300">PC / 기타 브라우저</span> — 주소창 오른쪽 설치(⊕) 버튼 클릭</p>
+        <div className="bg-gray-900 border border-white/5 rounded-2xl p-4 text-xs text-gray-400 space-y-3">
+          <div className="flex items-center gap-1.5">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 text-green-400">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            <p className="text-white text-xs font-semibold">앱처럼 설치하기 (무료 · 앱스토어 불필요)</p>
+          </div>
+          <div className="flex items-start gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-gray-800 flex items-center justify-center shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" fill="currentColor" className="w-3.5 h-3.5 text-gray-300">
+                <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
+              </svg>
+            </div>
+            <p className="pt-1"><span className="text-gray-300">iPhone</span> — Safari에서 접속 → 하단 공유(□↑) → 홈 화면에 추가</p>
+          </div>
+          <div className="flex items-start gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-gray-800 flex items-center justify-center shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="currentColor" className="w-4 h-4 text-green-400">
+                <path d="M420.55 301.93a24 24 0 1 1 24-24 24 24 0 0 1-24 24m-265.1 0a24 24 0 1 1 24-24 24 24 0 0 1-24 24m273.7-144.48 47.94-83a10 10 0 1 0-17.27-10l-48.54 84.07a301.25 301.25 0 0 0-246.56 0L116.18 64.45a10 10 0 1 0-17.27 10l47.94 83C64.53 202.22 8.24 285.55 0 384h576c-8.24-98.45-64.54-181.78-146.85-226.55" />
+              </svg>
+            </div>
+            <p className="pt-1"><span className="text-gray-300">Android</span> — Chrome에서 접속 → 우상단 메뉴(⋮) → 홈 화면에 추가</p>
+          </div>
+          <div className="flex items-start gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-gray-800 flex items-center justify-center shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 text-gray-300">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                <line x1="8" y1="21" x2="16" y2="21" />
+                <line x1="12" y1="17" x2="12" y2="21" />
+              </svg>
+            </div>
+            <p className="pt-1"><span className="text-gray-300">PC / 기타 브라우저</span> — 주소창 오른쪽 설치(⊕) 버튼 클릭</p>
+          </div>
         </div>
       </div>
 
