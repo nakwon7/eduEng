@@ -547,14 +547,14 @@ export default function KoPage() {
                   localStorage.removeItem("turingcall_session");
                   router.push("/login/ko");
                 }}
-                className="text-gray-300 hover:text-white text-xs [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]"
+                className="whitespace-nowrap text-gray-300 hover:text-white text-xs [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]"
               >
                 {showHelp || showSetup || username === "gooster" ? "← Back" : "Logout"}
               </button>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-shrink-0">
                 <button
                   onClick={() => { setShowSetup(false); setShowHelp(!showHelp); }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-700/80 hover:bg-gray-600/80 active:scale-95 backdrop-blur-sm ring-1 ring-white/10 rounded-xl text-gray-200 text-xs font-medium transition-all"
+                  className="whitespace-nowrap flex items-center gap-1 px-2.5 py-1.5 bg-gray-700/80 hover:bg-gray-600/80 active:scale-95 backdrop-blur-sm ring-1 ring-white/10 rounded-xl text-gray-200 text-xs font-medium transition-all"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
                     <circle cx="12" cy="12" r="9" />
@@ -565,7 +565,7 @@ export default function KoPage() {
                 </button>
                 <button
                   onClick={() => { setShowHelp(false); setShowSetup(!showSetup); }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-700/80 hover:bg-gray-600/80 active:scale-95 backdrop-blur-sm ring-1 ring-white/10 rounded-xl text-gray-200 text-xs font-medium transition-all"
+                  className="whitespace-nowrap flex items-center gap-1 px-2.5 py-1.5 bg-gray-700/80 hover:bg-gray-600/80 active:scale-95 backdrop-blur-sm ring-1 ring-white/10 rounded-xl text-gray-200 text-xs font-medium transition-all"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
                     <circle cx="12" cy="12" r="3" />
