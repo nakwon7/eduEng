@@ -34,9 +34,12 @@ export async function POST(req: NextRequest) {
     .single();
   const isMidCycleLite = target?.plan === "lite" && !!target?.expires_at && new Date(target.expires_at) > new Date();
   const finalPlan = plan === "lite" && (isLiteEligible(count ?? 0) || isMidCycleLite) ? "lite" : "standard";
+  // 라이트는 주간(7일) 사이클 플랜이라 그 외 일수로 승인되면 cycle_baseline_seconds가
+  // 다음 승인 전까지 갱신되지 않아 "주140분"이 사실상 "30일에 140분"이 되어버림 — 서버가 강제로 7일 고정
+  const finalDays = finalPlan === "lite" ? 7 : days;
 
   const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + days);
+  expiresAt.setDate(expiresAt.getDate() + finalDays);
 
   // 승인 시점의 누적 사용량을 스냅샷으로 남겨서, 이번 사이클 사용량 = total_seconds - cycle_baseline_seconds로
   // 계산할 수 있게 한다. 승인 전(체험 등) 사용량이 새 사이클 사용량으로 잘못 합산되는 걸 방지.
@@ -57,7 +60,7 @@ export async function POST(req: NextRequest) {
 
   const { error: historyError } = await admin
     .from("payment_history")
-    .insert({ user_id: targetId, days, plan: finalPlan });
+    .insert({ user_id: targetId, days: finalDays, plan: finalPlan });
   if (historyError) console.error("payment_history insert failed:", historyError.message);
 
   return NextResponse.json({ ok: true });

@@ -486,6 +486,7 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                   const eligibleForLite = u.payment_count === 0 || isMidCycleLite;
                   const currentPlan: PlanId =
                     selectedPlan[u.id] ?? (isMidCycleLite || u.requested_plan === "lite" ? "lite" : "standard");
+                  const liteSelected = eligibleForLite && currentPlan === "lite";
                   return (
                     <div className="space-y-2 pt-1">
                       {eligibleForLite && (
@@ -503,6 +504,9 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                           ))}
                         </div>
                       )}
+                      {liteSelected && (
+                        <p className="text-gray-500 text-xs">라이트는 7일 단위로만 승인돼요</p>
+                      )}
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleApprove(u.id, 7, eligibleForLite ? currentPlan : "standard")}
@@ -513,7 +517,7 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                         </button>
                         <button
                           onClick={() => handleApprove(u.id, 30, eligibleForLite ? currentPlan : "standard")}
-                          disabled={!!busy || u.blocked}
+                          disabled={!!busy || u.blocked || liteSelected}
                           className="flex-1 py-1.5 bg-green-700 hover:bg-green-600 disabled:bg-gray-700 disabled:opacity-50 text-white text-xs rounded-xl transition-all"
                         >
                           {busy === u.id + "_approve30" ? "..." : "+30일"}
