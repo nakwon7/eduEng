@@ -39,6 +39,14 @@ export default function LandingPage() {
           원어민 AI 튜터 Alex · Rachel과 실시간 영어 대화.<br />
           언제 어디서나 스마트폰으로 전화영어를 경험하세요.
         </p>
+        <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-500/10 border border-green-500/30 rounded-full text-green-400 text-xs font-medium">
+            📞 진짜 전화처럼 대화
+          </span>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 rounded-full text-emerald-400 text-xs font-medium">
+            📋 통화 후 AI 피드백 리포트
+          </span>
+        </div>
       </div>
 
       {/* Features */}
