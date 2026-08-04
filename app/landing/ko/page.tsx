@@ -33,6 +33,14 @@ export default function LandingKoPage() {
           Have real Korean conversations with AI tutors MinJun & Jia.<br />
           Practice anytime, anywhere — right from your phone.
         </p>
+        <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/10 border border-blue-500/30 rounded-full text-blue-400 text-xs font-medium">
+            📞 Real phone-style calls
+          </span>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-500/10 border border-indigo-500/30 rounded-full text-indigo-400 text-xs font-medium">
+            💡 Real-time grammar tips
+          </span>
+        </div>
       </div>
 
       {/* Features */}
