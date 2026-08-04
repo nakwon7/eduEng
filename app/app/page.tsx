@@ -19,7 +19,7 @@ import TutorAvatar from "@/components/TutorAvatar";
 import PaymentNoteInput from "@/components/PaymentNoteInput";
 import PaymentRejectNotice from "@/components/PaymentRejectNotice";
 import MembershipOffer from "@/components/MembershipOffer";
-import { PlanId, planOf } from "@/lib/plans";
+import { PLANS, PlanId, planOf } from "@/lib/plans";
 
 type CallState = "idle" | "calling" | "active";
 type View = "home" | "settings" | "admin" | "help";
@@ -53,6 +53,7 @@ export default function Home() {
   const [monthlySeconds, setMonthlySeconds] = useState(0);
   const [plan, setPlan] = useState<PlanId>("standard");
   const [liteEligible, setLiteEligible] = useState(false);
+  const [earlyRenewPlan, setEarlyRenewPlan] = useState<PlanId>("lite");
   const [paymentRequestedAt, setPaymentRequestedAt] = useState<string | null>(null);
   const [requestingPayment, setRequestingPayment] = useState(false);
   const [paymentNote, setPaymentNote] = useState("");
@@ -743,13 +744,35 @@ export default function Home() {
               </div>
             ) : monthlyLimitReached ? (
               <div className="space-y-3 text-center py-2">
-                <p className="text-orange-400 text-sm font-medium">이번 결제 주기 사용량({planOf(plan).minutes}분)을 모두 사용했습니다</p>
+                <p className="text-orange-400 text-sm font-medium">이번{periodNoun} 사용 시간({planOf(plan).minutes}분)을 모두 사용했습니다</p>
                 <p className="text-gray-500 text-xs">
                   {expiresAt
                     ? <>멤버십 갱신 시 초기화돼요 (이용기간 종료: {new Date(expiresAt).toLocaleString("ko-KR", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })})</>
-                    : "다음달 1일부터 다시 이용할 수 있어요"}
+                    : `다음${periodNoun}에 다시 이용할 수 있어요`}
                 </p>
-                <p className="text-gray-400 text-xs">지금 더 이용하고 싶으면 조기 결제할 수 있어요</p>
+                <p className="text-gray-400 text-xs">
+                  {plan === "lite"
+                    ? "지금 더 이용하려면 조기 결제할 수 있어요 · 라이트를 이어가거나 스탠다드로 바꿀 수 있어요"
+                    : "지금 더 이용하고 싶으면 조기 결제할 수 있어요"}
+                </p>
+                {plan === "lite" && !isPaymentExempt && !paymentRequestedAt && (
+                  <div className="grid grid-cols-2 gap-2">
+                    {Object.values(PLANS).map((p) => (
+                      <button
+                        key={p.id}
+                        onClick={() => setEarlyRenewPlan(p.id)}
+                        className={`px-3 py-2 rounded-xl border text-left transition-all ${
+                          earlyRenewPlan === p.id
+                            ? "bg-gradient-to-r from-green-600 to-emerald-500 border-transparent text-white shadow-md shadow-green-900/30"
+                            : "bg-green-500/5 border-green-500/10 text-gray-300 hover:bg-green-500/10"
+                        }`}
+                      >
+                        <div className="font-medium text-sm">{p.label}</div>
+                        <div className="text-xs opacity-80">{p.priceWon.toLocaleString()}원 · {p.periodLabel} {p.minutes}분</div>
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <div className="bg-green-500/5 border border-green-500/15 rounded-xl p-3 text-xs text-gray-300 space-y-1">
                   <p className="flex items-center justify-center gap-1">KB국민은행 758637-00-012739<CopyButton text="758637-00-012739" /></p>
                   <p>예금주: 송랩</p>
@@ -760,7 +783,7 @@ export default function Home() {
                       {paymentRejectReason && <PaymentRejectNotice reason={paymentRejectReason} lang="ko" />}
                       <PaymentNoteInput value={paymentNote} onChange={setPaymentNote} variant="bankName" />
                       <button
-                        onClick={() => requestPaymentConfirmation(plan)}
+                        onClick={() => requestPaymentConfirmation(plan === "lite" ? earlyRenewPlan : "standard")}
                         disabled={requestingPayment || !paymentNote.trim()}
                         className="w-full mt-1 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg"
                       >
