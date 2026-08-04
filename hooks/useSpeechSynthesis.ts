@@ -120,6 +120,10 @@ export function useSpeechSynthesis(): UseSpeechSynthesisReturn {
         fallbackTimerRef.current = setTimeout(done, estimatedMs);
 
         window.speechSynthesis.speak(utterance);
+        // 크롬/안드로이드 TTS가 발화 시작 0.1초 정도를 작은 볼륨으로 재생하는 현상에 대한
+        // 알려진 우회법 — speak 직후 pause/resume을 한 번 걸어주면 정상 볼륨으로 시작함
+        window.speechSynthesis.pause();
+        window.speechSynthesis.resume();
       };
 
       const voices = window.speechSynthesis.getVoices();
