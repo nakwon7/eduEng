@@ -90,9 +90,13 @@ export function useKoreanSpeech(): UseKoreanSpeechReturn {
         fallbackTimerRef.current = setTimeout(done, estimatedMs);
         window.speechSynthesis.speak(utterance);
         // 크롬/안드로이드 TTS가 발화 시작 0.1초 정도를 작은 볼륨으로 재생하는 현상에 대한
-        // 알려진 우회법 — speak 직후 pause/resume을 한 번 걸어주면 정상 볼륨으로 시작함
-        window.speechSynthesis.pause();
-        window.speechSynthesis.resume();
+        // PC 전용 우회법 — 모바일에서는 이 pause/resume이 음성을 아예 멈춰버리는
+        // 부작용이 확인되어 데스크톱에서만 적용
+        const isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        if (!isMobileDevice) {
+          window.speechSynthesis.pause();
+          window.speechSynthesis.resume();
+        }
       };
 
       const voices = window.speechSynthesis.getVoices();
