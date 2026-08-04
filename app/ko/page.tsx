@@ -630,7 +630,7 @@ export default function KoPage() {
                   color: "bg-red-500/15 text-red-400",
                   cardTint: "bg-red-500/5 border-red-500/15",
                   icon: <><path d="M22.63 16.75l-3.7-.5a2 2 0 0 0-1.71.53l-1.75 1.75a15.7 15.7 0 0 1-6.8-6.8l1.75-1.75a2 2 0 0 0 .53-1.71l-.5-3.7A2 2 0 0 0 8.46 2H5.5A2 2 0 0 0 3.5 4.24" /><line x1="1" y1="1" x2="23" y2="23" /></>,
-                  title: "End Call", desc: "Tap the red button to end the call.\n⚠️ Please don't force-close the app — always end the call with this button so your call time is recorded correctly.",
+                  title: "End Call", desc: "Tap the red button to end the call.\n⚠️ Force-closing the app can skip saving that call, which may break your streak — please always end the call with this button.",
                 },
                 {
                   color: "bg-slate-500/15 text-slate-300",
