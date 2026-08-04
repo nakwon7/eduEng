@@ -314,10 +314,11 @@ export default function Home() {
     };
   }, [saveOnExit]);
 
-  // 60초마다 주기적 저장
+  // 30초마다 주기적 저장 — 강제종료 시 visibilitychange/pagehide/sendBeacon 전부 안 걸리는
+  // 환경이 실기기 테스트로 확인돼서, 종료 시점 훅에 의존하지 않고 주기를 줄여 유실량 자체를 최소화
   useEffect(() => {
     if (callState !== "active") return;
-    const interval = setInterval(saveElapsed, 60000);
+    const interval = setInterval(saveElapsed, 30000);
     return () => clearInterval(interval);
   }, [callState, saveElapsed]);
 
