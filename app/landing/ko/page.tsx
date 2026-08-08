@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import KbAuthMark from "@/components/KbAuthMark";
 
 export default function LandingKoPage() {
   const router = useRouter();
@@ -178,7 +177,6 @@ export default function LandingKoPage() {
       <div className="border-t border-gray-900 px-6 py-6 text-center space-y-1.5">
         <p className="text-gray-700 text-xs">SongLab | Business Reg. No.: 857-28-01961</p>
         <a href="/terms/en" className="text-gray-600 text-xs hover:text-gray-400 underline">Terms of Service · Privacy Policy</a>
-        <KbAuthMark />
       </div>
     </main>
   );
