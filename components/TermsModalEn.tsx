@@ -1,5 +1,7 @@
 "use client";
 
+import KbAuthMark from "./KbAuthMark";
+
 interface TermsModalEnProps {
   onClose: () => void;
 }
@@ -129,6 +131,7 @@ export default function TermsModalEn({ onClose }: TermsModalEnProps) {
           <p className="font-medium text-gray-500">Business Information</p>
           <p>Company: SongLab | Business Registration No.: 857-28-01961</p>
           <p>Service: TuringCall (turingcall-ten.vercel.app)</p>
+          <KbAuthMark />
         </section>
       </div>
     </div>

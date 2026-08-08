@@ -1,6 +1,7 @@
 "use client";
 
 import CopyButton from "./CopyButton";
+import KbAuthMark from "./KbAuthMark";
 
 interface TermsModalProps {
   onClose: () => void;
@@ -135,6 +136,7 @@ export default function TermsModal({ onClose }: TermsModalProps) {
           <p className="font-medium text-gray-500">사업자 정보</p>
           <p>상호: 송랩 | 사업자등록번호: 857-28-01961</p>
           <p>서비스명: 튜링콜 (turingcall.vercel.app)</p>
+          <KbAuthMark />
         </section>
       </div>
     </div>
