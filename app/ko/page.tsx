@@ -528,7 +528,7 @@ export default function KoPage() {
                 src={`/tutors/bg/${monthlyBg.file}`}
                 alt={monthlyBg.label}
                 fill
-                className="object-cover object-[center_25%]"
+                className="object-cover object-top"
                 priority
               />
               <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/60 to-transparent" />
