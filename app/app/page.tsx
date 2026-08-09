@@ -545,7 +545,7 @@ export default function Home() {
                 priority
               />
               <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/60 to-transparent" />
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent via-45% to-gray-900/95" />
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent via-35% to-gray-900/95" />
             </>
           )}
           <div className="relative z-10">
