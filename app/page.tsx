@@ -36,12 +36,12 @@ export default function LandingPage() {
         <h1 className="text-3xl font-bold mb-2">튜링콜</h1>
         <p className="text-green-400 text-lg font-medium mb-4">AI 전화영어</p>
         <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
-          원어민 AI 튜터 Alex · Rachel과 실시간 영어 대화.<br />
-          언제 어디서나 스마트폰으로 전화영어를 경험하세요.
+          틀려도 괜찮아요, 바로 짚어드리니까.<br />
+          AI 튜터 Alex · Rachel과 매일 통화하며 실수를 줄여보세요.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-500/10 border border-green-500/30 rounded-full text-green-400 text-xs font-medium">
-            📞 진짜 전화처럼 대화
+            ✏️ 말하자마자 바로 교정
           </span>
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 rounded-full text-emerald-400 text-xs font-medium">
             📋 통화 후 AI 피드백 리포트
@@ -58,8 +58,8 @@ export default function LandingPage() {
             ),
             accent: "bg-blue-500/15 text-blue-400",
             cardTint: "bg-blue-500/5 border-blue-500/15",
-            title: "실시간 AI 전화영어",
-            desc: "AI 튜터 Alex · Rachel과 실제 전화 통화처럼 대화",
+            title: "실시간 AI 영어 통화",
+            desc: "AI 튜터 Alex · Rachel과 대화하며 실수를 바로 교정받아요",
           },
           {
             icon: (
@@ -72,8 +72,8 @@ export default function LandingPage() {
             ),
             accent: "bg-violet-500/15 text-violet-400",
             cardTint: "bg-violet-500/5 border-violet-500/15",
-            title: "음성 인식",
-            desc: "말하면 바로 인식, 자연스러운 대화 흐름",
+            title: "실시간 음성 인식",
+            desc: "말하면 바로 인식하고, 어색한 표현은 그 자리에서 짚어드려요",
           },
           {
             icon: (

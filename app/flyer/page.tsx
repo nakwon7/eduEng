@@ -91,7 +91,7 @@ export default function FlyerPage() {
         {/* 특징 3가지 */}
         <div style={{ display: "flex", gap: "4mm", width: "100%", marginBottom: "10mm" }}>
           {[
-            { icon: "📞", title: "실시간 AI 전화영어", desc: "실제 전화 통화처럼 AI 튜터와 대화" },
+            { icon: "📞", title: "실시간 AI 영어 통화", desc: "대화하다 틀리면 AI가 바로 짚어줘요" },
             { icon: "🎙️", title: "음성 인식 & 교정", desc: "말하면 바로 인식, 문법 교정 제공" },
             { icon: "📚", title: "다양한 주제", desc: "일상·비즈니스·여행 등 상황별 대화" },
           ].map((f) => (

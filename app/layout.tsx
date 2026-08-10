@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "튜링콜 - AI 전화영어",
-  description: "AI 튜터와 함께하는 실시간 전화영어",
+  description: "실수하면 바로 짚어주는 AI 튜터와 매일 영어로 통화 연습",
   appleWebApp: {
     title: "튜링콜",
   },
