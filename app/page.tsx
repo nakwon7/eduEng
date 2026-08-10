@@ -35,9 +35,10 @@ export default function LandingPage() {
         </div>
         <h1 className="text-3xl font-bold mb-2">튜링콜</h1>
         <p className="text-green-400 text-lg font-medium mb-4">AI 전화영어</p>
-        <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
+        <p className="text-gray-400 text-sm leading-relaxed max-w-xs break-keep">
           틀려도 괜찮아요, 바로 짚어드리니까.<br />
-          AI 튜터 Alex · Rachel과 매일 통화하며 실수를 줄여보세요.
+          AI 튜터 Alex · Rachel과 매일 통화하며<br />
+          실수를 줄여보세요.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-500/10 border border-green-500/30 rounded-full text-green-400 text-xs font-medium">
