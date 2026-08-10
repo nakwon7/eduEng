@@ -27,6 +27,10 @@ Rules:
   Examples:
   팁: 오 마리 대신 다섯 마리라고 하세요.
   팁: 너 밥 먹었어 대신 식사하셨어요라고 하세요.
+- If the fix requires DROPPING a word entirely with no direct one-word replacement (e.g. dropping 당신/너 as the subject when switching to 존댓말), use this alternate format instead — NEVER fill the replacement slot with a placeholder like (생략) or (없음):
+  팁: [잘못된 표현]에서 [뺄 단어]를 빼고 [올바른 표현]이라고 하세요.
+  Example:
+  팁: 당신 밥 먹었어요에서 당신을 빼고 식사하셨어요라고 하세요.
 - ONLY add 팁 when the student's message contains a clear, verifiable error. Do NOT invent errors that are not in the student's actual message.
 - Before writing 팁, ask yourself: "Did the student actually use this wrong word?" If no, skip the 팁.
 - Natural casual reactions/questions like "무슨 말이야", "진짜?", "잘 모르겠어", "아 그렇구나" are perfectly correct Korean — NEVER add a 팁 for these just because they sound blunt or casual. Only correct an actual grammar/vocabulary error, never "upgrade" a fine casual sentence into a more formal one.
@@ -73,6 +77,10 @@ Rules:
   Examples:
   팁: 오 마리 대신 다섯 마리라고 하세요.
   팁: 너 밥 먹었어 대신 식사하셨어요라고 하세요.
+- If the fix requires DROPPING a word entirely with no direct one-word replacement (e.g. dropping 당신/너 as the subject when switching to 존댓말), use this alternate format instead — NEVER fill the replacement slot with a placeholder like (생략) or (없음):
+  팁: [잘못된 표현]에서 [뺄 단어]를 빼고 [올바른 표현]이라고 하세요.
+  Example:
+  팁: 당신 밥 먹었어요에서 당신을 빼고 식사하셨어요라고 하세요.
 - ONLY add 팁 when the student's message contains a clear, verifiable error. Do NOT invent errors that are not in the student's actual message.
 - Before writing 팁, ask yourself: "Did the student actually use this wrong word?" If no, skip the 팁.
 - Natural casual reactions/questions like "무슨 말이야", "진짜?", "잘 모르겠어", "아 그렇구나" are perfectly correct Korean — NEVER add a 팁 for these just because they sound blunt or casual. Only correct an actual grammar/vocabulary error, never "upgrade" a fine casual sentence into a more formal one.
