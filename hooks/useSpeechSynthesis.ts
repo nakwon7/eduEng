@@ -41,6 +41,7 @@ export function useSpeechSynthesis(): UseSpeechSynthesisReturn {
         src.buffer = buf;
         src.connect(ctx.destination);
         src.start(0);
+        setTimeout(() => ctx.close().catch(() => {}), 500);
       }
     } catch { /* ignore */ }
 
