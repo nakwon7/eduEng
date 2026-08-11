@@ -95,9 +95,12 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
   }, []);
 
   const handleApprove = async (targetId: string, days: number, plan: PlanId) => {
-    setBusy(targetId + "_approve" + days);
     const rawMinutes = customMinutesInput[targetId]?.trim();
     const customMinutes = rawMinutes ? Number(rawMinutes) : null;
+    const minutesLabel = customMinutes ?? PLANS[plan].minutes;
+    if (!window.confirm(`${PLANS[plan].label} ${days}일 · ${minutesLabel}분으로 승인할까요?`)) return;
+
+    setBusy(targetId + "_approve" + days);
     await fetch("/api/admin/approve", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
