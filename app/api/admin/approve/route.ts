@@ -5,7 +5,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { isLiteEligible } from "@/lib/plans";
 
 export async function POST(req: NextRequest) {
-  const { userId, sessionToken, targetId, days = 30, plan = "standard" } = await req.json();
+  const { userId, sessionToken, targetId, days = 30, plan = "standard", customMinutes = null } = await req.json();
 
   const admin = supabaseAdmin();
 
@@ -53,6 +53,7 @@ export async function POST(req: NextRequest) {
       payment_requested_at: null,
       payment_reject_reason: null,
       cycle_baseline_seconds: target?.total_seconds ?? 0,
+      custom_minutes: Number.isFinite(customMinutes) && customMinutes > 0 ? customMinutes : null,
     })
     .eq("id", targetId);
 

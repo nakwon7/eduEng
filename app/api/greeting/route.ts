@@ -4,7 +4,7 @@ import Groq from "groq-sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { verifyActiveUser } from "@/lib/auth";
-import { planOf } from "@/lib/plans";
+import { effectiveSeconds } from "@/lib/plans";
 
 const getGroq = () => new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     }
 
     const isKorean = tutor === "minjun" || tutor === "jia";
-    const quotaSeconds = isKorean ? 12000 : planOf(auth.plan).seconds;
+    const quotaSeconds = isKorean ? 12000 : effectiveSeconds(auth.plan, auth.customMinutes);
     if (auth.usedSeconds >= quotaSeconds) {
       return NextResponse.json({ error: "QUOTA_EXCEEDED" }, { status: 403 });
     }

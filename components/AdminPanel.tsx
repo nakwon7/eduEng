@@ -21,6 +21,7 @@ interface User {
   payment_count: number;
   plan: PlanId;
   requested_plan: PlanId | null;
+  custom_minutes: number | null;
 }
 
 interface AdminPanelProps {
@@ -68,6 +69,7 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
   const [expandedPaymentId, setExpandedPaymentId] = useState<string | null>(null);
   const [paymentHistory, setPaymentHistory] = useState<Record<string, { id: string; days: number; approved_at: string; plan: PlanId }[]>>({});
   const [selectedPlan, setSelectedPlan] = useState<Record<string, PlanId>>({});
+  const [customMinutesInput, setCustomMinutesInput] = useState<Record<string, string>>({});
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -94,10 +96,12 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
 
   const handleApprove = async (targetId: string, days: number, plan: PlanId) => {
     setBusy(targetId + "_approve" + days);
+    const rawMinutes = customMinutesInput[targetId]?.trim();
+    const customMinutes = rawMinutes ? Number(rawMinutes) : null;
     await fetch("/api/admin/approve", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, sessionToken, targetId, days, plan }),
+      body: JSON.stringify({ userId, sessionToken, targetId, days, plan, customMinutes }),
     });
     // 결제이력 캐시를 무효화하고 다시 불러옴 — 안 그러면 승인 전에 이미 펼쳐본 적
     // 있는 유저는 방금 추가된 이력이 빠진 예전 목록이 계속 보임(펼침 상태일 때만
@@ -511,6 +515,19 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                       {liteSelected && (
                         <p className="text-gray-500 text-xs">라이트는 7일 단위로만 승인돼요</p>
                       )}
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          min={0}
+                          placeholder={`분량(분) 직접입력 — 기본 ${PLANS[currentPlan].minutes}분`}
+                          value={customMinutesInput[u.id] ?? ""}
+                          onChange={(e) => setCustomMinutesInput((prev) => ({ ...prev, [u.id]: e.target.value }))}
+                          className="flex-1 min-w-0 py-1.5 px-2 bg-gray-800 text-gray-200 placeholder-gray-600 text-xs rounded-xl border border-gray-700 focus:outline-none focus:border-emerald-600"
+                        />
+                        {u.custom_minutes != null && (
+                          <span className="text-emerald-500 text-xs whitespace-nowrap">현재 {u.custom_minutes}분 적용중</span>
+                        )}
+                      </div>
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleApprove(u.id, 7, eligibleForLite ? currentPlan : "standard")}

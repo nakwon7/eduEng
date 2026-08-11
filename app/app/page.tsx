@@ -19,7 +19,7 @@ import TutorAvatar from "@/components/TutorAvatar";
 import PaymentNoteInput from "@/components/PaymentNoteInput";
 import PaymentRejectNotice from "@/components/PaymentRejectNotice";
 import MembershipOffer from "@/components/MembershipOffer";
-import { PLANS, PlanId, planOf } from "@/lib/plans";
+import { PLANS, PlanId, planOf, effectiveSeconds, effectiveMinutes } from "@/lib/plans";
 
 type CallState = "idle" | "calling" | "active";
 type View = "home" | "settings" | "admin" | "help";
@@ -52,6 +52,7 @@ export default function Home() {
   const [isFetchingFeedback, setIsFetchingFeedback] = useState(false);
   const [monthlySeconds, setMonthlySeconds] = useState(0);
   const [plan, setPlan] = useState<PlanId>("standard");
+  const [customMinutes, setCustomMinutes] = useState<number | null>(null);
   const [liteEligible, setLiteEligible] = useState(false);
   const [earlyRenewPlan, setEarlyRenewPlan] = useState<PlanId>("lite");
   const [paymentRequestedAt, setPaymentRequestedAt] = useState<string | null>(null);
@@ -87,7 +88,7 @@ export default function Home() {
       const storedToken = localStorage.getItem("turingcall_session");
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("name, level, tutor, username, session_token, trial_calls, trial_minutes, expires_at, unlimited, blocked, ko_access, payment_requested_at, payment_reject_reason, streak_count, plan")
+        .select("name, level, tutor, username, session_token, trial_calls, trial_minutes, expires_at, unlimited, blocked, ko_access, payment_requested_at, payment_reject_reason, streak_count, plan, custom_minutes")
         .eq("id", session.user.id)
         .single();
 
@@ -116,6 +117,7 @@ export default function Home() {
       setPaymentRequestedAt(profileData.payment_requested_at ?? null);
       setPaymentRejectReason(profileData.payment_reject_reason ?? null);
       setPlan((profileData.plan as PlanId) ?? "standard");
+      setCustomMinutes(profileData.custom_minutes ?? null);
 
       const eligibilityRes = await fetch("/api/user/eligibility", {
         method: "POST",
@@ -184,7 +186,7 @@ export default function Home() {
   const isPaid = !!expiresAt && new Date(expiresAt) > new Date();
   const isUnlimited = unlimited;
   const periodNoun = planOf(plan).periodLabel === "주" ? "주" : "달";
-  const monthlyLimitReached = !isUnlimited && monthlySeconds >= planOf(plan).seconds;
+  const monthlyLimitReached = !isUnlimited && monthlySeconds >= effectiveSeconds(plan, customMinutes);
   const canMakeCall = !monthlyLimitReached && (isUnlimited || isPaid || trialCalls > 0);
 
   const saveElapsed = useCallback(async () => {
@@ -335,11 +337,11 @@ export default function Home() {
   // 이번 통화 경과분이 monthlySeconds와 callDuration 양쪽에 겹쳐 들어가 이중으로 카운트된다.
   // 통화 시작 시점에 고정해둔 baseline(콜스타트 시점의 monthlySeconds)만 더한다.
   useEffect(() => {
-    if (callState === "active" && !unlimited && callStartMonthlySecondsRef.current + callDuration >= planOf(plan).seconds) {
+    if (callState === "active" && !unlimited && callStartMonthlySecondsRef.current + callDuration >= effectiveSeconds(plan, customMinutes)) {
       endCall();
-      alert(`이번${periodNoun} 사용 시간(${planOf(plan).minutes}분)을 모두 사용했습니다.\n다음${periodNoun}에 다시 이용할 수 있어요.`);
+      alert(`이번${periodNoun} 사용 시간(${effectiveMinutes(plan, customMinutes)}분)을 모두 사용했습니다.\n다음${periodNoun}에 다시 이용할 수 있어요.`);
     }
-  }, [callDuration, callState, unlimited, plan, periodNoun, endCall]);
+  }, [callDuration, callState, unlimited, plan, customMinutes, periodNoun, endCall]);
 
   const startCall = useCallback(async () => {
     if (!canMakeCall) return;
@@ -467,7 +469,7 @@ export default function Home() {
           });
           const summaryData = await summaryRes.json().catch(() => ({}));
           if (summaryRes.ok) setMonthlySeconds(summaryData.totalSeconds ?? 0);
-          alert(`이번${periodNoun} 사용 시간(${planOf(plan).minutes}분)을 모두 사용했습니다.\n다음${periodNoun}에 다시 이용할 수 있어요.`);
+          alert(`이번${periodNoun} 사용 시간(${effectiveMinutes(plan, customMinutes)}분)을 모두 사용했습니다.\n다음${periodNoun}에 다시 이용할 수 있어요.`);
           return;
         }
         if (err.error === "SESSION_EXPIRED") {
@@ -504,7 +506,7 @@ export default function Home() {
       setIsAiTyping(false);
       addMessage({ role: "assistant", content: "Sorry, I had a little trouble there. Could you say that again?" });
     }
-  }, [isRecording, stopRecording, addMessage, topic, speak, profile, userId, sessionToken, plan, periodNoun, endCall]);
+  }, [isRecording, stopRecording, addMessage, topic, speak, profile, userId, sessionToken, plan, customMinutes, periodNoun, endCall]);
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60);
@@ -769,7 +771,7 @@ export default function Home() {
                 )}
                 {!isUnlimited && isPaid && (
                   <p className="text-gray-500 text-xs text-center mb-2">
-                    이번{periodNoun} {Math.floor(monthlySeconds / 60)}분 사용 · 잔여 {Math.max(0, planOf(plan).minutes - Math.floor(monthlySeconds / 60))}분
+                    이번{periodNoun} {Math.floor(monthlySeconds / 60)}분 사용 · 잔여 {Math.max(0, effectiveMinutes(plan, customMinutes) - Math.floor(monthlySeconds / 60))}분
                   </p>
                 )}
                 {micError && (
@@ -805,7 +807,7 @@ export default function Home() {
               </div>
             ) : monthlyLimitReached ? (
               <div className="space-y-3 text-center py-2">
-                <p className="text-orange-400 text-sm font-medium">이번{periodNoun} 사용 시간({planOf(plan).minutes}분)을 모두 사용했습니다</p>
+                <p className="text-orange-400 text-sm font-medium">이번{periodNoun} 사용 시간({effectiveMinutes(plan, customMinutes)}분)을 모두 사용했습니다</p>
                 <p className="text-gray-500 text-xs">
                   {expiresAt
                     ? <>멤버십 갱신 시 초기화돼요 (이용기간 종료: {new Date(expiresAt).toLocaleString("ko-KR", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })})</>

@@ -18,6 +18,15 @@ export function planOf(plan: string | null | undefined): PlanConfig {
   return PLANS[plan as PlanId] ?? PLANS.standard;
 }
 
+// 관리자가 유저별로 분량을 직접 지정한 경우(customMinutes) 플랜 기본값 대신 그 값을 쓴다.
+export function effectiveMinutes(plan: string | null | undefined, customMinutes?: number | null): number {
+  return customMinutes ?? planOf(plan).minutes;
+}
+
+export function effectiveSeconds(plan: string | null | undefined, customMinutes?: number | null): number {
+  return effectiveMinutes(plan, customMinutes) * 60;
+}
+
 export function isLiteEligible(paymentCount: number): boolean {
   return paymentCount === 0;
 }

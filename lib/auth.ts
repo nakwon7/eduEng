@@ -1,7 +1,7 @@
 import { supabaseAdmin } from "@/lib/supabase";
 
 export type AuthCheckResult =
-  | { ok: true; usedSeconds: number; plan: string | null }
+  | { ok: true; usedSeconds: number; plan: string | null; customMinutes: number | null }
   | { ok: false; error: string; status: number };
 
 // AI/음성 API(채팅, 인사말, 피드백, 전사)에 공통으로 쓰는 인증 체크.
@@ -20,7 +20,7 @@ export async function verifyActiveUser(
 
   const { data } = await admin
     .from("profiles")
-    .select("session_token, expires_at, unlimited, blocked, trial_calls, plan, total_seconds, cycle_baseline_seconds")
+    .select("session_token, expires_at, unlimited, blocked, trial_calls, plan, total_seconds, cycle_baseline_seconds, custom_minutes")
     .eq("id", userId)
     .single();
 
@@ -38,5 +38,5 @@ export async function verifyActiveUser(
   }
 
   const usedSeconds = data.unlimited ? 0 : Math.max(0, (data.total_seconds ?? 0) - (data.cycle_baseline_seconds ?? 0));
-  return { ok: true, usedSeconds, plan: data.plan ?? null };
+  return { ok: true, usedSeconds, plan: data.plan ?? null, customMinutes: data.custom_minutes ?? null };
 }
