@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { PLANS, PlanId } from "@/lib/plans";
+import { PLANS, PlanId, effectiveMinutes } from "@/lib/plans";
 
 interface User {
   id: string;
@@ -22,6 +22,12 @@ interface User {
   plan: PlanId;
   requested_plan: PlanId | null;
   custom_minutes: number | null;
+  cycle_baseline_seconds: number | null;
+}
+
+function remainingMinutes(u: User): number {
+  const usedSeconds = Math.max(0, (u.total_seconds ?? 0) - (u.cycle_baseline_seconds ?? 0));
+  return Math.max(0, effectiveMinutes(u.plan, u.custom_minutes) - Math.floor(usedSeconds / 60));
 }
 
 interface AdminPanelProps {
@@ -44,7 +50,11 @@ function formatTime(seconds: number) {
 
 function statusLabel(u: User) {
   if (u.unlimited) return { text: "무제한", color: "text-purple-400" };
-  if (u.expires_at && new Date(u.expires_at) > new Date()) return { text: "멤버십", color: "text-green-400" };
+  if (u.expires_at && new Date(u.expires_at) > new Date()) {
+    const minutes = effectiveMinutes(u.plan, u.custom_minutes);
+    const customTag = u.custom_minutes != null ? " · 커스텀" : "";
+    return { text: `멤버십 (${PLANS[u.plan]?.label ?? u.plan} · ${minutes}분${customTag})`, color: "text-green-400" };
+  }
   if (u.trial_calls > 0) return { text: `체험 ${u.trial_calls}회 남음`, color: "text-yellow-400" };
   return { text: "체험 소진", color: "text-red-400" };
 }
@@ -426,7 +436,7 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
 
                 {u.expires_at && new Date(u.expires_at) > new Date() && (
                   <p className="text-gray-500 text-xs">
-                    만료: {new Date(u.expires_at).toLocaleDateString("ko-KR")}
+                    만료: {new Date(u.expires_at).toLocaleDateString("ko-KR")} · 잔여 {remainingMinutes(u)}분 / {effectiveMinutes(u.plan, u.custom_minutes)}분
                   </p>
                 )}
                 <button
