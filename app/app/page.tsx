@@ -64,6 +64,8 @@ export default function Home() {
   const callEndedNoticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [freezeNotice, setFreezeNotice] = useState<string | null>(null);
   const freezeNoticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [freezeCelebration, setFreezeCelebration] = useState<{ count: number; freezesRemaining: number } | null>(null);
+  const freezeCelebrationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isTrialCallRef = useRef(false);
   const topicRef = useRef(topic);
   const callDurationRef = useRef(0);
@@ -193,14 +195,19 @@ export default function Home() {
   const monthlyLimitReached = !isUnlimited && monthlySeconds >= effectiveSeconds(plan, customMinutes);
   const canMakeCall = !monthlyLimitReached && (isUnlimited || isPaid || trialCalls > 0);
 
-  const applyStreakUpdate = useCallback((streak?: { count: number; freezeUsed: boolean; freezesRemaining: number }) => {
+  const applyStreakUpdate = useCallback((streak?: { count: number; freezeUsed: boolean; freezesRemaining: number; freezeEarned: boolean }) => {
     if (!streak) return;
     setStreakCount(streak.count);
     setStreakFreezes(streak.freezesRemaining);
     if (streak.freezeUsed) {
-      setFreezeNotice(`❄️ 프리즈로 스트릭을 지켰어요 · 잔여 ${streak.freezesRemaining}개`);
+      setFreezeNotice(`❄️ 프리즈로 스트릭을 지켰어요 · 보유 ${streak.freezesRemaining}개`);
       if (freezeNoticeTimerRef.current) clearTimeout(freezeNoticeTimerRef.current);
       freezeNoticeTimerRef.current = setTimeout(() => setFreezeNotice(null), 3200);
+    }
+    if (streak.freezeEarned) {
+      setFreezeCelebration({ count: streak.count, freezesRemaining: streak.freezesRemaining });
+      if (freezeCelebrationTimerRef.current) clearTimeout(freezeCelebrationTimerRef.current);
+      freezeCelebrationTimerRef.current = setTimeout(() => setFreezeCelebration(null), 4500);
     }
   }, []);
 
@@ -323,6 +330,7 @@ export default function Home() {
     return () => {
       if (callEndedNoticeTimerRef.current) clearTimeout(callEndedNoticeTimerRef.current);
       if (freezeNoticeTimerRef.current) clearTimeout(freezeNoticeTimerRef.current);
+      if (freezeCelebrationTimerRef.current) clearTimeout(freezeCelebrationTimerRef.current);
     };
   }, []);
 
@@ -650,7 +658,7 @@ export default function Home() {
               {showStreakInfo && (
                 <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-64 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-300 text-left shadow-lg z-10 space-y-1">
                   <p>짧게라도 하루 한 번 통화하면 연속일수가 올라가요.</p>
-                  <p>❄️ 프리즈가 있으면 하루 못해도 스트릭이 안 끊겨요. 7일 연속마다 1개씩 쌓이고 최대 2개까지 보유할 수 있어요.</p>
+                  <p>❄️ 프리즈가 있으면 하루 못해도 스트릭이 안 끊겨요. 7일 연속마다 1개씩 계속 쌓여요.</p>
                 </div>
               )}
             </div>
@@ -994,6 +1002,46 @@ export default function Home() {
             {freezeNotice}
           </div>
         </div>
+
+        {freezeCelebration && (
+          <div
+            className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm overflow-hidden"
+            onClick={() => setFreezeCelebration(null)}
+          >
+            {Array.from({ length: 16 }).map((_, i) => (
+              <span
+                key={i}
+                className="snowflake absolute text-2xl select-none"
+                style={{
+                  left: `${(i * 6.3) % 100}%`,
+                  top: "-8%",
+                  animationName: "snowfall",
+                  animationDuration: `${2.4 + (i % 5) * 0.4}s`,
+                  animationDelay: `${i * 0.12}s`,
+                  animationTimingFunction: "linear",
+                  animationIterationCount: "infinite",
+                }}
+              >
+                ❄️
+              </span>
+            ))}
+            <div
+              className="badge-pop-el relative bg-gray-900 border border-cyan-500/40 rounded-3xl px-8 py-8 mx-6 text-center shadow-2xl"
+              style={{ animation: "badge-pop 0.5s ease-out" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="text-6xl mb-3">❄️</div>
+              <p className="text-white text-lg font-bold">{freezeCelebration.count}일 연속 달성!</p>
+              <p className="text-cyan-300 text-sm mt-1">프리즈를 얻었어요 · 보유 {freezeCelebration.freezesRemaining}개</p>
+              <button
+                onClick={() => setFreezeCelebration(null)}
+                className="mt-5 px-5 py-2 bg-gradient-to-r from-cyan-600 to-blue-500 hover:from-cyan-500 hover:to-blue-400 text-white rounded-xl text-sm font-semibold transition-all active:scale-95"
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );

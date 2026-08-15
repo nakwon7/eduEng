@@ -51,6 +51,7 @@ export async function POST(req: NextRequest) {
         count: streakRows[0].streak_count,
         freezeUsed: streakRows[0].freeze_used,
         freezesRemaining: streakRows[0].freezes_remaining,
+        freezeEarned: streakRows[0].freeze_earned,
       }
     : undefined;
 
