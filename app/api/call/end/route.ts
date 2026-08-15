@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, logError: error.message });
   }
 
-  const { error: streakError } = await admin.rpc("bump_streak", {
+  const { data: streakRows, error: streakError } = await admin.rpc("bump_streak", {
     p_user_id: userId,
     p_date: today,
   });
@@ -46,5 +46,13 @@ export async function POST(req: NextRequest) {
     console.error("[call/end] bump_streak error:", streakError);
   }
 
-  return NextResponse.json({ ok: true });
+  const streak = streakRows?.[0]
+    ? {
+        count: streakRows[0].streak_count,
+        freezeUsed: streakRows[0].freeze_used,
+        freezesRemaining: streakRows[0].freezes_remaining,
+      }
+    : undefined;
+
+  return NextResponse.json({ ok: true, streak });
 }

@@ -38,6 +38,7 @@ export default function Home() {
   const [username, setUsername] = useState<string | null>(null);
   const [trialCalls, setTrialCalls] = useState<number>(0);
   const [streakCount, setStreakCount] = useState<number>(0);
+  const [streakFreezes, setStreakFreezes] = useState<number>(0);
   const [trialMinutes, setTrialMinutes] = useState<number>(5);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [unlimited, setUnlimited] = useState(false);
@@ -61,6 +62,8 @@ export default function Home() {
   const [paymentRejectReason, setPaymentRejectReason] = useState<string | null>(null);
   const [showCallEndedNotice, setShowCallEndedNotice] = useState(false);
   const callEndedNoticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [freezeNotice, setFreezeNotice] = useState<string | null>(null);
+  const freezeNoticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isTrialCallRef = useRef(false);
   const topicRef = useRef(topic);
   const callDurationRef = useRef(0);
@@ -88,7 +91,7 @@ export default function Home() {
       const storedToken = localStorage.getItem("turingcall_session");
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("name, level, tutor, username, session_token, trial_calls, trial_minutes, expires_at, unlimited, blocked, ko_access, payment_requested_at, payment_reject_reason, streak_count, plan, custom_minutes")
+        .select("name, level, tutor, username, session_token, trial_calls, trial_minutes, expires_at, unlimited, blocked, ko_access, payment_requested_at, payment_reject_reason, streak_count, streak_freezes, plan, custom_minutes")
         .eq("id", session.user.id)
         .single();
 
@@ -111,6 +114,7 @@ export default function Home() {
       setTrialCalls(profileData.trial_calls ?? 0);
       setTrialMinutes(profileData.trial_minutes ?? 5);
       setStreakCount(profileData.streak_count ?? 0);
+      setStreakFreezes(profileData.streak_freezes ?? 0);
       setExpiresAt(profileData.expires_at ?? null);
       setUnlimited(profileData.unlimited ?? false);
       setBlocked(profileData.blocked ?? false);
@@ -189,6 +193,17 @@ export default function Home() {
   const monthlyLimitReached = !isUnlimited && monthlySeconds >= effectiveSeconds(plan, customMinutes);
   const canMakeCall = !monthlyLimitReached && (isUnlimited || isPaid || trialCalls > 0);
 
+  const applyStreakUpdate = useCallback((streak?: { count: number; freezeUsed: boolean; freezesRemaining: number }) => {
+    if (!streak) return;
+    setStreakCount(streak.count);
+    setStreakFreezes(streak.freezesRemaining);
+    if (streak.freezeUsed) {
+      setFreezeNotice(`❄️ 프리즈로 스트릭을 지켰어요 · 잔여 ${streak.freezesRemaining}개`);
+      if (freezeNoticeTimerRef.current) clearTimeout(freezeNoticeTimerRef.current);
+      freezeNoticeTimerRef.current = setTimeout(() => setFreezeNotice(null), 3200);
+    }
+  }, []);
+
   const saveElapsed = useCallback(async () => {
     if (!userId || !sessionToken || callStateRef.current !== "active") return;
     const savedBefore = lastSavedRef.current;
@@ -207,11 +222,13 @@ export default function Home() {
       if (res.ok) {
         lastSavedRef.current = savedBefore + unsaved;
         setMonthlySeconds((prev) => prev + unsaved);
+        const data = await res.json().catch(() => null);
+        applyStreakUpdate(data?.streak);
       }
     } catch {
       // 네트워크 실패 시 lastSavedRef를 건드리지 않아 다음 저장에서 재시도됨
     }
-  }, [userId, sessionToken]);
+  }, [userId, sessionToken, applyStreakUpdate]);
 
   // 탭 숨김/앱 강제종료 시점 전용 저장 — fetch(keepalive)는 iOS Safari/PWA에서
   // 페이지가 죽는 타이밍과 경쟁해서 실제로는 잘 안 먹히는 경우가 확인됨.
@@ -259,7 +276,11 @@ export default function Home() {
         body: JSON.stringify({ userId, sessionToken, seconds: unsaved, topic: capturedTopic }),
         keepalive: true,
       })
-        .then((res) => { if (!res.ok) console.error("[call/end] save failed", res.status); })
+        .then(async (res) => {
+          if (!res.ok) { console.error("[call/end] save failed", res.status); return; }
+          const data = await res.json().catch(() => null);
+          applyStreakUpdate(data?.streak);
+        })
         .catch((err) => console.error("[call/end] save error", err));
       setMonthlySeconds((prev) => prev + unsaved);
     }
@@ -296,10 +317,13 @@ export default function Home() {
       if (callEndedNoticeTimerRef.current) clearTimeout(callEndedNoticeTimerRef.current);
       callEndedNoticeTimerRef.current = setTimeout(() => setShowCallEndedNotice(false), 3200);
     }
-  }, [stopSpeaking, userId, sessionToken, topic, profile]);
+  }, [stopSpeaking, userId, sessionToken, topic, profile, applyStreakUpdate]);
 
   useEffect(() => {
-    return () => { if (callEndedNoticeTimerRef.current) clearTimeout(callEndedNoticeTimerRef.current); };
+    return () => {
+      if (callEndedNoticeTimerRef.current) clearTimeout(callEndedNoticeTimerRef.current);
+      if (freezeNoticeTimerRef.current) clearTimeout(freezeNoticeTimerRef.current);
+    };
   }, []);
 
   // 탭 전환/전화 착신/앱 강제종료 시 즉시 저장 — visibilitychange와 pagehide 둘 다 걸어서
@@ -614,10 +638,19 @@ export default function Home() {
                     🔥 {streakCount}일 연속 통화중 <span className="text-gray-400">ⓘ</span>
                   </button>
                 )}
+                {streakFreezes > 0 && (
+                  <button
+                    onClick={() => setShowStreakInfo((v) => !v)}
+                    className="ml-2 text-cyan-300"
+                  >
+                    ❄️ {streakFreezes}
+                  </button>
+                )}
               </p>
               {showStreakInfo && (
-                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-56 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-300 text-left shadow-lg z-10">
-                  짧게라도 하루 한 번 통화하면 연속일수가 올라가요.
+                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-64 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-300 text-left shadow-lg z-10 space-y-1">
+                  <p>짧게라도 하루 한 번 통화하면 연속일수가 올라가요.</p>
+                  <p>❄️ 프리즈가 있으면 하루 못해도 스트릭이 안 끊겨요. 7일 연속마다 1개씩 쌓이고 최대 2개까지 보유할 수 있어요.</p>
                 </div>
               )}
             </div>
@@ -949,6 +982,16 @@ export default function Home() {
         >
           <div className="bg-gray-800 border border-green-700 text-white text-xs px-4 py-3 rounded-xl shadow-xl max-w-[260px] text-center">
             통화가 종료되었어요.<br />대화를 조금 더 나누면 피드백을 받을 수 있어요.
+          </div>
+        </div>
+
+        <div
+          className={`fixed left-1/2 bottom-40 z-50 -translate-x-1/2 transition-all duration-300 ease-out ${
+            freezeNotice ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"
+          }`}
+        >
+          <div className="bg-gray-800 border border-cyan-700 text-white text-xs px-4 py-3 rounded-xl shadow-xl max-w-[260px] text-center">
+            {freezeNotice}
           </div>
         </div>
       </div>
