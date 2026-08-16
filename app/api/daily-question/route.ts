@@ -4,14 +4,31 @@ import Groq from "groq-sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { verifyActiveUser } from "@/lib/auth";
+import { getDailyItem } from "@/lib/dailyTopic";
 
 const getGroq = () => new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 const FALLBACK = { ko: "요즘 재밌게 보고 있는 게 있어요?", en: "Is there anything you've been enjoying lately?" };
 
-const PROMPT = `You're writing a "question of the day" for a Korean student practicing English on a phone-call tutoring app.
+// 앱 안에 이미 "영화/드라마" 토픽 카테고리(TOPICS)가 따로 있어서 겹치지 않게 여기서는 제외.
+// 날짜 기반으로 하나씩 순환시켜 매일 다른 소재를 쓰게 강제 — 안 그러면 모델이 계속 드라마/OTT 쪽으로만 답하는 경향이 있었음.
+const CATEGORIES = [
+  "K-pop / 아이돌 소식",
+  "연예인 근황이나 화제",
+  "부동산 / 집값",
+  "물가나 장바구니 경제",
+  "주식 / 재테크 트렌드",
+  "여행 / 여가 트렌드",
+  "IT 기기나 앱 트렌드",
+  "스포츠 이슈",
+];
 
-Come up with ONE small-talk question inspired by the kind of entertainment or economy topic that might be buzzing in Korea these days (a movie, a drama, a celebrity, prices, real estate, trends, etc). This is NOT a real news lookup — just write a plausible, generic, safe topic from your own knowledge. Avoid anything that could be outdated, overly specific, controversial, or a named person you're unsure about.
+function buildPrompt(category: string) {
+  return `You're writing a "question of the day" for a Korean student practicing English on a phone-call tutoring app.
+
+Today's category is: ${category}
+
+Come up with ONE small-talk question inspired by the kind of topic in that category that might be buzzing in Korea these days. This is NOT a real news lookup — just write a plausible, generic, safe topic from your own knowledge. Avoid anything that could be outdated, overly specific, controversial, or a named person you're unsure about. Do NOT write about movies or TV dramas — that's a separate topic in this app.
 
 The question must be easy for a beginner-to-intermediate English learner to answer in a sentence or two.
 
@@ -20,6 +37,7 @@ Line 1: the question in Korean
 Line 2: the same question in English
 
 No numbering, no quotes, no explanation.`;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -31,12 +49,13 @@ export async function POST(req: NextRequest) {
     }
 
     try {
+      const category = getDailyItem(CATEGORIES);
       const completion = await getGroq().chat.completions.create({
         model: "openai/gpt-oss-120b",
         reasoning_effort: "low",
         max_tokens: 150,
         stream: false,
-        messages: [{ role: "user", content: PROMPT }],
+        messages: [{ role: "user", content: buildPrompt(category) }],
       });
 
       const raw = completion.choices[0]?.message?.content?.trim() || "";
