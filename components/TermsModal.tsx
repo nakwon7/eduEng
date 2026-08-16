@@ -52,7 +52,7 @@ export default function TermsModal({ onClose }: TermsModalProps) {
                 <CopyButton text="758637-00-012739" />
                 (예금주: 송랩)
               </li>
-              <li>이용 기간은 입금 확인 후 관리자가 수동으로 활성화합니다.</li>
+              <li>이용 기간은 입금 확인 후 빠르게 활성화됩니다.</li>
             </ul>
           </div>
 
