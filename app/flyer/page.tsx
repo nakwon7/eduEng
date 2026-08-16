@@ -49,12 +49,12 @@ export default function FlyerPage() {
 
         {/* 메인 헤드라인 */}
         <h1 style={{ fontSize: "28pt", fontWeight: 800, textAlign: "center", lineHeight: 1.2, marginBottom: "5mm", color: "#111827" }}>
-          원어민 AI와 매일<br />영어로 전화하세요
+          틀려도 괜찮아요,<br />AI가 바로 짚어드려요
         </h1>
 
         <p style={{ fontSize: "12pt", color: "#6b7280", textAlign: "center", marginBottom: "10mm", lineHeight: 1.6 }}>
-          스마트폰 하나로 언제 어디서나<br />
-          AI 튜터 Alex · Rachel과 실전 영어 대화
+          AI 튜터 Alex · Rachel과 매일 통화하며<br />
+          실수를 줄여보세요
         </p>
 
         {/* 구분선 */}
@@ -132,6 +132,10 @@ export default function FlyerPage() {
             <p style={{ fontSize: "9pt", color: "#6b7280" }}>/ 월 · 매월 600분 제공</p>
           </div>
         </div>
+
+        <p style={{ fontSize: "8.5pt", color: "#9ca3af", textAlign: "center", marginBottom: "8mm" }}>
+          첫 결제는 <span style={{ color: "#111827", fontWeight: 700 }}>주 5,000원 · 주140분 라이트</span> 요금제로 더 가볍게 시작할 수도 있어요
+        </p>
 
         {/* 구분선 */}
         <div style={{ width: "100%", height: "1px", background: "#e5e7eb", marginBottom: "6mm" }} />
