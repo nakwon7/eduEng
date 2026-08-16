@@ -1,7 +1,5 @@
 "use client";
 
-import { getDailyItem } from "@/lib/dailyTopic";
-
 export const TOPICS = [
   {
     id: "word-desc", label: "단어 설명하기", en: "Word Description",
@@ -65,8 +63,6 @@ interface TopicSelectorProps {
 }
 
 export default function TopicSelector({ selected, onSelect }: TopicSelectorProps) {
-  const todayTopic = getDailyItem(TOPICS);
-
   const handleRandom = () => {
     const others = TOPICS.filter((t) => t.en !== selected);
     const pick = others[Math.floor(Math.random() * others.length)];
@@ -89,21 +85,12 @@ export default function TopicSelector({ selected, onSelect }: TopicSelectorProps
           <button
             key={topic.id}
             onClick={() => onSelect(topic.en)}
-            className={`relative p-3 rounded-xl border text-left transition-all ${
+            className={`p-3 rounded-xl border text-left transition-all ${
               selected === topic.en
                 ? "bg-gradient-to-br from-green-600 to-emerald-500 border-transparent text-white shadow-lg shadow-green-900/30"
                 : `${topic.cardTint} text-gray-300 hover:bg-white/5`
             }`}
           >
-            {topic.id === todayTopic.id && (
-              <span
-                className={`absolute top-1.5 right-1.5 text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
-                  selected === topic.en ? "bg-white/20 text-white" : "bg-emerald-500/15 text-emerald-400"
-                }`}
-              >
-                ⭐ 오늘의 추천
-              </span>
-            )}
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${selected === topic.en ? "bg-white/15 text-white" : topic.color}`}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px]">
                 {topic.icon}

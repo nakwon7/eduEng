@@ -4,8 +4,9 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useMonthlyBg } from "@/hooks/useMonthlyBg";
-import TopicSelector, { TOPICS } from "@/components/TopicSelector";
-import { getDailyItem } from "@/lib/dailyTopic";
+import TopicSelector from "@/components/TopicSelector";
+import DailyQuestionBanner from "@/components/DailyQuestionBanner";
+import { seoulDateKey } from "@/lib/dailyTopic";
 import CopyButton from "@/components/CopyButton";
 import TranscriptBox, { Message } from "@/components/TranscriptBox";
 import UserSetup from "@/components/UserSetup";
@@ -28,7 +29,8 @@ type View = "home" | "settings" | "admin" | "help";
 export default function Home() {
   const router = useRouter();
   const [callState, setCallState] = useState<CallState>("idle");
-  const [topic, setTopic] = useState(() => getDailyItem(TOPICS).en);
+  const [topic, setTopic] = useState("Daily Conversation");
+  const [dailyQuestion, setDailyQuestion] = useState<{ ko: string; en: string } | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isAiTyping, setIsAiTyping] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
@@ -161,6 +163,35 @@ export default function Home() {
 
     return () => subscription.unsubscribe();
   }, [router]);
+
+  useEffect(() => {
+    if (!userId || !sessionToken) return;
+
+    const today = seoulDateKey();
+    try {
+      const cached = JSON.parse(localStorage.getItem("dailyQuestion") || "null");
+      if (cached && cached.date === today && cached.ko && cached.en) {
+        setDailyQuestion({ ko: cached.ko, en: cached.en });
+        return;
+      }
+    } catch {
+      // ignore malformed cache
+    }
+
+    fetch("/api/daily-question", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, sessionToken }),
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.ko && data?.en) {
+          setDailyQuestion({ ko: data.ko, en: data.en });
+          localStorage.setItem("dailyQuestion", JSON.stringify({ date: today, ko: data.ko, en: data.en }));
+        }
+      })
+      .catch(() => {});
+  }, [userId, sessionToken]);
 
   const handleLogout = async () => {
     localStorage.removeItem("turingcall_session");
@@ -376,8 +407,10 @@ export default function Home() {
     }
   }, [callDuration, callState, unlimited, plan, customMinutes, periodNoun, endCall]);
 
-  const startCall = useCallback(async () => {
+  const startCall = useCallback(async (overrideTopic?: string) => {
     if (!canMakeCall) return;
+    const effectiveTopic = typeof overrideTopic === "string" ? overrideTopic : topic;
+    if (typeof overrideTopic === "string") setTopic(overrideTopic);
     setMicError(false);
     isTrialCallRef.current = !isPaid && !isUnlimited;
     unlockTTS();
@@ -405,7 +438,7 @@ export default function Home() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          topic,
+          topic: effectiveTopic,
           firstName,
           tutorName,
           tutor: effectiveTutor,
@@ -778,7 +811,16 @@ export default function Home() {
             />
           ) : callState === "idle" ? (
             <div className="flex-1 flex flex-col justify-between">
-              <TopicSelector selected={topic} onSelect={setTopic} />
+              <div>
+                {dailyQuestion && (
+                  <DailyQuestionBanner
+                    question={dailyQuestion}
+                    onStart={() => startCall(dailyQuestion.en)}
+                    disabled={!canMakeCall}
+                  />
+                )}
+                <TopicSelector selected={topic} onSelect={setTopic} />
+              </div>
             </div>
           ) : (
             <TranscriptBox messages={messages} interimTranscript="" isAiTyping={isAiTyping || isTranscribing} tutorLabel={`${tutorDisplayName} (AI Tutor)`} />
@@ -829,21 +871,21 @@ export default function Home() {
                           }
                         </p>
                         <p className="text-gray-600 text-xs">설정 변경 후 아래 버튼을 눌러주세요</p>
-                        <button onClick={startCall} className="mt-1 px-4 py-1.5 bg-gray-700 hover:bg-gray-600 text-white rounded-xl text-xs font-medium">
+                        <button onClick={() => startCall()} className="mt-1 px-4 py-1.5 bg-gray-700 hover:bg-gray-600 text-white rounded-xl text-xs font-medium">
                           다시 시도
                         </button>
                       </>
                     ) : (
                       <>
                         <p className="text-gray-400 text-xs">아래 버튼을 눌러 마이크를 허용해 주세요</p>
-                        <button onClick={startCall} className="mt-1 px-5 py-2 bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white rounded-xl text-sm font-semibold shadow-md shadow-green-900/30">
+                        <button onClick={() => startCall()} className="mt-1 px-5 py-2 bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white rounded-xl text-sm font-semibold shadow-md shadow-green-900/30">
                           🎙️ 마이크 허용하기
                         </button>
                       </>
                     )}
                   </div>
                 )}
-                <button onClick={startCall} className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white rounded-2xl font-semibold text-lg transition-all active:scale-95 shadow-lg shadow-green-900/40">
+                <button onClick={() => startCall()} className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white rounded-2xl font-semibold text-lg transition-all active:scale-95 shadow-lg shadow-green-900/40">
                   📞 통화 시작
                 </button>
               </div>
