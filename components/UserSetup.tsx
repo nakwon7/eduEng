@@ -104,22 +104,22 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
 
       <div className="mb-6">
         <label className="text-gray-400 text-xs mb-2 block">영어 레벨</label>
-        <div className="space-y-2">
+        <div className="grid grid-cols-3 gap-2">
           {LEVELS.map((l) => (
             <button
               key={l.id}
               onClick={() => setLevel(l.id)}
-              className={`w-full px-4 py-3 rounded-xl border text-left transition-all ${
+              className={`py-2.5 rounded-xl border text-center transition-all ${
                 level === l.id
                   ? "bg-gradient-to-r from-green-600 to-emerald-500 border-transparent text-white shadow-md shadow-green-900/30"
                   : "bg-green-500/5 border-green-500/10 text-gray-300 hover:bg-green-500/10"
               }`}
             >
               <span className="font-medium text-sm">{l.label}</span>
-              <span className="text-xs opacity-70 ml-2">{l.desc}</span>
             </button>
           ))}
         </div>
+        <p className="text-gray-500 text-xs mt-2">{LEVELS.find((l) => l.id === level)?.desc}</p>
       </div>
 
       <button

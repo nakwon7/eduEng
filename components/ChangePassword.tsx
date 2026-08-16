@@ -37,6 +37,7 @@ const TEXT = {
 
 export default function ChangePassword({ userId, sessionToken, lang = "ko" }: ChangePasswordProps) {
   const t = TEXT[lang];
+  const [open, setOpen] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -69,50 +70,57 @@ export default function ChangePassword({ userId, sessionToken, lang = "ko" }: Ch
   };
 
   return (
-    <div className="mt-4 bg-gray-900 rounded-xl p-4 space-y-2">
-      <p className="text-gray-400 text-xs font-medium">{t.title}</p>
-
-      <div>
-        <div className="flex justify-between items-center mb-1">
-          <label className="text-gray-500 text-xs">{t.newPassword}</label>
-          <span className="text-gray-600 text-xs">{newPassword.length}/20</span>
-        </div>
-        <input
-          type="password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          minLength={6}
-          maxLength={20}
-          placeholder={t.placeholder}
-          className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-green-500 placeholder-gray-600"
-        />
-      </div>
-
-      <div>
-        <label className="text-gray-500 text-xs mb-1 block">{t.confirmPassword}</label>
-        <input
-          type="password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          minLength={6}
-          maxLength={20}
-          className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-green-500"
-        />
-      </div>
-
-      {message && (
-        <p className={`text-xs ${message.type === "success" ? "text-green-400" : "text-red-400"}`}>
-          {message.text}
-        </p>
-      )}
-
-      <button
-        onClick={handleSubmit}
-        disabled={submitting || !newPassword || !confirmPassword}
-        className="w-full py-2 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg transition-all"
-      >
-        {submitting ? t.submitting : t.submit}
+    <div className="mt-4 bg-gray-900 rounded-xl p-4">
+      <button onClick={() => setOpen((v) => !v)} className="w-full flex items-center justify-between">
+        <p className="text-gray-400 text-xs font-medium">{t.title}</p>
+        <span className={`text-gray-500 text-xs transition-transform ${open ? "rotate-180" : ""}`}>▾</span>
       </button>
+
+      {open && (
+        <div className="mt-3 space-y-2">
+          <div>
+            <div className="flex justify-between items-center mb-1">
+              <label className="text-gray-500 text-xs">{t.newPassword}</label>
+              <span className="text-gray-600 text-xs">{newPassword.length}/20</span>
+            </div>
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              minLength={6}
+              maxLength={20}
+              placeholder={t.placeholder}
+              className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-green-500 placeholder-gray-600"
+            />
+          </div>
+
+          <div>
+            <label className="text-gray-500 text-xs mb-1 block">{t.confirmPassword}</label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              minLength={6}
+              maxLength={20}
+              className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+
+          {message && (
+            <p className={`text-xs ${message.type === "success" ? "text-green-400" : "text-red-400"}`}>
+              {message.text}
+            </p>
+          )}
+
+          <button
+            onClick={handleSubmit}
+            disabled={submitting || !newPassword || !confirmPassword}
+            className="w-full py-2 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 text-white text-xs font-semibold rounded-lg transition-all"
+          >
+            {submitting ? t.submitting : t.submit}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

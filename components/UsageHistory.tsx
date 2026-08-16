@@ -46,6 +46,7 @@ export default function UsageHistory({ userId, sessionToken, lang = "ko" }: Usag
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [logs, setLogs] = useState<{ date: string; seconds: number }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
 
   const fetchLogs = useCallback(async () => {
     setLoading(true);
@@ -60,52 +61,60 @@ export default function UsageHistory({ userId, sessionToken, lang = "ko" }: Usag
   }, [userId, sessionToken, year, month]);
 
   useEffect(() => {
-    fetchLogs();
-  }, [fetchLogs]);
+    if (open) fetchLogs();
+  }, [fetchLogs, open]);
 
   const totalSeconds = logs.reduce((s, l) => s + l.seconds, 0);
   const years = [now.getFullYear(), now.getFullYear() - 1, now.getFullYear() - 2];
 
   return (
-    <div className="mt-4 bg-gray-900 rounded-xl p-4 space-y-2">
-      <p className="text-gray-400 text-xs font-medium">{t.title}</p>
-      <div className="flex gap-2">
-        <select
-          value={year}
-          onChange={(e) => setYear(Number(e.target.value))}
-          className="flex-1 bg-gray-800 text-white text-xs rounded-lg px-2 py-1.5 outline-none"
-        >
-          {years.map((y) => (
-            <option key={y} value={y}>{y}</option>
-          ))}
-        </select>
-        <select
-          value={month}
-          onChange={(e) => setMonth(Number(e.target.value))}
-          className="flex-1 bg-gray-800 text-white text-xs rounded-lg px-2 py-1.5 outline-none"
-        >
-          {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-            <option key={m} value={m}>{t.month(m)}</option>
-          ))}
-        </select>
-      </div>
+    <div className="mt-4 bg-gray-900 rounded-xl p-4">
+      <button onClick={() => setOpen((v) => !v)} className="w-full flex items-center justify-between">
+        <p className="text-gray-400 text-xs font-medium">{t.title}</p>
+        <span className={`text-gray-500 text-xs transition-transform ${open ? "rotate-180" : ""}`}>▾</span>
+      </button>
 
-      {loading ? (
-        <p className="text-gray-600 text-xs text-center py-2">{t.loading}</p>
-      ) : logs.length === 0 ? (
-        <p className="text-gray-600 text-xs text-center py-2">{t.empty}</p>
-      ) : (
-        <>
-          <p className="text-gray-300 text-xs font-medium pt-1">{t.total(formatMinutes(totalSeconds, t))}</p>
-          <div className="space-y-1 max-h-48 overflow-y-auto">
-            {logs.map((l) => (
-              <div key={l.date} className="flex justify-between text-xs">
-                <span className="text-gray-500">{l.date}</span>
-                <span className="text-gray-300">{formatMinutes(l.seconds, t)}</span>
-              </div>
-            ))}
+      {open && (
+        <div className="mt-3 space-y-2">
+          <div className="flex gap-2">
+            <select
+              value={year}
+              onChange={(e) => setYear(Number(e.target.value))}
+              className="flex-1 bg-gray-800 text-white text-xs rounded-lg px-2 py-1.5 outline-none"
+            >
+              {years.map((y) => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+            <select
+              value={month}
+              onChange={(e) => setMonth(Number(e.target.value))}
+              className="flex-1 bg-gray-800 text-white text-xs rounded-lg px-2 py-1.5 outline-none"
+            >
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                <option key={m} value={m}>{t.month(m)}</option>
+              ))}
+            </select>
           </div>
-        </>
+
+          {loading ? (
+            <p className="text-gray-600 text-xs text-center py-2">{t.loading}</p>
+          ) : logs.length === 0 ? (
+            <p className="text-gray-600 text-xs text-center py-2">{t.empty}</p>
+          ) : (
+            <>
+              <p className="text-gray-300 text-xs font-medium pt-1">{t.total(formatMinutes(totalSeconds, t))}</p>
+              <div className="space-y-1 max-h-48 overflow-y-auto">
+                {logs.map((l) => (
+                  <div key={l.date} className="flex justify-between text-xs">
+                    <span className="text-gray-500">{l.date}</span>
+                    <span className="text-gray-300">{formatMinutes(l.seconds, t)}</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
       )}
     </div>
   );
