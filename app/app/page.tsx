@@ -691,9 +691,17 @@ export default function Home() {
                 )}
               </p>
               {showStreakInfo && (
-                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-64 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-300 text-left shadow-lg z-10 space-y-1">
-                  <p>짧게라도 하루 한 번 통화하면 연속일수가 올라가요.</p>
-                  <p>❄️ 프리즈가 있으면 하루 못해도 연속 기록이 안 끊겨요. 7일 연속마다 1개씩 계속 쌓여요.</p>
+                <div
+                  className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-6"
+                  onClick={() => setShowStreakInfo(false)}
+                >
+                  <div
+                    className="w-full max-w-xs bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-gray-300 text-xs text-left shadow-xl space-y-1.5"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <p>짧게라도 하루 한 번 통화하면 연속일수가 올라가요.</p>
+                    <p>❄️ 프리즈가 있으면 하루 못해도 연속 기록이 안 끊겨요. 7일 연속마다 1개씩 계속 쌓여요.</p>
+                  </div>
                 </div>
               )}
             </div>
