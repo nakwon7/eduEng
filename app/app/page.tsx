@@ -30,7 +30,7 @@ export default function Home() {
   const router = useRouter();
   const [callState, setCallState] = useState<CallState>("idle");
   const [topic, setTopic] = useState("Daily Conversation");
-  const [dailyQuestion, setDailyQuestion] = useState<{ ko: string; en: string } | null>(null);
+  const [dailyQuestion, setDailyQuestion] = useState<{ ko: string; en: string; categoryId?: string; categoryLabel?: string } | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isAiTyping, setIsAiTyping] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
@@ -171,7 +171,7 @@ export default function Home() {
     try {
       const cached = JSON.parse(localStorage.getItem("dailyQuestion") || "null");
       if (cached && cached.date === today && cached.ko && cached.en) {
-        setDailyQuestion({ ko: cached.ko, en: cached.en });
+        setDailyQuestion({ ko: cached.ko, en: cached.en, categoryId: cached.categoryId, categoryLabel: cached.categoryLabel });
         return;
       }
     } catch {
@@ -186,8 +186,9 @@ export default function Home() {
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data?.ko && data?.en) {
-          setDailyQuestion({ ko: data.ko, en: data.en });
-          localStorage.setItem("dailyQuestion", JSON.stringify({ date: today, ko: data.ko, en: data.en }));
+          const q = { ko: data.ko, en: data.en, categoryId: data.categoryId, categoryLabel: data.categoryLabel };
+          setDailyQuestion(q);
+          localStorage.setItem("dailyQuestion", JSON.stringify({ date: today, ...q }));
         }
       })
       .catch(() => {});
