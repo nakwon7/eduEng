@@ -169,7 +169,7 @@ export default function Home() {
 
     const today = seoulDateKey();
     try {
-      const cached = JSON.parse(localStorage.getItem("dailyQuestion") || "null");
+      const cached = JSON.parse(localStorage.getItem("dailyQuestion_v2") || "null");
       if (cached && cached.date === today && cached.ko && cached.en) {
         setDailyQuestion({ ko: cached.ko, en: cached.en, categoryId: cached.categoryId, categoryLabel: cached.categoryLabel });
         return;
@@ -188,7 +188,7 @@ export default function Home() {
         if (data?.ko && data?.en) {
           const q = { ko: data.ko, en: data.en, categoryId: data.categoryId, categoryLabel: data.categoryLabel };
           setDailyQuestion(q);
-          localStorage.setItem("dailyQuestion", JSON.stringify({ date: today, ...q }));
+          localStorage.setItem("dailyQuestion_v2", JSON.stringify({ date: today, ...q }));
         }
       })
       .catch(() => {});
