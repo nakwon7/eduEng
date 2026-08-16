@@ -4,7 +4,8 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useMonthlyBg } from "@/hooks/useMonthlyBg";
-import TopicSelector from "@/components/TopicSelector";
+import TopicSelector, { TOPICS } from "@/components/TopicSelector";
+import { getDailyItem } from "@/lib/dailyTopic";
 import CopyButton from "@/components/CopyButton";
 import TranscriptBox, { Message } from "@/components/TranscriptBox";
 import UserSetup from "@/components/UserSetup";
@@ -27,7 +28,7 @@ type View = "home" | "settings" | "admin" | "help";
 export default function Home() {
   const router = useRouter();
   const [callState, setCallState] = useState<CallState>("idle");
-  const [topic, setTopic] = useState("Daily Conversation");
+  const [topic, setTopic] = useState(() => getDailyItem(TOPICS).en);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isAiTyping, setIsAiTyping] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
@@ -646,7 +647,7 @@ export default function Home() {
                     🔥 {streakCount}일 연속 통화중 <span className="text-gray-400">ⓘ</span>
                   </button>
                 )}
-                {streakFreezes > 0 && (
+                {streakCount > 0 && (
                   <button
                     onClick={() => setShowStreakInfo((v) => !v)}
                     className="ml-2 text-cyan-300"
@@ -658,7 +659,7 @@ export default function Home() {
               {showStreakInfo && (
                 <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-64 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-300 text-left shadow-lg z-10 space-y-1">
                   <p>짧게라도 하루 한 번 통화하면 연속일수가 올라가요.</p>
-                  <p>❄️ 프리즈가 있으면 하루 못해도 스트릭이 안 끊겨요. 7일 연속마다 1개씩 계속 쌓여요.</p>
+                  <p>❄️ 프리즈가 있으면 하루 못해도 연속 기록이 안 끊겨요. 7일 연속마다 1개씩 계속 쌓여요.</p>
                 </div>
               )}
             </div>
