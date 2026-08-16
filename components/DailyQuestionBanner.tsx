@@ -31,7 +31,7 @@ export default function DailyQuestionBanner({ question, onStart, disabled }: Dai
           </span>
         )}
       </div>
-      <p className="text-white text-base font-semibold leading-snug">{question.ko}</p>
+      <p className="text-gray-100 text-base font-semibold leading-snug">{question.ko}</p>
       <button
         onClick={onStart}
         disabled={disabled}
