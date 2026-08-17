@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { trialRemainingSeconds } from "@/lib/trialCalc";
 
 export async function POST(req: NextRequest) {
   const { userId, sessionToken } = await req.json();
@@ -13,7 +14,7 @@ export async function POST(req: NextRequest) {
 
   const { data: me } = await admin
     .from("profiles")
-    .select("session_token, total_seconds, cycle_baseline_seconds")
+    .select("session_token, total_seconds, cycle_baseline_seconds, trial_baseline_seconds, trial_reset_at")
     .eq("id", userId)
     .single();
 
@@ -22,6 +23,7 @@ export async function POST(req: NextRequest) {
   }
 
   const totalSeconds = Math.max(0, (me.total_seconds ?? 0) - (me.cycle_baseline_seconds ?? 0));
+  const trialSecondsLeft = trialRemainingSeconds(me.total_seconds ?? 0, me.trial_baseline_seconds ?? 0, me.trial_reset_at ?? null);
 
-  return NextResponse.json({ totalSeconds });
+  return NextResponse.json({ totalSeconds, trialRemainingSeconds: trialSecondsLeft });
 }

@@ -116,7 +116,7 @@ export default function LandingKoPage() {
           <p className="text-gray-400 text-sm mb-4">/ week · unlimited during subscription</p>
           <div className="bg-gray-900/60 rounded-xl p-3 text-xs text-gray-300 text-left space-y-1">
             <p className="text-blue-400 font-medium mb-2">Free trial included</p>
-            <p>✅ 2 free sessions upon sign-up (5 min each)</p>
+            <p>✅ 10 free minutes upon sign-up (use within 1 week)</p>
             <p>✅ Unlimited calls during your subscription week</p>
           </div>
         </div>

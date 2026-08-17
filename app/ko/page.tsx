@@ -15,6 +15,7 @@ import UsageHistory from "@/components/UsageHistory";
 import ChangePassword from "@/components/ChangePassword";
 import PaymentNoteInput from "@/components/PaymentNoteInput";
 import PaymentRejectNotice from "@/components/PaymentRejectNotice";
+import { TRIAL_TOTAL_SECONDS } from "@/lib/trialCalc";
 
 type CallState = "idle" | "calling" | "active";
 
@@ -89,9 +90,8 @@ export default function KoPage() {
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [unlimited, setUnlimited] = useState(false);
   const [blocked, setBlocked] = useState(false);
-  const [trialCalls, setTrialCalls] = useState(0);
+  const [trialSecondsLeft, setTrialSecondsLeft] = useState(0);
   const [streakCount, setStreakCount] = useState(0);
-  const [trialMinutes, setTrialMinutes] = useState(5);
   const [weeklySeconds, setWeeklySeconds] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [showSetup, setShowSetup] = useState(false);
@@ -114,6 +114,7 @@ export default function KoPage() {
   const isTrialCallRef = useRef(false);
   const lastSavedRef = useRef(0);
   const callStartWeeklySecondsRef = useRef(0);
+  const callStartTrialSecondsLeftRef = useRef(0);
 
   const { isRecording, isTranscribing, startRecording, stopRecording, consumeRateLimited } = useAudioRecorderKo();
   const { speak, stop: stopSpeaking, unlock: unlockTTS, isSpeaking } = useKoreanSpeech();
@@ -133,7 +134,7 @@ export default function KoPage() {
         const storedToken = localStorage.getItem("turingcall_session");
         const { data: profileData } = await supabase
           .from("profiles")
-          .select("username, name, level, ko_tutor, session_token, expires_at, unlimited, blocked, trial_calls, trial_minutes, ko_access, payment_requested_at, payment_reject_reason, streak_count")
+          .select("username, name, level, ko_tutor, session_token, expires_at, unlimited, blocked, ko_access, payment_requested_at, payment_reject_reason, streak_count")
           .eq("id", session.user.id)
           .single();
 
@@ -148,8 +149,6 @@ export default function KoPage() {
         setExpiresAt(profileData.expires_at ?? null);
         setUnlimited(profileData.unlimited ?? false);
         setBlocked(profileData.blocked ?? false);
-        setTrialCalls(profileData.trial_calls ?? 0);
-        setTrialMinutes(profileData.trial_minutes ?? 5);
         setStreakCount(profileData.streak_count ?? 0);
         setPaymentRequestedAt(profileData.payment_requested_at ?? null);
         setPaymentRejectReason(profileData.payment_reject_reason ?? null);
@@ -167,6 +166,7 @@ export default function KoPage() {
           });
           const summaryData = await summaryRes.json();
           setWeeklySeconds(summaryRes.ok ? summaryData.totalSeconds ?? 0 : 0);
+          setTrialSecondsLeft(summaryRes.ok ? summaryData.trialRemainingSeconds ?? 0 : 0);
         }
 
         setLoaded(true);
@@ -180,7 +180,7 @@ export default function KoPage() {
   const isPaid = !!expiresAt && new Date(expiresAt) > new Date();
   const isUnlimited = unlimited;
   const weeklyLimitReached = !isUnlimited && weeklySeconds >= 12000;
-  const canMakeCall = !blocked && !weeklyLimitReached && (isUnlimited || isPaid || trialCalls > 0);
+  const canMakeCall = !blocked && !weeklyLimitReached && (isUnlimited || isPaid || trialSecondsLeft > 0);
 
   const requestPaymentConfirmation = async () => {
     if (!userId || !sessionToken || requestingPayment || !paymentNote.trim()) return;
@@ -215,6 +215,7 @@ export default function KoPage() {
       if (res.ok) {
         lastSavedRef.current = savedBefore + unsaved;
         setWeeklySeconds((prev) => prev + unsaved);
+        if (isTrialCallRef.current) setTrialSecondsLeft((prev) => Math.max(0, prev - unsaved));
       }
     } catch {
       // 네트워크 실패 시 lastSavedRef를 건드리지 않아 다음 저장에서 재시도됨
@@ -234,6 +235,7 @@ export default function KoPage() {
     navigator.sendBeacon("/api/call/end", new Blob([payload], { type: "application/json" }));
     lastSavedRef.current = savedBefore + unsaved;
     setWeeklySeconds((prev) => prev + unsaved);
+    if (isTrialCallRef.current) setTrialSecondsLeft((prev) => Math.max(0, prev - unsaved));
   }, [userId, sessionToken, topic]);
 
   const addMessage = useCallback((msg: Message) => {
@@ -266,18 +268,7 @@ export default function KoPage() {
         .then((res) => { if (!res.ok) console.error("[call/end] save failed", res.status); })
         .catch((err) => console.error("[call/end] save error", err));
       setWeeklySeconds((prev) => prev + unsaved);
-    }
-
-    if (wasTrial && userId && sessionToken) {
-      const res = await fetch("/api/trial/use", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, sessionToken }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setTrialCalls(data.trial_calls);
-      }
+      if (wasTrial) setTrialSecondsLeft((prev) => Math.max(0, prev - unsaved));
     }
   }, [stopSpeaking, userId, sessionToken, topic]);
 
@@ -303,13 +294,13 @@ export default function KoPage() {
     return () => clearInterval(interval);
   }, [callState, saveElapsed]);
 
-  // 체험 통화 자동 종료
+  // 체험 통화 자동 종료 (주간 10분 한도) — 통화 시작 시점의 잔여시간 스냅샷을 다 쓰면 종료
   useEffect(() => {
-    if (callState === "active" && isTrialCallRef.current && callDuration >= trialMinutes * 60) {
+    if (callState === "active" && isTrialCallRef.current && callDuration >= callStartTrialSecondsLeftRef.current) {
       endCall();
-      alert(`Your trial call ended after ${trialMinutes} minutes.`);
+      alert(`You've used all your free trial time (${TRIAL_TOTAL_SECONDS / 60} minutes). Upgrade to a membership to keep going!`);
     }
-  }, [callDuration, callState, trialMinutes, endCall]);
+  }, [callDuration, callState, endCall]);
 
   // 주간 200분 한도 자동 종료 (무제한 제외)
   // weeklySeconds는 60초 자동저장 때마다도 갱신되므로(saveElapsed) 여기서 그대로 쓰면
@@ -377,7 +368,10 @@ export default function KoPage() {
             body: JSON.stringify({ userId, sessionToken }),
           });
           const summaryData = await summaryRes.json().catch(() => ({}));
-          if (summaryRes.ok) setWeeklySeconds(summaryData.totalSeconds ?? 0);
+          if (summaryRes.ok) {
+            setWeeklySeconds(summaryData.totalSeconds ?? 0);
+            setTrialSecondsLeft(summaryData.trialRemainingSeconds ?? 0);
+          }
           return;
         }
         setCallState("idle");
@@ -394,11 +388,12 @@ export default function KoPage() {
     setCallDuration(0);
     callDurationRef.current = 0;
     callStartWeeklySecondsRef.current = weeklySeconds;
+    callStartTrialSecondsLeftRef.current = trialSecondsLeft;
     timerRef.current = setInterval(() => setCallDuration((d) => d + 1), 1000);
 
     addMessage({ role: "assistant", content: greeting });
     speak(greeting, effectiveTutor === "jia" ? "female" : "male");
-  }, [topic, addMessage, speak, profile, unlockTTS, effectiveTutor, canMakeCall, isPaid, isUnlimited, userId, sessionToken, router, weeklySeconds]);
+  }, [topic, addMessage, speak, profile, unlockTTS, effectiveTutor, canMakeCall, isPaid, isUnlimited, userId, sessionToken, router, weeklySeconds, trialSecondsLeft]);
 
   const handleMicPress = useCallback(async () => {
     if (isRecording || isSpeaking) return;
@@ -887,7 +882,7 @@ export default function KoPage() {
             <>
               {!isPaid && !isUnlimited && (
                 <p className="text-yellow-400 text-xs text-center mb-2">
-                  {trialCalls} trial session{trialCalls === 1 ? "" : "s"} left · up to {trialMinutes} min each
+                  {Math.ceil(trialSecondsLeft / 60)} free trial min left
                 </p>
               )}
               {hasActiveMembership && (

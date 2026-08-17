@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "@/lib/supabase";
+import { trialRemainingSeconds } from "@/lib/trialCalc";
 
 export type AuthCheckResult =
   | { ok: true; usedSeconds: number; plan: string | null; customMinutes: number | null }
@@ -20,7 +21,7 @@ export async function verifyActiveUser(
 
   const { data } = await admin
     .from("profiles")
-    .select("session_token, expires_at, unlimited, blocked, trial_calls, plan, total_seconds, cycle_baseline_seconds, custom_minutes")
+    .select("session_token, expires_at, unlimited, blocked, plan, total_seconds, cycle_baseline_seconds, custom_minutes, trial_baseline_seconds, trial_reset_at")
     .eq("id", userId)
     .single();
 
@@ -32,7 +33,10 @@ export async function verifyActiveUser(
   }
 
   const isPaid = !!data.expires_at && new Date(data.expires_at) > new Date();
-  const canUse = data.unlimited || isPaid || (data.trial_calls ?? 0) > 0;
+  const canUse =
+    data.unlimited ||
+    isPaid ||
+    trialRemainingSeconds(data.total_seconds ?? 0, data.trial_baseline_seconds ?? 0, data.trial_reset_at ?? null) > 0;
   if (!canUse) {
     return { ok: false, error: "SUBSCRIPTION_EXPIRED", status: 403 };
   }

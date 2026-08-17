@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { trialRemainingSeconds } from "@/lib/trialCalc";
 
 export async function POST(req: NextRequest) {
   const { userId, sessionToken } = await req.json();
@@ -20,7 +21,7 @@ export async function POST(req: NextRequest) {
 
   const [{ data: logs }, { data: users }] = await Promise.all([
     admin.from("call_logs").select("user_id, date, seconds, topic"),
-    admin.from("profiles").select("id, username, name, level, trial_calls, expires_at, unlimited, total_seconds, created_at"),
+    admin.from("profiles").select("id, username, name, level, expires_at, unlimited, total_seconds, created_at, trial_baseline_seconds, trial_reset_at"),
   ]);
 
   const allLogs = logs || [];
@@ -88,8 +89,8 @@ export async function POST(req: NextRequest) {
       ? "무제한"
       : u.expires_at && new Date(u.expires_at) > new Date()
       ? "멤버십"
-      : u.trial_calls > 0
-      ? `체험 ${u.trial_calls}회`
+      : trialRemainingSeconds(u.total_seconds ?? 0, u.trial_baseline_seconds ?? 0, u.trial_reset_at ?? null) > 0
+      ? `체험 ${Math.ceil(trialRemainingSeconds(u.total_seconds ?? 0, u.trial_baseline_seconds ?? 0, u.trial_reset_at ?? null) / 60)}분`
       : "체험 소진",
   })).sort((a, b) => b.total_seconds - a.total_seconds);
 

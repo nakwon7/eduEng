@@ -147,7 +147,7 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
       ) : (
         <div className="mt-6 bg-green-500/5 border border-green-500/15 rounded-xl p-4 space-y-2">
           <p className="text-gray-400 text-xs font-medium">멤버십 요금</p>
-          <p className="text-gray-500 text-xs">무료 체험 2회(회당 최대 5분) 제공</p>
+          <p className="text-gray-500 text-xs">무료 체험 10분 제공 (가입 후 1주일 이내 자유롭게 이용)</p>
           <MembershipOffer
             liteEligible={liteEligible}
             paymentRequestedAt={paymentRequestedAt}

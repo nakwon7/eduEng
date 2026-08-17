@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PLANS, PlanId, effectiveMinutes } from "@/lib/plans";
+import { trialRemainingSeconds } from "@/lib/trialCalc";
 
 interface User {
   id: string;
@@ -9,7 +10,8 @@ interface User {
   name: string;
   email: string;
   level: string;
-  trial_calls: number;
+  trial_baseline_seconds: number | null;
+  trial_reset_at: string | null;
   expires_at: string | null;
   unlimited: boolean;
   blocked: boolean;
@@ -55,14 +57,15 @@ function statusLabel(u: User) {
     const customTag = u.custom_minutes != null ? " · 커스텀" : "";
     return { text: `멤버십 (${PLANS[u.plan]?.label ?? u.plan} · ${minutes}분${customTag})`, color: "text-green-400" };
   }
-  if (u.trial_calls > 0) return { text: `체험 ${u.trial_calls}회 남음`, color: "text-yellow-400" };
+  const trialLeft = trialRemainingSeconds(u.total_seconds ?? 0, u.trial_baseline_seconds ?? 0, u.trial_reset_at ?? null);
+  if (trialLeft > 0) return { text: `체험 ${Math.ceil(trialLeft / 60)}분 남음`, color: "text-yellow-400" };
   return { text: "체험 소진", color: "text-red-400" };
 }
 
 function statusTint(u: User) {
   if (u.unlimited) return "bg-purple-500/5 border-purple-500/15";
   if (u.expires_at && new Date(u.expires_at) > new Date()) return "bg-green-500/5 border-green-500/15";
-  if (u.trial_calls > 0) return "bg-yellow-500/5 border-yellow-500/15";
+  if (trialRemainingSeconds(u.total_seconds ?? 0, u.trial_baseline_seconds ?? 0, u.trial_reset_at ?? null) > 0) return "bg-yellow-500/5 border-yellow-500/15";
   return "bg-red-500/5 border-red-500/15";
 }
 

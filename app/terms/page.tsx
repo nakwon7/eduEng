@@ -28,7 +28,7 @@ export default function TermsPage() {
             <ul className="text-gray-400 text-sm leading-relaxed space-y-1 list-disc list-inside">
               <li>"회원"이란 본 약관에 동의하고 회원가입을 완료한 자를 말합니다.</li>
               <li>"서비스"란 회사가 제공하는 AI 기반 음성 영어 학습 서비스를 말합니다.</li>
-              <li>"무료 체험"이란 회원 가입 후 제공되는 2회(회당 최대 5분)의 무료 이용 기회를 말합니다.</li>
+              <li>"무료 체험"이란 회원 가입 후 1주일 이내 자유롭게 이용할 수 있는 10분의 무료 이용 기회를 말합니다.</li>
               <li>"멤버십"이란 유료 결제 후 사용 기간 동안 서비스를 무제한 이용할 수 있는 이용권을 말합니다.</li>
             </ul>
           </div>
@@ -52,7 +52,7 @@ export default function TermsPage() {
           <div className="space-y-2">
             <h3 className="font-semibold text-sm text-gray-200">제5조 (서비스 이용 및 요금)</h3>
             <ul className="text-gray-400 text-sm leading-relaxed space-y-1 list-disc list-inside">
-              <li>무료 체험: 가입 후 2회 제공 (회당 최대 5분), 별도 결제 불필요</li>
+              <li>무료 체험: 가입 후 1주일간 10분 제공 (자유롭게 이용 가능), 별도 결제 불필요</li>
               <li>멤버십: 월 9,900원, 계좌이체로 결제</li>
               <li className="flex items-center gap-1">
                 KB국민은행 758637-00-012739
@@ -66,7 +66,7 @@ export default function TermsPage() {
           <div className="space-y-2">
             <h3 className="font-semibold text-sm text-gray-200">제6조 (환불 정책)</h3>
             <ul className="text-gray-400 text-sm leading-relaxed space-y-1 list-disc list-inside">
-              <li>가입 즉시 2회(회당 최대 5분) 무료 체험이 제공되므로, 멤버십 결제 후에는 환불이 불가합니다.</li>
+              <li>가입 즉시 10분의 무료 체험이 제공되므로, 멤버십 결제 후에는 환불이 불가합니다.</li>
               <li>단, 결제 후 서비스 활성화 전에 취소를 요청한 경우 전액 환불합니다.</li>
               <li>환불 요청: 카카오톡 채널로 문의</li>
             </ul>

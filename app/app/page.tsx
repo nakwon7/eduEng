@@ -22,6 +22,7 @@ import PaymentNoteInput from "@/components/PaymentNoteInput";
 import PaymentRejectNotice from "@/components/PaymentRejectNotice";
 import MembershipOffer from "@/components/MembershipOffer";
 import { PLANS, PlanId, planOf, effectiveSeconds, effectiveMinutes } from "@/lib/plans";
+import { TRIAL_TOTAL_SECONDS } from "@/lib/trialCalc";
 
 type CallState = "idle" | "calling" | "active";
 type View = "home" | "settings" | "admin" | "help";
@@ -39,10 +40,9 @@ export default function Home() {
   const [userId, setUserId] = useState<string | null>(null);
   const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
-  const [trialCalls, setTrialCalls] = useState<number>(0);
+  const [trialSecondsLeft, setTrialSecondsLeft] = useState<number>(0);
   const [streakCount, setStreakCount] = useState<number>(0);
   const [streakFreezes, setStreakFreezes] = useState<number>(0);
-  const [trialMinutes, setTrialMinutes] = useState<number>(5);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [unlimited, setUnlimited] = useState(false);
   const [blocked, setBlocked] = useState(false);
@@ -75,6 +75,7 @@ export default function Home() {
   const lastSavedRef = useRef(0);
   const callStateRef = useRef<CallState>("idle");
   const callStartMonthlySecondsRef = useRef(0);
+  const callStartTrialSecondsLeftRef = useRef(0);
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const messagesRef = useRef<Message[]>([]);
@@ -96,7 +97,7 @@ export default function Home() {
       const storedToken = localStorage.getItem("turingcall_session");
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("name, level, tutor, username, session_token, trial_calls, trial_minutes, expires_at, unlimited, blocked, ko_access, payment_requested_at, payment_reject_reason, streak_count, streak_freezes, plan, custom_minutes")
+        .select("name, level, tutor, username, session_token, expires_at, unlimited, blocked, ko_access, payment_requested_at, payment_reject_reason, streak_count, streak_freezes, plan, custom_minutes")
         .eq("id", session.user.id)
         .single();
 
@@ -116,8 +117,6 @@ export default function Home() {
       setSessionToken(storedToken);
       setUsername(profileData.username);
       setProfile({ name: profileData.name, level: profileData.level, tutor: profileData.tutor || "alex" });
-      setTrialCalls(profileData.trial_calls ?? 0);
-      setTrialMinutes(profileData.trial_minutes ?? 5);
       setStreakCount(profileData.streak_count ?? 0);
       setStreakFreezes(profileData.streak_freezes ?? 0);
       setExpiresAt(profileData.expires_at ?? null);
@@ -144,6 +143,7 @@ export default function Home() {
         });
         const summaryData = await summaryRes.json();
         setMonthlySeconds(summaryRes.ok ? summaryData.totalSeconds ?? 0 : 0);
+        setTrialSecondsLeft(summaryRes.ok ? summaryData.trialRemainingSeconds ?? 0 : 0);
       }
 
       setLoaded(true);
@@ -226,7 +226,7 @@ export default function Home() {
   const isUnlimited = unlimited;
   const periodNoun = planOf(plan).periodLabel === "주" ? "주" : "달";
   const monthlyLimitReached = !isUnlimited && monthlySeconds >= effectiveSeconds(plan, customMinutes);
-  const canMakeCall = !monthlyLimitReached && (isUnlimited || isPaid || trialCalls > 0);
+  const canMakeCall = !monthlyLimitReached && (isUnlimited || isPaid || trialSecondsLeft > 0);
 
   const applyStreakUpdate = useCallback((streak?: { count: number; freezeUsed: boolean; freezesRemaining: number; freezeEarned: boolean }) => {
     if (!streak) return;
@@ -262,6 +262,7 @@ export default function Home() {
       if (res.ok) {
         lastSavedRef.current = savedBefore + unsaved;
         setMonthlySeconds((prev) => prev + unsaved);
+        if (isTrialCallRef.current) setTrialSecondsLeft((prev) => Math.max(0, prev - unsaved));
         const data = await res.json().catch(() => null);
         applyStreakUpdate(data?.streak);
       }
@@ -283,6 +284,7 @@ export default function Home() {
     navigator.sendBeacon("/api/call/end", new Blob([payload], { type: "application/json" }));
     lastSavedRef.current = savedBefore + unsaved;
     setMonthlySeconds((prev) => prev + unsaved);
+    if (isTrialCallRef.current) setTrialSecondsLeft((prev) => Math.max(0, prev - unsaved));
   }, [userId, sessionToken]);
 
   const addMessage = useCallback((msg: Message) => {
@@ -323,18 +325,7 @@ export default function Home() {
         })
         .catch((err) => console.error("[call/end] save error", err));
       setMonthlySeconds((prev) => prev + unsaved);
-    }
-
-    if (wasTrial && userId && sessionToken) {
-      const res = await fetch("/api/trial/use", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, sessionToken }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setTrialCalls(data.trial_calls);
-      }
+      if (wasTrial) setTrialSecondsLeft((prev) => Math.max(0, prev - unsaved));
     }
 
     // Generate feedback if there were at least FEEDBACK_MIN_TURNS user turns
@@ -389,13 +380,13 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [callState, saveElapsed]);
 
-  // 30분 자동 종료 (체험 통화)
+  // 무료 체험 10분(1회성) 자동 종료 — 통화 시작 시점에 남아있던 잔여시간(콜스타트 스냅샷)을 다 쓰면 종료
   useEffect(() => {
-    if (callState === "active" && isTrialCallRef.current && callDuration >= trialMinutes * 60) {
+    if (callState === "active" && isTrialCallRef.current && callDuration >= callStartTrialSecondsLeftRef.current) {
       endCall();
-      alert(`체험 통화 ${trialMinutes}분이 종료됐습니다.`);
+      alert(`무료 체험 시간(${TRIAL_TOTAL_SECONDS / 60}분)을 모두 사용했습니다.\n멤버십으로 계속 이용해보세요!`);
     }
-  }, [callDuration, callState, trialMinutes, endCall]);
+  }, [callDuration, callState, endCall]);
 
   // 일일 30분 한도 자동 종료 (무제한 제외)
   // monthlySeconds는 60초 자동저장 때마다도 갱신되기 때문에(saveElapsed) 여기서 그대로 쓰면
@@ -465,7 +456,10 @@ export default function Home() {
             body: JSON.stringify({ userId, sessionToken }),
           });
           const summaryData = await summaryRes.json().catch(() => ({}));
-          if (summaryRes.ok) setMonthlySeconds(summaryData.totalSeconds ?? 0);
+          if (summaryRes.ok) {
+            setMonthlySeconds(summaryData.totalSeconds ?? 0);
+            setTrialSecondsLeft(summaryData.trialRemainingSeconds ?? 0);
+          }
           return;
         }
         // 화면이 새로고침 안 된 채 멤버십/체험 상태가 바뀐 경우(관리자가 만료시킴 등) —
@@ -485,10 +479,11 @@ export default function Home() {
     callDurationRef.current = 0;
     lastSavedRef.current = 0;
     callStartMonthlySecondsRef.current = monthlySeconds;
+    callStartTrialSecondsLeftRef.current = trialSecondsLeft;
     timerRef.current = setInterval(() => setCallDuration((d) => d + 1), 1000);
     addMessage({ role: "assistant", content: greeting });
     speak(greeting, effectiveTutor === "rachel" ? "female" : "male");
-  }, [topic, addMessage, speak, profile, unlockTTS, canMakeCall, isPaid, username, userId, sessionToken, router, monthlySeconds]);
+  }, [topic, addMessage, speak, profile, unlockTTS, canMakeCall, isPaid, username, userId, sessionToken, router, monthlySeconds, trialSecondsLeft]);
 
   const handleMicPress = useCallback(async () => {
     if (isRecording || isSpeaking) return;
@@ -851,7 +846,7 @@ export default function Home() {
               <div>
                 {!isPaid && !isUnlimited && (
                   <p className="text-yellow-400 text-xs text-center mb-2">
-                    체험 통화 {trialCalls}회 남음 · 회당 {trialMinutes}분
+                    무료 체험 {Math.ceil(trialSecondsLeft / 60)}분 남음
                   </p>
                 )}
                 {isPaid && expiresAt && (
