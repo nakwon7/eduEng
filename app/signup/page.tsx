@@ -40,6 +40,7 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(false);
+  const [termsHighlight, setTermsHighlight] = useState(false);
 
   const usernameError = username && !USERNAME_REGEX.test(username)
     ? "영문자로 시작, 영문+숫자 4~20자"
@@ -55,7 +56,12 @@ export default function SignupPage() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (usernameError || emailError || passwordConfirmError || !agreedTerms) return;
+    if (usernameError || emailError || passwordConfirmError) return;
+    if (!agreedTerms) {
+      setError("이용약관 및 개인정보처리방침에 동의해주세요");
+      setTermsHighlight(true);
+      return;
+    }
     setError("");
     setLoading(true);
 
@@ -231,11 +237,18 @@ export default function SignupPage() {
             </div>
           </div>
 
-          <label className="flex items-start gap-2 cursor-pointer">
+          <label
+            className={`flex items-start gap-2 cursor-pointer p-2 -m-2 rounded-lg border transition-colors ${
+              termsHighlight ? "border-red-500/60 bg-red-500/5" : "border-transparent"
+            }`}
+          >
             <input
               type="checkbox"
               checked={agreedTerms}
-              onChange={(e) => setAgreedTerms(e.target.checked)}
+              onChange={(e) => {
+                setAgreedTerms(e.target.checked);
+                if (e.target.checked) setTermsHighlight(false);
+              }}
               className="mt-0.5 w-4 h-4 accent-green-500 shrink-0"
             />
             <span className="text-gray-400 text-xs leading-relaxed">
@@ -247,7 +260,7 @@ export default function SignupPage() {
 
           <button
             type="submit"
-            disabled={loading || !!usernameError || !!emailError || !!passwordConfirmError || !password || !passwordConfirm || !agreedTerms}
+            disabled={loading || !!usernameError || !!emailError || !!passwordConfirmError || !password || !passwordConfirm}
             className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 disabled:bg-none disabled:bg-gray-700 text-white rounded-xl font-semibold transition-all shadow-lg shadow-green-900/30"
           >
             {loading ? "가입 중..." : "가입하기"}
