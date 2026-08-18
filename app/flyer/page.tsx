@@ -2,7 +2,7 @@
 
 import { QRCodeSVG } from "qrcode.react";
 
-const APP_URL = "https://turingcall-ten.vercel.app?openExternalBrowser=1";
+const APP_URL = "https://turingcall.cloud?openExternalBrowser=1";
 
 export default function FlyerPage() {
   return (
@@ -143,7 +143,7 @@ export default function FlyerPage() {
         {/* 하단 푸터 */}
         <div style={{ textAlign: "center" }}>
           <p style={{ fontSize: "8pt", color: "#d1d5db" }}>
-            turingcall-ten.vercel.app
+            turingcall.cloud
           </p>
         </div>
       </div>

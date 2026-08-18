@@ -2,7 +2,7 @@
 
 import { QRCodeSVG } from "qrcode.react";
 
-const SIGNUP_URL = "https://turingcall-ten.vercel.app/landing/ko";
+const SIGNUP_URL = "https://turingcall.cloud/landing/ko";
 
 export default function QRKoPage() {
   return (
