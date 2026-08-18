@@ -56,7 +56,7 @@ export default function OpengraphImage() {
 
         <span
           style={{
-            color: "#9ca3af",
+            color: "#e5e7eb",
             fontSize: 30,
             fontFamily: "sans-serif",
             marginBottom: 36,
