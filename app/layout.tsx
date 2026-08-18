@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://turingcall.cloud"),
+  metadataBase: new URL("https://www.turingcall.cloud"),
   title: "튜링콜 - AI 전화영어",
   description: "실수하면 바로 짚어주는 AI 튜터와 매일 영어로 통화 연습",
   appleWebApp: {
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "튜링콜 - AI 전화영어",
     description: "실수하면 바로 짚어주는 AI 튜터와 매일 영어로 통화 연습",
-    url: "https://turingcall.cloud",
+    url: "https://www.turingcall.cloud",
     siteName: "튜링콜",
     locale: "ko_KR",
     type: "website",
