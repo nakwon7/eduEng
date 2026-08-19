@@ -594,7 +594,7 @@ export default function KoPage() {
         </div>
 
         {/* Body */}
-        <div className="flex-1 flex flex-col px-4 py-4 min-h-0">
+        <div className={`flex-1 flex flex-col px-4 py-4 min-h-0 relative ${callState !== "idle" ? "bg-gradient-to-b from-green-950/25 via-transparent to-transparent" : ""}`}>
           {showHelp && callState === "idle" ? (
             <div className="flex-1 overflow-y-auto px-2 py-4 space-y-4">
               <h2 className="text-white text-sm font-bold text-center mb-2">How to Use</h2>

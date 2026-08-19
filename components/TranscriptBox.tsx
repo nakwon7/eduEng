@@ -41,8 +41,8 @@ export default function TranscriptBox({
           <div
             className={`max-w-[85%] px-3 py-2 rounded-2xl text-sm ${
               msg.role === "user"
-                ? "bg-green-600 text-white rounded-br-sm"
-                : "bg-gray-700 text-gray-100 rounded-bl-sm"
+                ? "bg-gradient-to-br from-green-600 to-emerald-600 text-white rounded-br-sm shadow-lg shadow-green-900/20"
+                : "bg-gray-800/70 backdrop-blur-sm ring-1 ring-white/5 text-gray-100 rounded-bl-sm shadow-lg shadow-black/10"
             }`}
           >
             {msg.role === "assistant" && (
@@ -56,7 +56,7 @@ export default function TranscriptBox({
       {/* Interim user speech */}
       {interimTranscript && (
         <div className="flex justify-end">
-          <div className="max-w-[85%] px-3 py-2 rounded-2xl text-sm bg-green-800 text-green-200 rounded-br-sm opacity-70 italic">
+          <div className="max-w-[85%] px-3 py-2 rounded-2xl text-sm bg-gradient-to-br from-green-700 to-emerald-700 text-green-100 rounded-br-sm opacity-70 italic">
             {interimTranscript}
           </div>
         </div>
@@ -65,7 +65,7 @@ export default function TranscriptBox({
       {/* AI typing indicator */}
       {isAiTyping && (
         <div className="flex justify-start">
-          <div className="bg-gray-700 px-3 py-2 rounded-2xl rounded-bl-sm">
+          <div className="bg-gray-800/70 backdrop-blur-sm ring-1 ring-white/5 px-3 py-2 rounded-2xl rounded-bl-sm">
             <div className="flex gap-1">
               <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:0ms]" />
               <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:150ms]" />
