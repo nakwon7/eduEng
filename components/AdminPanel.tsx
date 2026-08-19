@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PLANS, PlanId, effectiveMinutes } from "@/lib/plans";
-import { trialRemainingSeconds } from "@/lib/trialCalc";
+import { trialRemainingSeconds, TRIAL_WINDOW_MS } from "@/lib/trialCalc";
 
 interface User {
   id: string;
@@ -67,6 +67,11 @@ function statusTint(u: User) {
   if (u.expires_at && new Date(u.expires_at) > new Date()) return "bg-green-500/5 border-green-500/15";
   if (trialRemainingSeconds(u.total_seconds ?? 0, u.trial_baseline_seconds ?? 0, u.trial_reset_at ?? null) > 0) return "bg-yellow-500/5 border-yellow-500/15";
   return "bg-red-500/5 border-red-500/15";
+}
+
+function trialExpiresAt(u: User): Date | null {
+  if (!u.trial_reset_at) return null;
+  return new Date(new Date(u.trial_reset_at).getTime() + TRIAL_WINDOW_MS);
 }
 
 function hasActiveMembership(u: User) {
@@ -442,6 +447,14 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                     만료: {new Date(u.expires_at).toLocaleDateString("ko-KR")} · 잔여 {remainingMinutes(u)}분 / {effectiveMinutes(u.plan, u.custom_minutes)}분
                   </p>
                 )}
+                {!hasActiveMembership(u) && !u.unlimited && trialRemainingSeconds(u.total_seconds ?? 0, u.trial_baseline_seconds ?? 0, u.trial_reset_at ?? null) > 0 && (() => {
+                  const expiry = trialExpiresAt(u);
+                  return expiry ? (
+                    <p className="text-gray-500 text-xs">
+                      체험 만료: {expiry.toLocaleString("ko-KR", { month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}까지
+                    </p>
+                  ) : null;
+                })()}
                 <button
                   onClick={() => handleToggleLogs(u.id)}
                   className="block text-gray-500 hover:text-gray-300 text-xs text-left transition-colors"

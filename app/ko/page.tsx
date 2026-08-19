@@ -91,6 +91,7 @@ export default function KoPage() {
   const [unlimited, setUnlimited] = useState(false);
   const [blocked, setBlocked] = useState(false);
   const [trialSecondsLeft, setTrialSecondsLeft] = useState(0);
+  const [trialExpiresAt, setTrialExpiresAt] = useState<string | null>(null);
   const [streakCount, setStreakCount] = useState(0);
   const [weeklySeconds, setWeeklySeconds] = useState(0);
   const [loaded, setLoaded] = useState(false);
@@ -167,6 +168,7 @@ export default function KoPage() {
           const summaryData = await summaryRes.json();
           setWeeklySeconds(summaryRes.ok ? summaryData.totalSeconds ?? 0 : 0);
           setTrialSecondsLeft(summaryRes.ok ? summaryData.trialRemainingSeconds ?? 0 : 0);
+          setTrialExpiresAt(summaryRes.ok ? summaryData.trialExpiresAt ?? null : null);
         }
 
         setLoaded(true);
@@ -883,6 +885,11 @@ export default function KoPage() {
               {!isPaid && !isUnlimited && (
                 <p className="text-yellow-400 text-xs text-center mb-2">
                   {Math.ceil(trialSecondsLeft / 60)} free trial min left
+                  {trialExpiresAt && (
+                    <span className="text-yellow-400/60">
+                      {" "}· until {new Date(trialExpiresAt).toLocaleString("en-US", { month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                  )}
                 </p>
               )}
               {hasActiveMembership && (

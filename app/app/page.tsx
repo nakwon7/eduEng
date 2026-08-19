@@ -41,6 +41,7 @@ export default function Home() {
   const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [trialSecondsLeft, setTrialSecondsLeft] = useState<number>(0);
+  const [trialExpiresAt, setTrialExpiresAt] = useState<string | null>(null);
   const [streakCount, setStreakCount] = useState<number>(0);
   const [streakFreezes, setStreakFreezes] = useState<number>(0);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
@@ -144,6 +145,7 @@ export default function Home() {
         const summaryData = await summaryRes.json();
         setMonthlySeconds(summaryRes.ok ? summaryData.totalSeconds ?? 0 : 0);
         setTrialSecondsLeft(summaryRes.ok ? summaryData.trialRemainingSeconds ?? 0 : 0);
+        setTrialExpiresAt(summaryRes.ok ? summaryData.trialExpiresAt ?? null : null);
       }
 
       setLoaded(true);
@@ -847,6 +849,11 @@ export default function Home() {
                 {!isPaid && !isUnlimited && (
                   <p className="text-yellow-400 text-xs text-center mb-2">
                     무료 체험 {Math.ceil(trialSecondsLeft / 60)}분 남음
+                    {trialExpiresAt && (
+                      <span className="text-yellow-400/60">
+                        {" "}· {new Date(trialExpiresAt).toLocaleString("ko-KR", { month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}까지
+                      </span>
+                    )}
                   </p>
                 )}
                 {isPaid && expiresAt && (
