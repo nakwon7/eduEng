@@ -42,7 +42,7 @@ export default function TranscriptBox({
             className={`max-w-[85%] px-3 py-2 rounded-2xl text-sm ${
               msg.role === "user"
                 ? "bg-gradient-to-br from-green-600 to-emerald-600 text-white rounded-br-sm shadow-lg shadow-green-900/20"
-                : "bg-gray-800/70 backdrop-blur-sm ring-1 ring-white/5 text-gray-100 rounded-bl-sm shadow-lg shadow-black/10"
+                : "bg-slate-800/80 backdrop-blur-sm border-l-2 border-emerald-500/50 text-gray-100 rounded-bl-sm shadow-lg shadow-black/20"
             }`}
           >
             {msg.role === "assistant" && (

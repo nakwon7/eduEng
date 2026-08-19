@@ -598,7 +598,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl ring-1 ring-white/5 overflow-hidden flex flex-col min-h-[700px]">
+      <div className={`w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-[700px] transition-all duration-500 ${callState !== "idle" ? "ring-2 ring-emerald-500/40 shadow-[0_0_50px_-8px_rgba(16,185,129,0.35)]" : "ring-1 ring-white/5"}`}>
         {/* Header (사진 배경이 상단 버튼 영역까지 확장, 이중 그라데이션으로 가독성 확보) */}
         <div className="bg-gray-800 px-6 pt-3 pb-6 text-center relative">
           {monthlyBg && (
@@ -718,7 +718,7 @@ export default function Home() {
         </div>
 
         {/* Body */}
-        <div className={`flex-1 flex flex-col px-4 py-4 min-h-0 relative ${callState !== "idle" && view === "home" ? "bg-gradient-to-b from-green-950/25 via-transparent to-transparent" : ""}`}>
+        <div className={`flex-1 flex flex-col px-4 py-4 min-h-0 relative ${callState !== "idle" && view === "home" ? "bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.16),transparent_65%)]" : ""}`}>
           {view === "help" ? (
             <div className="flex-1 overflow-y-auto px-2 py-4 space-y-4">
               <h2 className="text-white text-sm font-bold text-center mb-2">사용 방법</h2>
