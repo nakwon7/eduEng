@@ -1,11 +1,17 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 export default function LandingPage() {
   const router = useRouter();
+  const [fromKarrot, setFromKarrot] = useState(false);
+
+  useEffect(() => {
+    const utmSource = new URLSearchParams(window.location.search).get("utm_source");
+    if (utmSource?.toLowerCase() === "karrot") setFromKarrot(true);
+  }, []);
 
   useEffect(() => {
     const check = async () => {
@@ -27,6 +33,11 @@ export default function LandingPage() {
     <main className="min-h-screen bg-gray-950 text-white">
       {/* Hero */}
       <div className="flex flex-col items-center px-6 pt-16 pb-10 text-center">
+        {fromKarrot && (
+          <div className="mb-5 inline-flex items-center gap-1.5 px-3 py-1.5 bg-orange-500/10 border border-orange-500/30 rounded-full text-orange-300 text-xs font-medium">
+            🥕 당근에서 오셨네요! turingcall.cloud 공식 사이트예요, 안심하고 둘러보세요
+          </div>
+        )}
         <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mb-5 shadow-lg shadow-green-900/40">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-11 h-11">
             <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
