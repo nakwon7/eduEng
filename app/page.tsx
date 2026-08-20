@@ -34,8 +34,8 @@ export default function LandingPage() {
       {/* Hero */}
       <div className="flex flex-col items-center px-6 pt-16 pb-10 text-center">
         {fromKarrot && (
-          <div className="mb-5 inline-flex items-center gap-1.5 px-3 py-1.5 bg-orange-500/10 border border-orange-500/30 rounded-full text-orange-300 text-xs font-medium">
-            🥕 당근에서 오셨네요! turingcall.cloud 공식 사이트예요, 안심하고 둘러보세요
+          <div className="mb-5 inline-block px-3 py-1.5 bg-orange-500/10 border border-orange-500/30 rounded-2xl text-orange-300 text-xs font-medium text-center">
+            🥕 당근에서 오셨네요! turingcall.cloud 공식 사이트예요,<br />안심하고 둘러보세요
           </div>
         )}
         <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mb-5 shadow-lg shadow-green-900/40">

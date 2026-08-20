@@ -36,9 +36,7 @@ export default function InAppBrowserRedirect() {
       <div className="text-5xl mb-5">🎙️</div>
       <h2 className="text-white text-xl font-bold mb-2">외부 브라우저에서 열어주세요</h2>
       <p className="text-gray-400 text-sm mb-6 leading-relaxed">
-        {appName} 내부 브라우저에서는 마이크와 튜터 목소리가 작동하지 않아요.
-        <br />
-        {isAndroid ? "Chrome" : "Safari"}에서 열어주세요.
+        {appName} 내부 브라우저에서는 마이크와 튜터 목소리가 작동하지 않아요. {isAndroid ? "Chrome" : "Safari"}에서 열어주세요.
       </p>
 
       {isAndroid ? (
