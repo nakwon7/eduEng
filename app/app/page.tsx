@@ -775,7 +775,7 @@ export default function Home() {
                   color: "bg-indigo-500/15 text-indigo-400",
                   cardTint: "bg-indigo-500/5 border-indigo-500/15",
                   icon: <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></>,
-                  title: "앱으로 설치하기", desc: "iPhone: Safari에서 접속 → 하단 공유(□↑) → 홈 화면에 추가\nAndroid: Chrome에서 접속 → 우상단 메뉴(⋮) → 홈 화면에 추가\nPC: 주소창 오른쪽 설치(+) 버튼 클릭",
+                  title: "앱으로 설치하기", desc: "iPhone: Safari에서 접속 → 하단 공유(□↑) → 홈 화면에 추가\nAndroid: Chrome에서 접속 → 우상단 메뉴(⋮) → 설치 및 바로가기 만들기\nPC: 주소창 오른쪽 설치(+) 버튼 클릭",
                 },
               ].map((item) => (
                 <div key={item.title} className={`flex gap-3 border rounded-2xl p-4 ${item.cardTint}`}>

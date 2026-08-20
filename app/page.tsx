@@ -171,7 +171,7 @@ export default function LandingPage() {
                 <path d="M420.55 301.93a24 24 0 1 1 24-24 24 24 0 0 1-24 24m-265.1 0a24 24 0 1 1 24-24 24 24 0 0 1-24 24m273.7-144.48 47.94-83a10 10 0 1 0-17.27-10l-48.54 84.07a301.25 301.25 0 0 0-246.56 0L116.18 64.45a10 10 0 1 0-17.27 10l47.94 83C64.53 202.22 8.24 285.55 0 384h576c-8.24-98.45-64.54-181.78-146.85-226.55" />
               </svg>
             </div>
-            <p className="pt-1"><span className="text-gray-300">Android</span> — Chrome에서 접속 → 우상단 메뉴(⋮) → 홈 화면에 추가</p>
+            <p className="pt-1"><span className="text-gray-300">Android</span> — Chrome에서 접속 → 우상단 메뉴(⋮) → 설치 및 바로가기 만들기</p>
           </div>
           <div className="flex items-start gap-2.5">
             <div className="w-7 h-7 rounded-lg bg-gray-800 flex items-center justify-center shrink-0">
