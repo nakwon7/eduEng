@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  const { data: historyRows } = await admin.from("payment_history").select("user_id");
+  const { data: historyRows } = await admin.from("payment_history").select("user_id").eq("is_promo", false);
   const countMap = new Map<string, number>();
   for (const row of historyRows || []) {
     countMap.set(row.user_id, (countMap.get(row.user_id) || 0) + 1);

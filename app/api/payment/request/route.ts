@@ -30,7 +30,8 @@ export async function POST(req: NextRequest) {
   const { count } = await admin
     .from("payment_history")
     .select("id", { count: "exact", head: true })
-    .eq("user_id", userId);
+    .eq("user_id", userId)
+    .eq("is_promo", false);
 
   // 신규 첫 결제이거나, 이미 라이트 이용 중(만료 전) 조기결제인 경우에만 라이트 허용
   const isMidCycleLite = data.plan === "lite" && !!data.expires_at && new Date(data.expires_at) > new Date();

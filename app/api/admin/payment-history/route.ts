@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
 
   const { data: history } = await admin
     .from("payment_history")
-    .select("id, days, approved_at, plan")
+    .select("id, days, approved_at, plan, is_promo")
     .eq("user_id", targetId)
     .order("approved_at", { ascending: false });
 

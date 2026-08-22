@@ -85,9 +85,10 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
   const [callLogs, setCallLogs] = useState<Record<string, { date: string; seconds: number }[]>>({});
   const [expandedPaymentId, setExpandedPaymentId] = useState<string | null>(null);
-  const [paymentHistory, setPaymentHistory] = useState<Record<string, { id: string; days: number; approved_at: string; plan: PlanId }[]>>({});
+  const [paymentHistory, setPaymentHistory] = useState<Record<string, { id: string; days: number; approved_at: string; plan: PlanId; is_promo: boolean }[]>>({});
   const [selectedPlan, setSelectedPlan] = useState<Record<string, PlanId>>({});
   const [customMinutesInput, setCustomMinutesInput] = useState<Record<string, string>>({});
+  const [promoChecked, setPromoChecked] = useState<Record<string, boolean>>({});
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -116,13 +117,15 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
     const rawMinutes = customMinutesInput[targetId]?.trim();
     const customMinutes = rawMinutes ? Number(rawMinutes) : null;
     const minutesLabel = customMinutes ?? PLANS[plan].minutes;
-    if (!window.confirm(`${PLANS[plan].label} ${days}일 · ${minutesLabel}분으로 승인할까요?`)) return;
+    const isPromo = !!promoChecked[targetId];
+    const promoLabel = isPromo ? " (이벤트 지급 · 라이트 자격에는 영향 없음)" : "";
+    if (!window.confirm(`${PLANS[plan].label} ${days}일 · ${minutesLabel}분으로 승인할까요?${promoLabel}`)) return;
 
     setBusy(targetId + "_approve" + days);
     await fetch("/api/admin/approve", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, sessionToken, targetId, days, plan, customMinutes }),
+      body: JSON.stringify({ userId, sessionToken, targetId, days, plan, customMinutes, isPromo }),
     });
     // 결제이력 캐시를 무효화하고 다시 불러옴 — 안 그러면 승인 전에 이미 펼쳐본 적
     // 있는 유저는 방금 추가된 이력이 빠진 예전 목록이 계속 보임(펼침 상태일 때만
@@ -497,7 +500,10 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                             {new Date(h.approved_at).toLocaleString("ko-KR", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                           </span>
                           <span className="flex items-center gap-2">
-                            <span className="text-gray-300">+{h.days}일 ({PLANS[h.plan]?.label ?? h.plan})</span>
+                            <span className="text-gray-300">
+                              +{h.days}일 ({PLANS[h.plan]?.label ?? h.plan})
+                              {h.is_promo && <span className="text-amber-500"> · 이벤트</span>}
+                            </span>
                             <button
                               onClick={() => handleDeletePayment(u.id, h.id)}
                               disabled={busy === h.id + "_delpayment"}
@@ -557,6 +563,15 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                           <span className="text-emerald-500 text-xs whitespace-nowrap">현재 {u.custom_minutes}분 적용중</span>
                         )}
                       </div>
+                      <label className="flex items-center gap-1.5 text-xs text-gray-400 select-none">
+                        <input
+                          type="checkbox"
+                          checked={!!promoChecked[u.id]}
+                          onChange={(e) => setPromoChecked((prev) => ({ ...prev, [u.id]: e.target.checked }))}
+                          className="accent-amber-500"
+                        />
+                        이벤트 지급 (라이트 자격에 영향 없음)
+                      </label>
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleApprove(u.id, 7, eligibleForLite ? currentPlan : "standard")}

@@ -5,7 +5,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { isLiteEligible } from "@/lib/plans";
 
 export async function POST(req: NextRequest) {
-  const { userId, sessionToken, targetId, days = 30, plan = "standard", customMinutes = null } = await req.json();
+  const { userId, sessionToken, targetId, days = 30, plan = "standard", customMinutes = null, isPromo = false } = await req.json();
 
   const admin = supabaseAdmin();
 
@@ -26,7 +26,8 @@ export async function POST(req: NextRequest) {
   const { count } = await admin
     .from("payment_history")
     .select("id", { count: "exact", head: true })
-    .eq("user_id", targetId);
+    .eq("user_id", targetId)
+    .eq("is_promo", false);
   const { data: target } = await admin
     .from("profiles")
     .select("plan, expires_at, total_seconds")
@@ -61,7 +62,7 @@ export async function POST(req: NextRequest) {
 
   const { error: historyError } = await admin
     .from("payment_history")
-    .insert({ user_id: targetId, days: finalDays, plan: finalPlan });
+    .insert({ user_id: targetId, days: finalDays, plan: finalPlan, is_promo: isPromo });
   if (historyError) console.error("payment_history insert failed:", historyError.message);
 
   return NextResponse.json({ ok: true });

@@ -24,7 +24,8 @@ export async function POST(req: NextRequest) {
   const { count, error } = await admin
     .from("payment_history")
     .select("id", { count: "exact", head: true })
-    .eq("user_id", userId);
+    .eq("user_id", userId)
+    .eq("is_promo", false);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
