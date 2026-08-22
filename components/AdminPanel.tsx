@@ -89,6 +89,7 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
   const [selectedPlan, setSelectedPlan] = useState<Record<string, PlanId>>({});
   const [customMinutesInput, setCustomMinutesInput] = useState<Record<string, string>>({});
   const [promoChecked, setPromoChecked] = useState<Record<string, boolean>>({});
+  const [bonusMinutesInput, setBonusMinutesInput] = useState<Record<string, string>>({});
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -131,6 +132,22 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
     // 있는 유저는 방금 추가된 이력이 빠진 예전 목록이 계속 보임(펼침 상태일 때만
     // 재요청하는 구조라 캐시가 있으면 handleTogglePayments가 재요청을 건너뜀)
     if (paymentHistory[targetId]) await fetchPaymentHistory(targetId);
+    await fetchUsers();
+    setBusy(null);
+  };
+
+  const handleGrantBonus = async (targetId: string) => {
+    const bonusMinutes = Number(bonusMinutesInput[targetId]?.trim());
+    if (!bonusMinutes || bonusMinutes <= 0) return;
+    if (!window.confirm(`만료일/기존 분량은 그대로 두고 이번 사이클에 ${bonusMinutes}분을 추가로 얹어줄까요?`)) return;
+
+    setBusy(targetId + "_bonus");
+    const res = await fetch("/api/admin/grant-bonus-minutes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, sessionToken, targetId, bonusMinutes }),
+    });
+    if (res.ok) setBonusMinutesInput((prev) => ({ ...prev, [targetId]: "" }));
     await fetchUsers();
     setBusy(null);
   };
@@ -446,9 +463,28 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                 </div>
 
                 {u.expires_at && new Date(u.expires_at) > new Date() && (
-                  <p className="text-gray-500 text-xs">
-                    만료: {new Date(u.expires_at).toLocaleDateString("ko-KR")} · 잔여 {remainingMinutes(u)}분 / {effectiveMinutes(u.plan, u.custom_minutes)}분
-                  </p>
+                  <>
+                    <p className="text-gray-500 text-xs">
+                      만료: {new Date(u.expires_at).toLocaleDateString("ko-KR")} · 잔여 {remainingMinutes(u)}분 / {effectiveMinutes(u.plan, u.custom_minutes)}분
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        min={0}
+                        placeholder="보너스 분량(분)"
+                        value={bonusMinutesInput[u.id] ?? ""}
+                        onChange={(e) => setBonusMinutesInput((prev) => ({ ...prev, [u.id]: e.target.value }))}
+                        className="flex-1 min-w-0 py-1.5 px-2 bg-gray-800 text-gray-200 placeholder-gray-600 text-xs rounded-xl border border-gray-700 focus:outline-none focus:border-amber-600"
+                      />
+                      <button
+                        onClick={() => handleGrantBonus(u.id)}
+                        disabled={!!busy || u.blocked || !bonusMinutesInput[u.id]?.trim()}
+                        className="py-1.5 px-3 bg-amber-700 hover:bg-amber-600 disabled:bg-gray-700 disabled:opacity-50 text-white text-xs rounded-xl transition-all whitespace-nowrap"
+                      >
+                        {busy === u.id + "_bonus" ? "..." : "보너스 지급"}
+                      </button>
+                    </div>
+                  </>
                 )}
                 {!hasActiveMembership(u) && !u.unlimited && trialRemainingSeconds(u.total_seconds ?? 0, u.trial_baseline_seconds ?? 0, u.trial_reset_at ?? null) > 0 && (() => {
                   const expiry = trialExpiresAt(u);
