@@ -198,6 +198,7 @@ export default function Home() {
 
   const handleLogout = async () => {
     localStorage.removeItem("turingcall_session");
+    document.cookie = "tc_skip_visit=1; path=/; max-age=0";
     await supabase.auth.signOut();
     router.push("/login");
   };

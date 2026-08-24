@@ -63,6 +63,11 @@ export default function LoginPage() {
       await supabase.from("profiles").update({ session_token: sessionToken }).eq("id", userId);
       localStorage.setItem("turingcall_session", sessionToken);
 
+      // 관리자 계정은 방문자수 집계에서 제외 (proxy.ts에서 이 쿠키를 확인함)
+      if (username === "gooster") {
+        document.cookie = "tc_skip_visit=1; path=/; max-age=31536000; SameSite=Lax";
+      }
+
       router.replace(ko_access ? "/ko" : "/app");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "로그인 실패");

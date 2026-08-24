@@ -26,9 +26,11 @@ async function logVisit(ip: string) {
 }
 
 // 베타 기간: 인증 없이 통과, 방문자만 IP당 1시간에 한 번 기록
+// gooster(관리자) 로그인 시 login/page.tsx에서 심는 쿠키 — 관리자 본인 접속은 집계 제외
 export function proxy(request: NextRequest, event: NextFetchEvent) {
   const ip = getClientIp(request);
-  if (ip !== "unknown") {
+  const isAdmin = request.cookies.get("tc_skip_visit")?.value === "1";
+  if (ip !== "unknown" && !isAdmin) {
     event.waitUntil(logVisit(ip));
   }
   return NextResponse.next();
