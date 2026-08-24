@@ -51,6 +51,8 @@ export default function Home() {
   const [micPermState, setMicPermState] = useState<PermissionState | null>(null);
   const [showTerms, setShowTerms] = useState(false);
   const [showStreakInfo, setShowStreakInfo] = useState(false);
+  const [visitorWeek, setVisitorWeek] = useState<{ date: string; count: number }[] | null>(null);
+  const [showVisitorInfo, setShowVisitorInfo] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const monthlyBg = useMonthlyBg();
   const [feedback, setFeedback] = useState<FeedbackData | null>(null);
@@ -87,6 +89,18 @@ export default function Home() {
   useEffect(() => { callDurationRef.current = callDuration; }, [callDuration]);
   useEffect(() => { callStateRef.current = callState; }, [callState]);
   useEffect(() => { topicRef.current = topic; }, [topic]);
+
+  useEffect(() => {
+    if (username !== "gooster" || !userId || !sessionToken) return;
+    fetch("/api/admin/visitor-summary", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, sessionToken }),
+    })
+      .then((r) => r.json())
+      .then((d) => { if (d.visitors) setVisitorWeek(d.visitors); })
+      .catch(() => {});
+  }, [username, userId, sessionToken]);
 
   const isAndroid = typeof navigator !== "undefined" && /Android/i.test(navigator.userAgent);
   const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -667,6 +681,32 @@ export default function Home() {
           <p className="text-gray-300 text-sm [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">
             {effectiveTutor === "rachel" ? "AI Tutor · Korean-American · From Seattle, WA" : "AI Tutor · From New York, NY"}
           </p>
+          {username === "gooster" && visitorWeek && (
+            <div className="text-cyan-300 text-xs mt-1 relative inline-block [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">
+              <button onClick={() => setShowVisitorInfo((v) => !v)} className="flex items-center gap-1">
+                👀 최근 7일 방문자 {visitorWeek.reduce((s, d) => s + d.count, 0)}명 <span className="text-gray-400">ⓘ</span>
+              </button>
+              {showVisitorInfo && (
+                <div
+                  className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-6"
+                  onClick={() => setShowVisitorInfo(false)}
+                >
+                  <div
+                    className="w-full max-w-xs bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-gray-300 text-xs text-left shadow-xl space-y-1.5"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <p className="text-gray-400 font-medium mb-1">최근 7일 방문자 (IP당 1시간 1회)</p>
+                    {visitorWeek.map((d) => (
+                      <div key={d.date} className="flex justify-between">
+                        <span>{d.date}</span>
+                        <span>{d.count}명</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
           {profile && callState === "idle" && (
             <div className="text-green-400 text-xs mt-1 relative inline-block [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">
               <p>
