@@ -4,14 +4,13 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
-type Tab = "daily" | "monthly" | "yearly" | "topic" | "user" | "visitor";
+type Tab = "daily" | "monthly" | "yearly" | "topic" | "user";
 
 interface DailyStat { date: string; seconds: number; calls: number; }
 interface MonthlyStat { month: string; seconds: number; calls: number; }
 interface YearlyStat { year: string; seconds: number; calls: number; }
 interface TopicStat { topic: string; seconds: number; calls: number; }
 interface UserStat { id: string; username: string; name: string; level: string; total_seconds: number; created_at: string; status: string; }
-interface VisitorStat { date: string; count: number; }
 
 interface Stats {
   daily: DailyStat[];
@@ -19,8 +18,6 @@ interface Stats {
   yearly: YearlyStat[];
   byTopic: TopicStat[];
   byUser: UserStat[];
-  visitors: VisitorStat[];
-  visitorsToday: number;
 }
 
 const LEVEL: Record<string, string> = { beginner: "초급", intermediate: "중급", advanced: "고급" };
@@ -103,7 +100,6 @@ export default function StatsPage() {
     { key: "yearly", label: "연별" },
     { key: "topic", label: "주제별" },
     { key: "user", label: "사용자별" },
-    { key: "visitor", label: "방문자" },
   ];
 
   return (
@@ -119,12 +115,11 @@ export default function StatsPage() {
         </div>
 
         {/* 요약 카드 */}
-        <div className="grid grid-cols-5 gap-4">
+        <div className="grid grid-cols-4 gap-4">
           <SummaryCard label="전체 회원" value={`${totalUsers}명`} tint="bg-blue-500/5 border-blue-500/15" />
           <SummaryCard label="유료 회원" value={`${paidUsers}명`} tint="bg-green-500/5 border-green-500/15" />
           <SummaryCard label="최근 30일 통화" value={`${totalCalls}건`} tint="bg-purple-500/5 border-purple-500/15" />
           <SummaryCard label="누적 통화 시간" value={fmt(totalSeconds)} tint="bg-amber-500/5 border-amber-500/15" />
-          <SummaryCard label="오늘 방문자" value={`${stats.visitorsToday}명`} tint="bg-cyan-500/5 border-cyan-500/15" />
         </div>
 
         {/* 탭 */}
@@ -264,27 +259,6 @@ export default function StatsPage() {
                 ))}
               </tbody>
             </table>
-          </div>
-        )}
-
-        {/* 방문자 */}
-        {tab === "visitor" && (
-          <div className="bg-cyan-500/5 border border-cyan-500/15 rounded-2xl p-6 space-y-3">
-            <h2 className="text-sm font-semibold text-gray-300 mb-4">최근 30일 방문자 (IP당 1시간에 1회 집계)</h2>
-            {stats.visitors.length === 0 ? (
-              <p className="text-gray-500 text-sm">데이터 없음</p>
-            ) : (() => {
-              const max = Math.max(...stats.visitors.map((d) => d.count));
-              return stats.visitors.map((d) => (
-                <div key={d.date} className="space-y-1">
-                  <div className="flex justify-between text-xs text-gray-400">
-                    <span>{d.date}</span>
-                    <span>{d.count}명</span>
-                  </div>
-                  <Bar value={d.count} max={max} color="bg-cyan-500" />
-                </div>
-              ));
-            })()}
           </div>
         )}
       </div>

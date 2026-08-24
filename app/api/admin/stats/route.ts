@@ -19,29 +19,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const visitorCutoff = new Date();
-  visitorCutoff.setDate(visitorCutoff.getDate() - 29);
-
-  const [{ data: logs }, { data: users }, { data: visitorRows }] = await Promise.all([
+  const [{ data: logs }, { data: users }] = await Promise.all([
     admin.from("call_logs").select("user_id, date, seconds, topic"),
     admin.from("profiles").select("id, username, name, level, expires_at, unlimited, total_seconds, created_at, trial_baseline_seconds, trial_reset_at"),
-    admin.from("visitor_logs").select("created_at").gte("created_at", visitorCutoff.toISOString()),
   ]);
 
   const allLogs = logs || [];
   const allUsers = users || [];
-
-  // 방문자 (최근 30일, KST 기준 일별 집계 — proxy.ts에서 IP당 1시간에 1회만 기록됨)
-  const kstDay = (iso: string) => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(new Date(iso));
-  const visitorMap = new Map<string, number>();
-  (visitorRows || []).forEach((v) => {
-    const day = kstDay(v.created_at);
-    visitorMap.set(day, (visitorMap.get(day) || 0) + 1);
-  });
-  const visitors = Array.from(visitorMap.entries())
-    .map(([date, count]) => ({ date, count }))
-    .sort((a, b) => a.date.localeCompare(b.date));
-  const visitorsToday = visitorMap.get(kstDay(new Date().toISOString())) || 0;
 
   // 일별 (최근 30일)
   const dailyMap = new Map<string, { seconds: number; calls: number }>();
@@ -110,5 +94,5 @@ export async function POST(req: NextRequest) {
       : "체험 소진",
   })).sort((a, b) => b.total_seconds - a.total_seconds);
 
-  return NextResponse.json({ daily, monthly, yearly, byTopic, byUser, visitors, visitorsToday });
+  return NextResponse.json({ daily, monthly, yearly, byTopic, byUser });
 }
