@@ -93,6 +93,8 @@ export default function KoPage() {
   const [trialSecondsLeft, setTrialSecondsLeft] = useState(0);
   const [trialExpiresAt, setTrialExpiresAt] = useState<string | null>(null);
   const [streakCount, setStreakCount] = useState(0);
+  const [streakFreezes, setStreakFreezes] = useState(0);
+  const [lastStreakDate, setLastStreakDate] = useState<string | null>(null);
   const [weeklySeconds, setWeeklySeconds] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [showSetup, setShowSetup] = useState(false);
@@ -135,7 +137,7 @@ export default function KoPage() {
         const storedToken = localStorage.getItem("turingcall_session");
         const { data: profileData } = await supabase
           .from("profiles")
-          .select("username, name, level, ko_tutor, session_token, expires_at, unlimited, blocked, ko_access, payment_requested_at, payment_reject_reason, streak_count")
+          .select("username, name, level, ko_tutor, session_token, expires_at, unlimited, blocked, ko_access, payment_requested_at, payment_reject_reason, streak_count, streak_freezes, last_streak_date")
           .eq("id", session.user.id)
           .single();
 
@@ -151,6 +153,8 @@ export default function KoPage() {
         setUnlimited(profileData.unlimited ?? false);
         setBlocked(profileData.blocked ?? false);
         setStreakCount(profileData.streak_count ?? 0);
+        setStreakFreezes(profileData.streak_freezes ?? 0);
+        setLastStreakDate(profileData.last_streak_date ?? null);
         setPaymentRequestedAt(profileData.payment_requested_at ?? null);
         setPaymentRejectReason(profileData.payment_reject_reason ?? null);
         setProfile({
@@ -178,6 +182,20 @@ export default function KoPage() {
     });
     return () => subscription.unsubscribe();
   }, [router]);
+
+  // streak_count는 통화 종료 시(bump_streak)에만 갱신되는 값이라, 마지막 통화 후 며칠이
+  // 지나도 다음 통화 전까지는 예전 값이 그대로 남아있음 — 프리즈로 못 버틸 만큼 공백이
+  // 벌어졌으면(다음 통화 시 서버가 리셋할 게 확실하면) 배지를 안 보여줌 ([[project_edueng]] 참고,
+  // /app과 동일 기준)
+  const isStreakAlive = (() => {
+    if (!lastStreakDate) return false;
+    const todayStr = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(new Date());
+    const gapDays = Math.round(
+      (new Date(todayStr + "T00:00:00").getTime() - new Date(lastStreakDate + "T00:00:00").getTime()) / 86400000
+    );
+    const missedDays = Math.max(0, gapDays - 1);
+    return missedDays <= streakFreezes;
+  })();
 
   const isPaid = !!expiresAt && new Date(expiresAt) > new Date();
   const isUnlimited = unlimited;
@@ -580,7 +598,7 @@ export default function KoPage() {
             <span className="text-blue-400 text-xs font-medium bg-blue-900/40 px-2 py-0.5 rounded-full">
               🇰🇷 Korean for Foreigners
             </span>
-            {callState === "idle" && streakCount > 0 && (
+            {callState === "idle" && streakCount > 0 && isStreakAlive && (
               <span className="text-orange-400 text-xs font-medium [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">🔥 {streakCount} day streak</span>
             )}
           </div>

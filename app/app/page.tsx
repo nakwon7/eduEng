@@ -44,6 +44,7 @@ export default function Home() {
   const [trialExpiresAt, setTrialExpiresAt] = useState<string | null>(null);
   const [streakCount, setStreakCount] = useState<number>(0);
   const [streakFreezes, setStreakFreezes] = useState<number>(0);
+  const [lastStreakDate, setLastStreakDate] = useState<string | null>(null);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [unlimited, setUnlimited] = useState(false);
   const [blocked, setBlocked] = useState(false);
@@ -118,7 +119,7 @@ export default function Home() {
       const storedToken = localStorage.getItem("turingcall_session");
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("name, level, tutor, username, session_token, expires_at, unlimited, blocked, ko_access, payment_requested_at, payment_reject_reason, streak_count, streak_freezes, plan, custom_minutes")
+        .select("name, level, tutor, username, session_token, expires_at, unlimited, blocked, ko_access, payment_requested_at, payment_reject_reason, streak_count, streak_freezes, last_streak_date, plan, custom_minutes")
         .eq("id", session.user.id)
         .single();
 
@@ -140,6 +141,7 @@ export default function Home() {
       setProfile({ name: profileData.name, level: profileData.level, tutor: profileData.tutor || "alex" });
       setStreakCount(profileData.streak_count ?? 0);
       setStreakFreezes(profileData.streak_freezes ?? 0);
+      setLastStreakDate(profileData.last_streak_date ?? null);
       setExpiresAt(profileData.expires_at ?? null);
       setUnlimited(profileData.unlimited ?? false);
       setBlocked(profileData.blocked ?? false);
@@ -599,6 +601,21 @@ export default function Home() {
     return `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
   };
 
+  // streak_count는 통화가 끝날 때만(bump_streak) 갱신되는 값이라, 마지막 통화 이후
+  // 며칠이 지나도 다음 통화 전까지는 DB에 예전 값이 그대로 남아있음 — 화면에 그대로
+  // 보여주면 "며칠째 통화 안 했는데 아직도 N일 연속"으로 보이는 문제가 생겨서,
+  // 프리즈로 못 버틸 만큼 공백이 벌어졌으면(=다음 통화 시 서버가 리셋할 게 확실하면)
+  // 배지 자체를 안 보여줌 (bump_streak의 "gap <= 프리즈면 유지, 아니면 리셋" 판정과 동일 기준)
+  const isStreakAlive = (() => {
+    if (!lastStreakDate) return false;
+    const todayStr = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(new Date());
+    const gapDays = Math.round(
+      (new Date(todayStr + "T00:00:00").getTime() - new Date(lastStreakDate + "T00:00:00").getTime()) / 86400000
+    );
+    const missedDays = Math.max(0, gapDays - 1);
+    return missedDays <= streakFreezes;
+  })();
+
   const isBusy = isTranscribing || isAiTyping || isSpeaking;
   const tutorDisplayName = effectiveTutor === "rachel" ? "Rachel" : "Alex";
   const userTurnCount = messages.filter((m) => m.role === "user").length;
@@ -744,7 +761,7 @@ export default function Home() {
             <div className="text-green-400 text-xs mt-1 relative inline-block [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">
               <p>
                 안녕하세요, {profile.name}님 👋
-                {streakCount > 0 && (
+                {streakCount > 0 && isStreakAlive && (
                   <button
                     onClick={() => setShowStreakInfo((v) => !v)}
                     className="ml-2 text-orange-400"
@@ -752,7 +769,7 @@ export default function Home() {
                     🔥 {streakCount}일 연속 통화중 <span className="text-gray-400">ⓘ</span>
                   </button>
                 )}
-                {streakCount > 0 && (
+                {streakCount > 0 && isStreakAlive && (
                   <button
                     onClick={() => setShowStreakInfo((v) => !v)}
                     className="ml-2 text-cyan-300"
