@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { isBotUserAgent } from "@/lib/visitorBot";
 
 export async function POST(req: NextRequest) {
   const { userId, sessionToken } = await req.json();
@@ -43,5 +44,18 @@ export async function POST(req: NextRequest) {
     .map(([date, count]) => ({ date, count }))
     .sort((a, b) => a.date.localeCompare(b.date));
 
-  return NextResponse.json({ visitors });
+  const { data: recentRows } = await admin
+    .from("visitor_logs")
+    .select("ip, region, is_hosting, user_agent, created_at")
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  const recent = (recentRows || []).map((r) => ({
+    ip: r.ip,
+    region: r.region,
+    createdAt: r.created_at,
+    isBot: Boolean(r.is_hosting) || isBotUserAgent(r.user_agent),
+  }));
+
+  return NextResponse.json({ visitors, recent });
 }

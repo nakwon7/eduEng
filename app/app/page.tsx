@@ -52,6 +52,9 @@ export default function Home() {
   const [showTerms, setShowTerms] = useState(false);
   const [showStreakInfo, setShowStreakInfo] = useState(false);
   const [visitorWeek, setVisitorWeek] = useState<{ date: string; count: number }[] | null>(null);
+  const [visitorRecent, setVisitorRecent] = useState<
+    { ip: string; region: string | null; createdAt: string; isBot: boolean }[] | null
+  >(null);
   const [showVisitorInfo, setShowVisitorInfo] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const monthlyBg = useMonthlyBg();
@@ -98,7 +101,10 @@ export default function Home() {
       body: JSON.stringify({ userId, sessionToken }),
     })
       .then((r) => r.json())
-      .then((d) => { if (d.visitors) setVisitorWeek(d.visitors); })
+      .then((d) => {
+        if (d.visitors) setVisitorWeek(d.visitors);
+        if (d.recent) setVisitorRecent(d.recent);
+      })
       .catch(() => {});
   }, [username, userId, sessionToken]);
 
@@ -692,7 +698,7 @@ export default function Home() {
                   onClick={() => setShowVisitorInfo(false)}
                 >
                   <div
-                    className="w-full max-w-xs bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-gray-300 text-xs text-left shadow-xl space-y-1.5"
+                    className="w-full max-w-xs bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-gray-300 text-xs text-left shadow-xl space-y-1.5 max-h-[80vh] overflow-y-auto"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <p className="text-gray-400 font-medium mb-1">최근 7일 방문자 (IP당 1시간 1회)</p>
@@ -702,6 +708,31 @@ export default function Home() {
                         <span>{d.count}명</span>
                       </div>
                     ))}
+                    {visitorRecent && visitorRecent.length > 0 && (
+                      <>
+                        <p className="text-gray-400 font-medium mt-3 mb-1 pt-2 border-t border-gray-700">
+                          최근 방문 로그 (최대 50건)
+                        </p>
+                        <div className="space-y-1">
+                          {visitorRecent.map((v, i) => (
+                            <div key={i} className="flex justify-between gap-2">
+                              <span className="truncate">
+                                {v.isBot && "🤖 "}
+                                {v.ip}
+                                {v.region && ` · ${v.region}`}
+                              </span>
+                              <span className="text-gray-500 shrink-0">
+                                {new Date(v.createdAt).toLocaleTimeString("ko-KR", {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  timeZone: "Asia/Seoul",
+                                })}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               )}
