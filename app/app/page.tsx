@@ -698,7 +698,7 @@ export default function Home() {
                   onClick={() => setShowVisitorInfo(false)}
                 >
                   <div
-                    className="w-full max-w-xs bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-gray-300 text-xs text-left shadow-xl space-y-1.5 max-h-[80vh] overflow-y-auto"
+                    className="w-full max-w-sm bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-gray-300 text-xs text-left shadow-xl space-y-1.5 max-h-[80vh] overflow-y-auto"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <p className="text-gray-400 font-medium mb-1">최근 7일 방문자 (IP당 1시간 1회)</p>
@@ -715,11 +715,13 @@ export default function Home() {
                         </p>
                         <div className="space-y-1">
                           {visitorRecent.map((v, i) => (
-                            <div key={i} className="flex justify-between gap-2">
-                              <span className="truncate">
-                                {v.isBot && "🤖 "}
-                                {v.ip}
-                                {v.region && ` · ${v.region}`}
+                            <div key={i} className="flex items-center gap-2">
+                              <span className="truncate flex-1 min-w-0">{v.ip}</span>
+                              <span className="shrink-0" title={v.isBot ? "봇 의심" : "일반 방문"}>
+                                {v.isBot ? "🤖" : "👤"}
+                              </span>
+                              <span className="text-gray-400 shrink-0 max-w-[88px] truncate">
+                                {v.region || "-"}
                               </span>
                               <span className="text-gray-500 shrink-0">
                                 {new Date(v.createdAt).toLocaleTimeString("ko-KR", {
