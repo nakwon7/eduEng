@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
 
   const { data: rows } = await admin
     .from("visitor_logs")
-    .select("created_at")
+    .select("created_at, is_hosting, user_agent")
     .gte("created_at", cutoff.toISOString());
 
   const kstDay = (iso: string) => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(new Date(iso));
@@ -36,6 +36,9 @@ export async function POST(req: NextRequest) {
     countMap.set(kstDay(d.toISOString()), 0);
   }
   (rows || []).forEach((r) => {
+    // 같은 봇이 Cloudflare 등 대역의 IP를 바꿔가며 접속해 (ip, hour_bucket) 유니크 제약을
+    // 우회하는 경우가 있어, 방문자수 집계에서는 hosting/봇으로 판별된 행을 제외
+    if (r.is_hosting || isBotUserAgent(r.user_agent)) return;
     const day = kstDay(r.created_at);
     if (countMap.has(day)) countMap.set(day, (countMap.get(day) || 0) + 1);
   });
