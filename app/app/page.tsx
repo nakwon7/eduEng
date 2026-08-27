@@ -138,6 +138,11 @@ export default function Home() {
       setUserId(session.user.id);
       setSessionToken(storedToken);
       setUsername(profileData.username);
+      // 로그인 폼을 거치지 않고 세션이 자동 복원되는 경우(새로고침, 재방문)에도
+      // 관리자 방문자수 집계 제외 쿠키가 항상 살아있도록 매 로드마다 갱신
+      if (profileData.username === "gooster") {
+        document.cookie = "tc_skip_visit=1; path=/; max-age=31536000; SameSite=Lax";
+      }
       setProfile({ name: profileData.name, level: profileData.level, tutor: profileData.tutor || "alex" });
       setStreakCount(profileData.streak_count ?? 0);
       setStreakFreezes(profileData.streak_freezes ?? 0);
