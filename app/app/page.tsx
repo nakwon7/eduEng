@@ -668,9 +668,12 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
-      <div className={`w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-[500px] max-h-[calc(100dvh-2rem)] transition-all duration-500 ${callState !== "idle" ? "ring-2 ring-emerald-500/40 shadow-[0_0_50px_-8px_rgba(16,185,129,0.35)]" : "ring-1 ring-white/5"}`}>
-        {/* Header (사진 배경이 상단 버튼 영역까지 확장, 이중 그라데이션으로 가독성 확보) */}
-        <div className="bg-gray-800 px-6 pt-3 pb-6 text-center relative">
+      <div className={`w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl flex flex-col min-h-[700px] transition-all duration-500 ${callState !== "idle" ? "ring-2 ring-emerald-500/40 shadow-[0_0_50px_-8px_rgba(16,185,129,0.35)]" : "ring-1 ring-white/5"}`}>
+        {/* Header (사진 배경이 상단 버튼 영역까지 확장, 이중 그라데이션으로 가독성 확보) — 나머지는 자연스럽게
+            페이지 스크롤되는 동안 이 헤더만 화면 위에 고정되도록 sticky. 카드 자체는 overflow-hidden을
+            빼서(sticky가 overflow-hidden인 조상 안에서는 제대로 안 붙는 CSS 특성 때문) 대신 헤더 자체에
+            rounded-t-3xl + overflow-hidden을 줘서 배경사진이 카드 위쪽 둥근 모서리에 맞게 잘리게 함 */}
+        <div className="sticky top-0 z-20 rounded-t-3xl overflow-hidden bg-gray-800 px-6 pt-3 pb-6 text-center relative">
           {monthlyBg && (
             <>
               <Image
@@ -945,7 +948,7 @@ export default function Home() {
               onDismiss={() => { setFeedback(null); setIsFetchingFeedback(false); }}
             />
           ) : callState === "idle" ? (
-            <div className="flex-1 flex flex-col justify-between overflow-y-auto min-h-0">
+            <div className="flex-1 flex flex-col justify-between">
               <div>
                 {dailyQuestion && (
                   <DailyQuestionBanner
