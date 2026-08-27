@@ -53,7 +53,7 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
   };
 
   return (
-    <div className="flex-1 flex flex-col justify-center px-2 py-4">
+    <div className="flex-1 flex flex-col justify-center px-2 py-4 overflow-y-auto min-h-0">
       <p className="text-green-400 text-sm text-center mb-6">
         {existing ? "프로필 수정" : "처음 오셨군요! 간단히 알려주세요 👋"}
       </p>
@@ -163,6 +163,11 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
             </button>
           ))}
         </div>
+        {!isGoalTopicNew && (
+          <p className="text-gray-500 text-xs mt-2">
+            홈 화면 기본 통화 주제와 통화 후 추천 표현이 여기서 고른 주제에 맞춰져요.
+          </p>
+        )}
       </div>
 
       <button

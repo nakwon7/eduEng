@@ -668,7 +668,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
-      <div className={`w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-[700px] transition-all duration-500 ${callState !== "idle" ? "ring-2 ring-emerald-500/40 shadow-[0_0_50px_-8px_rgba(16,185,129,0.35)]" : "ring-1 ring-white/5"}`}>
+      <div className={`w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-[500px] max-h-[calc(100dvh-2rem)] transition-all duration-500 ${callState !== "idle" ? "ring-2 ring-emerald-500/40 shadow-[0_0_50px_-8px_rgba(16,185,129,0.35)]" : "ring-1 ring-white/5"}`}>
         {/* Header (사진 배경이 상단 버튼 영역까지 확장, 이중 그라데이션으로 가독성 확보) */}
         <div className="bg-gray-800 px-6 pt-3 pb-6 text-center relative">
           {monthlyBg && (
@@ -945,7 +945,7 @@ export default function Home() {
               onDismiss={() => { setFeedback(null); setIsFetchingFeedback(false); }}
             />
           ) : callState === "idle" ? (
-            <div className="flex-1 flex flex-col justify-between">
+            <div className="flex-1 flex flex-col justify-between overflow-y-auto min-h-0">
               <div>
                 {dailyQuestion && (
                   <DailyQuestionBanner
