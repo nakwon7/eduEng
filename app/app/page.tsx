@@ -670,10 +670,11 @@ export default function Home() {
     <main className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
       <div className={`w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl flex flex-col min-h-[700px] transition-all duration-500 ${callState !== "idle" ? "ring-2 ring-emerald-500/40 shadow-[0_0_50px_-8px_rgba(16,185,129,0.35)]" : "ring-1 ring-white/5"}`}>
         {/* Header (사진 배경이 상단 버튼 영역까지 확장, 이중 그라데이션으로 가독성 확보) — 나머지는 자연스럽게
-            페이지 스크롤되는 동안 이 헤더만 화면 위에 고정되도록 sticky. 카드 자체는 overflow-hidden을
-            빼서(sticky가 overflow-hidden인 조상 안에서는 제대로 안 붙는 CSS 특성 때문) 대신 헤더 자체에
-            rounded-t-3xl + overflow-hidden을 줘서 배경사진이 카드 위쪽 둥근 모서리에 맞게 잘리게 함 */}
-        <div className="sticky top-0 z-20 rounded-t-3xl overflow-hidden bg-gray-800 px-6 pt-3 pb-6 text-center relative">
+            페이지 스크롤되는 동안 이 헤더만 화면 위에 고정되도록 sticky. sticky와 overflow-hidden을 같은
+            요소에 걸면 iOS 사파리 등에서 스크롤 중 지글거리는(jitter) 버그가 있어서, sticky는 바깥 래퍼가
+            전담하고 overflow-hidden(모서리 클리핑)은 안쪽 래퍼로 분리함 */}
+        <div className="sticky top-0 z-20">
+        <div className="rounded-t-3xl overflow-hidden bg-gray-800 px-6 pt-3 pb-6 text-center relative">
           {monthlyBg && (
             <>
               <Image
@@ -841,6 +842,7 @@ export default function Home() {
           )}
           {callState === "calling" && <p className="text-yellow-400 text-sm mt-1 animate-pulse [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">연결 중...</p>}
           </div>
+        </div>
         </div>
 
         {/* Body */}
