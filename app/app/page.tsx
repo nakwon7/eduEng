@@ -4,8 +4,9 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useMonthlyBg } from "@/hooks/useMonthlyBg";
-import TopicSelector from "@/components/TopicSelector";
+import TopicSelector, { TOPICS } from "@/components/TopicSelector";
 import DailyQuestionBanner from "@/components/DailyQuestionBanner";
+import ReviewBanner from "@/components/ReviewBanner";
 import { seoulDateKey } from "@/lib/dailyTopic";
 import CopyButton from "@/components/CopyButton";
 import TranscriptBox, { Message } from "@/components/TranscriptBox";
@@ -32,6 +33,7 @@ export default function Home() {
   const [callState, setCallState] = useState<CallState>("idle");
   const [topic, setTopic] = useState("Daily Conversation");
   const [dailyQuestion, setDailyQuestion] = useState<{ ko: string; en: string; categoryId?: string; categoryLabel?: string } | null>(null);
+  const [reviewMistake, setReviewMistake] = useState<{ original: string; corrected: string; explanation?: string | null; topic?: string | null } | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isAiTyping, setIsAiTyping] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
@@ -76,6 +78,7 @@ export default function Home() {
   const freezeNoticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [freezeCelebration, setFreezeCelebration] = useState<{ count: number; freezesRemaining: number } | null>(null);
   const freezeCelebrationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const goalTopicAppliedRef = useRef(false);
   const isTrialCallRef = useRef(false);
   const topicRef = useRef(topic);
   const callDurationRef = useRef(0);
@@ -119,7 +122,7 @@ export default function Home() {
       const storedToken = localStorage.getItem("turingcall_session");
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("name, level, tutor, username, session_token, expires_at, unlimited, blocked, ko_access, payment_requested_at, payment_reject_reason, streak_count, streak_freezes, last_streak_date, plan, custom_minutes")
+        .select("name, level, tutor, goal_topic, username, session_token, expires_at, unlimited, blocked, ko_access, payment_requested_at, payment_reject_reason, streak_count, streak_freezes, last_streak_date, plan, custom_minutes")
         .eq("id", session.user.id)
         .single();
 
@@ -143,7 +146,7 @@ export default function Home() {
       if (profileData.username === "gooster") {
         document.cookie = "tc_skip_visit=1; path=/; max-age=31536000; SameSite=Lax";
       }
-      setProfile({ name: profileData.name, level: profileData.level, tutor: profileData.tutor || "alex" });
+      setProfile({ name: profileData.name, level: profileData.level, tutor: profileData.tutor || "alex", goalTopic: profileData.goal_topic || "daily" });
       setStreakCount(profileData.streak_count ?? 0);
       setStreakFreezes(profileData.streak_freezes ?? 0);
       setLastStreakDate(profileData.last_streak_date ?? null);
@@ -193,6 +196,15 @@ export default function Home() {
     return () => subscription.unsubscribe();
   }, [router]);
 
+  // 홈 화면 첫 진입 시 딱 1번만 관심 주제로 기본 통화 주제를 맞춰줌 — 이후 설정에서
+  // 관심 주제를 바꿔도(profile 갱신) 이미 골라둔 topic을 되돌려버리면 안 되므로 ref로 1회만 적용
+  useEffect(() => {
+    if (goalTopicAppliedRef.current || !profile?.goalTopic) return;
+    goalTopicAppliedRef.current = true;
+    const match = TOPICS.find((t) => t.id === profile.goalTopic);
+    if (match) setTopic(match.en);
+  }, [profile]);
+
   useEffect(() => {
     if (!userId || !sessionToken) return;
 
@@ -223,6 +235,19 @@ export default function Home() {
       .catch(() => {});
   }, [userId, sessionToken]);
 
+  // Supabase 읽기 1건이라 dailyQuestion과 달리 로컬스토리지 캐싱 없이 매번 홈 진입 시 조회
+  useEffect(() => {
+    if (!userId || !sessionToken) return;
+    fetch("/api/review-recap", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, sessionToken }),
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => setReviewMistake(data?.mistake ?? null))
+      .catch(() => {});
+  }, [userId, sessionToken]);
+
   const handleLogout = async () => {
     localStorage.removeItem("turingcall_session");
     document.cookie = "tc_skip_visit=1; path=/; max-age=0";
@@ -247,7 +272,7 @@ export default function Home() {
 
   const saveProfile = async (p: UserProfile) => {
     if (!userId) return;
-    await supabase.from("profiles").update({ name: p.name, level: p.level, tutor: p.tutor }).eq("id", userId);
+    await supabase.from("profiles").update({ name: p.name, level: p.level, tutor: p.tutor, goal_topic: p.goalTopic }).eq("id", userId);
     setProfile(p);
     setView("home");
   };
@@ -918,6 +943,17 @@ export default function Home() {
                   <DailyQuestionBanner
                     question={dailyQuestion}
                     onStart={() => startCall(dailyQuestion.en)}
+                    disabled={!canMakeCall}
+                  />
+                )}
+                {reviewMistake && (
+                  <ReviewBanner
+                    mistake={reviewMistake}
+                    onStart={() =>
+                      startCall(
+                        `Review practice: help the student naturally use the correct expression "${reviewMistake.corrected}" in a sentence during the conversation. They previously said it incorrectly as "${reviewMistake.original}". Don't lecture about the mistake — just weave it into natural conversation about ${reviewMistake.topic || "daily life"}.`
+                      )
+                    }
                     disabled={!canMakeCall}
                   />
                 )}

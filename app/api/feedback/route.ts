@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { sendTelegramAlert } from "@/lib/telegram";
 import { supabaseAdmin } from "@/lib/supabase";
 import { verifyActiveUser } from "@/lib/auth";
+import { GOAL_TOPICS } from "@/lib/goalTopics";
 
 // 히라가나/가타카나는 한국어·영어에는 절대 나오지 않는 일본어 전용 문자 범위라
 // 이 범위가 감지되면 응답에 일본어가 섞였다는 확실한 신호로 판단한다.
@@ -84,10 +85,12 @@ export async function POST(req: NextRequest) {
       profile?.level === "beginner" ? "초급" :
       profile?.level === "advanced" ? "고급" : "중급";
 
+    const goalTopicLabel = GOAL_TOPICS.find((t) => t.id === profile?.goalTopic)?.en;
+
     const prompt = `You are an English teaching expert. Analyze this English phone conversation and give constructive feedback in Korean (except for English examples).
 
 Topic: ${topic}
-Student level: ${levelLabel}
+Student level: ${levelLabel}${goalTopicLabel ? `\nStudent's interest area: ${goalTopicLabel}` : ""}
 
 Conversation:
 ${conversationText}
@@ -110,7 +113,7 @@ Return a JSON object with this exact structure:
 Rules:
 - corrections: only real grammar/expression errors (max 3). Empty array if no errors.
 - goodPhrases: English phrases the student used correctly and naturally (max 3). Empty array if none.
-- suggestions: up to 10 helpful English expressions relevant to the topic, ordered from most to least relevant/useful. Do not pad with generic filler just to reach 10 — fewer high-quality suggestions are better than 10 weak ones.
+- suggestions: up to 10 helpful English expressions relevant to the topic, ordered from most to least relevant/useful. Do not pad with generic filler just to reach 10 — fewer high-quality suggestions are better than 10 weak ones. If the student's interest area is given, prioritize expressions relevant to it when natural.
 - Be warm and encouraging, not harsh
 - JSON only, no markdown`;
 
@@ -157,6 +160,19 @@ Rules:
     if (feedback) {
       feedback.goodPhrases = filterGoodPhrases(feedback.goodPhrases, studentText);
       feedback.corrections = filterCorrections(feedback.corrections);
+
+      // 오답노트(복습 기능) 재료로 저장 — 실패해도 피드백 응답 자체는 그대로 내려준다
+      if (Array.isArray(feedback.corrections) && feedback.corrections.length > 0) {
+        const rows = (feedback.corrections as { original: string; corrected: string; explanation?: string }[]).map((c) => ({
+          user_id: userId,
+          original: c.original,
+          corrected: c.corrected,
+          explanation: c.explanation ?? null,
+          topic: topic ?? null,
+        }));
+        const { error: mistakesError } = await supabaseAdmin().from("mistakes").insert(rows);
+        if (mistakesError) console.error("[feedback] mistakes insert failed", mistakesError);
+      }
     }
 
     return NextResponse.json(feedback);

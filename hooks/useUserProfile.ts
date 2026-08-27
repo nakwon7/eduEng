@@ -6,6 +6,7 @@ export interface UserProfile {
   name: string;
   level: "beginner" | "intermediate" | "advanced";
   tutor: "alex" | "rachel";
+  goalTopic?: string;
 }
 
 export function useUserProfile() {

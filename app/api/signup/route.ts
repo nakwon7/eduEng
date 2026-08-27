@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { isDisposableEmail } from "@/lib/disposableEmailDomains";
 import { sendTelegramAlert } from "@/lib/telegram";
+import { GOAL_TOPIC_IDS } from "@/lib/goalTopics";
 
 const USERNAME_REGEX = /^[A-Za-z][A-Za-z0-9]{3,19}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -19,14 +20,15 @@ function getClientIp(req: NextRequest): string {
 }
 
 export async function POST(req: NextRequest) {
-  const { username, name, email, password, level, lang } = await req.json();
+  const { username, name, email, password, level, lang, goalTopic } = await req.json();
 
   if (
     typeof username !== "string" || !USERNAME_REGEX.test(username) ||
     typeof name !== "string" || !name.trim() || name.trim().length > 20 ||
     typeof email !== "string" || !EMAIL_REGEX.test(email) || email.length > 50 ||
     typeof password !== "string" || password.length < 6 || password.length > 20 ||
-    !LEVELS.includes(level)
+    !LEVELS.includes(level) ||
+    (goalTopic != null && !GOAL_TOPIC_IDS.includes(goalTopic))
   ) {
     return NextResponse.json({ error: "invalid_input" }, { status: 400 });
   }
@@ -82,6 +84,7 @@ export async function POST(req: NextRequest) {
     username,
     name,
     level,
+    goal_topic: goalTopic ?? null,
     approved: true,
     session_token: null,
     ...(lang === "ko" ? { ko_access: true } : {}),

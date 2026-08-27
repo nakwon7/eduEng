@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { isDisposableEmail } from "@/lib/disposableEmailDomains";
+import { GOAL_TOPICS } from "@/lib/goalTopics";
 
 const LEVELS = [
   { id: "beginner", label: "초급", desc: "기초 문법, 간단한 대화" },
@@ -37,6 +38,7 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [level, setLevel] = useState<"beginner" | "intermediate" | "advanced">("intermediate");
+  const [goalTopic, setGoalTopic] = useState("daily");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(false);
@@ -69,7 +71,7 @@ export default function SignupPage() {
       const res = await fetch("/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, name, email, password, level }),
+        body: JSON.stringify({ username, name, email, password, level, goalTopic }),
       });
       const result = await res.json();
 
@@ -232,6 +234,27 @@ export default function SignupPage() {
                 >
                   <span className="font-medium text-sm">{l.label}</span>
                   <span className="text-xs opacity-70 ml-2">{l.desc}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="text-gray-400 text-xs mb-2 block">
+              관심 주제 <span className="text-gray-600">(나중에 설정에서 변경 가능)</span>
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {GOAL_TOPICS.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setGoalTopic(t.id)}
+                  className={`px-3 py-2 rounded-xl border text-left transition-all ${
+                    goalTopic === t.id
+                      ? "bg-gradient-to-r from-green-600 to-emerald-500 border-transparent text-white shadow-md shadow-green-900/30"
+                      : "bg-green-500/5 border-green-500/10 text-gray-300 hover:bg-green-500/10"
+                  }`}
+                >
+                  <span className="font-medium text-sm">{t.label}</span>
                 </button>
               ))}
             </div>
