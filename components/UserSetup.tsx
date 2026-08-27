@@ -42,6 +42,9 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
   const [level, setLevel] = useState<UserProfile["level"]>(existing?.level || "intermediate");
   const [tutor, setTutor] = useState<UserProfile["tutor"]>(isMobile ? "rachel" : (existing?.tutor || "alex"));
   const [goalTopic, setGoalTopic] = useState(existing?.goalTopic || "daily");
+  // existing이 있는(=프로필이 이미 로드된) 회원인데 goalTopic만 없다면 이번에 새로 생긴 기능을
+  // 아직 한 번도 안 본 기존 회원 — 처음 설정 화면에 들어왔을 때만 NEW 안내를 보여준다
+  const isGoalTopicNew = !!existing && !existing.goalTopic;
 
   const handleSubmit = () => {
     if (!name.trim()) return;
@@ -124,8 +127,27 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
         <p className="text-gray-500 text-xs mt-2">{LEVELS.find((l) => l.id === level)?.desc}</p>
       </div>
 
-      <div className="mb-6">
-        <label className="text-gray-400 text-xs mb-2 block">관심 주제</label>
+      <div
+        className={`mb-6 rounded-2xl transition-all ${
+          isGoalTopicNew ? "p-3 -m-3 ring-2 ring-emerald-400/40 shadow-[0_0_24px_-6px_rgba(16,185,129,0.45)] bg-emerald-500/[0.04]" : ""
+        }`}
+      >
+        <div className="flex items-center gap-2 mb-2">
+          <label className="text-gray-400 text-xs">관심 주제</label>
+          {isGoalTopicNew && (
+            <span
+              className="badge-pop-el text-[10px] px-1.5 py-0.5 rounded-full font-bold bg-emerald-500/20 text-emerald-400"
+              style={{ animation: "badge-pop 0.5s ease-out" }}
+            >
+              NEW
+            </span>
+          )}
+        </div>
+        {isGoalTopicNew && (
+          <p className="text-gray-500 text-xs mb-2 leading-relaxed">
+            새로 추가된 기능이에요! 관심 주제를 골라두면 홈 화면 기본 통화 주제와 통화 후 추천 표현이 이 주제에 맞춰져요.
+          </p>
+        )}
         <div className="grid grid-cols-2 gap-2">
           {GOAL_TOPICS.map((t) => (
             <button

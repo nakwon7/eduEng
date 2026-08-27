@@ -146,7 +146,9 @@ export default function Home() {
       if (profileData.username === "gooster") {
         document.cookie = "tc_skip_visit=1; path=/; max-age=31536000; SameSite=Lax";
       }
-      setProfile({ name: profileData.name, level: profileData.level, tutor: profileData.tutor || "alex", goalTopic: profileData.goal_topic || "daily" });
+      // goalTopic은 여기서 "daily"로 기본값을 채우지 않고 DB의 null을 그대로 넘긴다 —
+      // UserSetup이 "한 번도 설정 안 한 기존 회원"인지 구분해서 NEW 안내를 보여줘야 하기 때문
+      setProfile({ name: profileData.name, level: profileData.level, tutor: profileData.tutor || "alex", goalTopic: profileData.goal_topic ?? undefined });
       setStreakCount(profileData.streak_count ?? 0);
       setStreakFreezes(profileData.streak_freezes ?? 0);
       setLastStreakDate(profileData.last_streak_date ?? null);
@@ -881,10 +883,16 @@ export default function Home() {
                   title: "통화 후 AI 피드백", desc: "대화를 어느 정도 나누고 통화를 종료하면 종합평가·표현 교정·잘한 표현·추천 표현·오늘의 팁이 담긴 리포트를 받아볼 수 있어요. 추천 표현은 공유하기 버튼으로 바로 공유할 수 있어요.",
                 },
                 {
+                  color: "bg-orange-500/15 text-orange-400",
+                  cardTint: "bg-orange-500/5 border-orange-500/15",
+                  icon: <><polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" /></>,
+                  title: "🔁 복습 배너", desc: "통화 중 교정받은 표현은 자동으로 저장돼요. 다음 방문 때 홈 화면에 그 표현이 '복습' 배너로 떠서, 버튼 한 번으로 그 표현을 다시 연습하는 통화를 시작할 수 있어요.",
+                },
+                {
                   color: "bg-slate-500/15 text-slate-300",
                   cardTint: "bg-slate-500/5 border-slate-500/15",
                   icon: <><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" /></>,
-                  title: "설정", desc: "우측 상단 설정에서 이름, AI 튜터, 영어 레벨을 변경할 수 있어요.\n📱 모바일에서는 Rachel이 고정돼요. Alex 선택은 PC에서 가능해요.",
+                  title: "설정", desc: "우측 상단 설정에서 이름, AI 튜터, 영어 레벨, 관심 주제(홈 화면 기본 주제·추천 표현에 반영)를 변경할 수 있어요.\n📱 모바일에서는 Rachel이 고정돼요. Alex 선택은 PC에서 가능해요.",
                 },
                 {
                   color: "bg-cyan-500/15 text-cyan-400",
