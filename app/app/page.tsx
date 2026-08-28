@@ -97,6 +97,14 @@ export default function Home() {
   useEffect(() => { callStateRef.current = callState; }, [callState]);
   useEffect(() => { topicRef.current = topic; }, [topic]);
 
+  // 이 페이지(앱 카드 UI)는 스크롤이 전혀 없는 고정 레이아웃이라 body 자체도 스크롤을 막아야 하는데,
+  // globals.css에 전역으로 걸면 랜딩페이지 등 다른 페이지의 정상 스크롤까지 막혀버린다 —
+  // 그래서 이 페이지에 마운트된 동안에만 클래스를 붙였다가 벗어나면 원상복구한다
+  useEffect(() => {
+    document.body.classList.add("tc-no-page-scroll");
+    return () => document.body.classList.remove("tc-no-page-scroll");
+  }, []);
+
   useEffect(() => {
     if (username !== "gooster" || !userId || !sessionToken) return;
     fetch("/api/admin/visitor-summary", {
@@ -845,11 +853,14 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Body — 카드 안에서 유일하게 스크롤되는 영역. 내용이 넘치면 여기서만 스크롤되고
-            헤더/컨트롤/하단 안내는 항상 그대로 보인다 */}
-        <div className={`flex-1 flex flex-col px-4 py-4 min-h-0 overflow-y-auto scrollbar-hide relative ${callState !== "idle" && view === "home" ? "bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.16),transparent_65%)]" : ""}`}>
+        {/* 헤더 아래 전부(Body+통화버튼+문의하기+사업자정보)를 하나로 묶어서 통째로 스크롤한다.
+            Controls만 따로 flex-shrink-0로 고정했더니, 체험소진/한도초과처럼 Controls 내용이
+            길어지는 상태에서 그 영역이 고정폭을 차지해버려 Body가 비정상적으로 좁아 보이는
+            문제가 있었음 — 아래를 통째로 스크롤시키면 그런 쏠림이 생기지 않는다 */}
+        <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide flex flex-col">
+        <div className={`flex flex-col px-4 py-4 relative ${callState !== "idle" && view === "home" ? "bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.16),transparent_65%)]" : ""}`}>
           {view === "help" ? (
-            <div className="flex-1 overflow-y-auto scrollbar-hide px-2 py-4 space-y-4">
+            <div className="px-2 py-4 space-y-4">
               <h2 className="text-white text-sm font-bold text-center mb-2">사용 방법</h2>
               {[
                 {
@@ -980,7 +991,7 @@ export default function Home() {
         </div>
 
         {/* Controls */}
-        <div className="flex-shrink-0 px-6 pb-8 pt-4">
+        <div className="px-6 pb-8 pt-4">
           {callState === "idle" && view === "home" && !feedback && !isFetchingFeedback && (
             blocked ? (
               <div className="text-center space-y-2 py-4">
@@ -1159,7 +1170,7 @@ export default function Home() {
 
         {/* 문의하기 — 차단/한도초과/체험소진 화면엔 이미 자체 문의 링크가 있어 중복 노출 방지 */}
         {callState === "idle" && view === "home" && !feedback && !isFetchingFeedback && !blocked && canMakeCall && (
-          <div className="flex-shrink-0 flex justify-center pb-5">
+          <div className="flex justify-center pb-5">
             <a
               href="https://open.kakao.com/o/sPanl0Ci"
               target="_blank"
@@ -1173,13 +1184,14 @@ export default function Home() {
 
         {/* 사업자 정보 — 통화 중엔 화면을 깔끔하게 유지하기 위해 숨김 */}
         {callState === "idle" && (
-          <div className="flex-shrink-0 px-4 pb-4 text-center space-y-0.5">
+          <div className="px-4 pb-4 text-center space-y-0.5">
             <p className="text-gray-700 text-xs">송랩 · 사업자등록번호: 857-28-01961</p>
             <p className="text-gray-700 text-xs">
               <button onClick={() => setShowTerms(true)} className="underline hover:text-gray-500">이용약관 및 개인정보처리방침</button>
             </p>
           </div>
         )}
+        </div>
 
         {showTerms && <TermsModal onClose={() => setShowTerms(false)} />}
 
