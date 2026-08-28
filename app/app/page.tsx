@@ -660,21 +660,22 @@ export default function Home() {
 
   if (!loaded) {
     return (
-      <main className="min-h-screen bg-gray-950 flex items-center justify-center">
+      <main className="h-dvh overflow-hidden bg-gray-950 flex items-center justify-center">
         <p className="text-gray-500 text-sm">로딩 중...</p>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
-      <div className={`w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl flex flex-col min-h-[700px] transition-all duration-500 ${callState !== "idle" ? "ring-2 ring-emerald-500/40 shadow-[0_0_50px_-8px_rgba(16,185,129,0.35)]" : "ring-1 ring-white/5"}`}>
-        {/* Header (사진 배경이 상단 버튼 영역까지 확장, 이중 그라데이션으로 가독성 확보) — 나머지는 자연스럽게
-            페이지 스크롤되는 동안 이 헤더만 화면 위에 고정되도록 sticky. sticky와 overflow-hidden을 같은
-            요소에 걸면 iOS 사파리 등에서 스크롤 중 지글거리는(jitter) 버그가 있어서, sticky는 바깥 래퍼가
-            전담하고 overflow-hidden(모서리 클리핑)은 안쪽 래퍼로 분리함 */}
-        <div className="sticky top-0 z-20">
-        <div className="rounded-t-3xl overflow-hidden bg-gray-800 px-6 pt-3 pb-6 text-center relative">
+    // 페이지 자체가 절대 스크롤되지 않게 카드를 뷰포트 높이에 딱 맞춰 고정하고(h-dvh/overflow-hidden),
+    // 넘치는 내용은 Body 영역(flex-1 min-h-0 overflow-y-auto)만 안에서 스크롤되게 한다 — 헤더가
+    // sticky/fixed로 스크롤에 반응할 일 자체를 없애서 지터 버그의 여지를 구조적으로 제거
+    <main className="h-dvh overflow-hidden bg-gray-950 flex items-center justify-center p-4">
+      <div className={`w-full max-w-sm max-h-full bg-gray-900 rounded-3xl shadow-2xl flex flex-col overflow-hidden transition-all duration-500 ${callState !== "idle" ? "ring-2 ring-emerald-500/40 shadow-[0_0_50px_-8px_rgba(16,185,129,0.35)]" : "ring-1 ring-white/5"}`}>
+        {/* Header (사진 배경이 상단 버튼 영역까지 확장, 이중 그라데이션으로 가독성 확보) — 이제 페이지 자체가
+            스크롤되지 않으므로 sticky/clip-path 등 스크롤 대응 트릭이 전혀 필요 없다. 모서리는 카드
+            바깥 래퍼의 overflow-hidden이 전담해서 자동으로 둥글게 잘린다 */}
+        <div className="flex-shrink-0 bg-gray-800 px-6 pt-3 pb-6 text-center relative">
           {monthlyBg && (
             <>
               <Image
@@ -843,12 +844,12 @@ export default function Home() {
           {callState === "calling" && <p className="text-yellow-400 text-sm mt-1 animate-pulse [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">연결 중...</p>}
           </div>
         </div>
-        </div>
 
-        {/* Body */}
-        <div className={`flex-1 flex flex-col px-4 py-4 min-h-0 relative ${callState !== "idle" && view === "home" ? "bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.16),transparent_65%)]" : ""}`}>
+        {/* Body — 카드 안에서 유일하게 스크롤되는 영역. 내용이 넘치면 여기서만 스크롤되고
+            헤더/컨트롤/하단 안내는 항상 그대로 보인다 */}
+        <div className={`flex-1 flex flex-col px-4 py-4 min-h-0 overflow-y-auto scrollbar-hide relative ${callState !== "idle" && view === "home" ? "bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.16),transparent_65%)]" : ""}`}>
           {view === "help" ? (
-            <div className="flex-1 overflow-y-auto px-2 py-4 space-y-4">
+            <div className="flex-1 overflow-y-auto scrollbar-hide px-2 py-4 space-y-4">
               <h2 className="text-white text-sm font-bold text-center mb-2">사용 방법</h2>
               {[
                 {
@@ -979,7 +980,7 @@ export default function Home() {
         </div>
 
         {/* Controls */}
-        <div className="px-6 pb-8 pt-4">
+        <div className="flex-shrink-0 px-6 pb-8 pt-4">
           {callState === "idle" && view === "home" && !feedback && !isFetchingFeedback && (
             blocked ? (
               <div className="text-center space-y-2 py-4">
@@ -1158,7 +1159,7 @@ export default function Home() {
 
         {/* 문의하기 — 차단/한도초과/체험소진 화면엔 이미 자체 문의 링크가 있어 중복 노출 방지 */}
         {callState === "idle" && view === "home" && !feedback && !isFetchingFeedback && !blocked && canMakeCall && (
-          <div className="flex justify-center pb-5">
+          <div className="flex-shrink-0 flex justify-center pb-5">
             <a
               href="https://open.kakao.com/o/sPanl0Ci"
               target="_blank"
@@ -1172,7 +1173,7 @@ export default function Home() {
 
         {/* 사업자 정보 — 통화 중엔 화면을 깔끔하게 유지하기 위해 숨김 */}
         {callState === "idle" && (
-          <div className="px-4 pb-4 text-center space-y-0.5">
+          <div className="flex-shrink-0 px-4 pb-4 text-center space-y-0.5">
             <p className="text-gray-700 text-xs">송랩 · 사업자등록번호: 857-28-01961</p>
             <p className="text-gray-700 text-xs">
               <button onClick={() => setShowTerms(true)} className="underline hover:text-gray-500">이용약관 및 개인정보처리방침</button>

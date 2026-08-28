@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* 앱 UI는 시스템 라이트/다크 설정과 무관하게 항상 다크 테마 하나만 사용 —
+     body 배경이 흰색이면 sticky 헤더 렌더링 이음새나 오버스크롤 바운스 때 흰 줄이 비쳐 보임 */
+  --background: #030712;
+  --foreground: #ededed;
 }
 
 @theme inline {
@@ -12,15 +14,12 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 html {
   overscroll-behavior-y: none;
+  /* 페이지(윈도우) 자체는 절대 스크롤되지 않아야 하는데, body 기본 여백 등으로 뷰포트보다
+     아주 살짝이라도 넘치면 브라우저가 자체 스크롤바를 그려버린다 — 그걸 원천 차단 */
+  height: 100%;
+  overflow: hidden;
 }
 
 @keyframes snowfall {
@@ -45,4 +44,15 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
   overscroll-behavior-y: none;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* 카드 안쪽 스크롤 영역에서 스크롤은 되지만 스크롤바는 안 보이게 — 앱처럼 보이게 하기 위함 */
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
