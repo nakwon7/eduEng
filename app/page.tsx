@@ -102,6 +102,18 @@ export default function LandingPage() {
           {
             icon: (
               <>
+                <polyline points="1 4 1 10 7 10" />
+                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+              </>
+            ),
+            accent: "bg-orange-500/15 text-orange-400",
+            cardTint: "bg-orange-500/5 border-orange-500/15",
+            title: "🔁 복습 배너로 오답 리마인드",
+            desc: "교정받은 표현은 자동 저장돼요. 다음 방문 때 복습 배너로 떠서 버튼 한 번에 다시 연습할 수 있어요",
+          },
+          {
+            icon: (
+              <>
                 <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
                 <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
               </>
