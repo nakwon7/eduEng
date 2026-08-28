@@ -30,13 +30,18 @@ function filterGoodPhrases(phrases: unknown, studentText: string): string[] {
 
 // corrections는 모델이 original/corrected를 (아포스트로피 종류 등) 눈에 안 보이는
 // 차이만 남기고 사실상 동일한 문장으로 반환하는 경우가 있어, 정규화 후 같으면 제외한다.
-function filterCorrections(corrections: unknown): unknown[] {
+// 또한 goodPhrases와 달리 original이 학생이 실제로 말한 내용인지 검증하지 않아서 모델이
+// 실제 발화와 무관한 문장을 지어내도(할루시네이션) 걸러지지 않는 문제가 있었음 — 동일하게
+// studentText에 포함된 경우만 남기도록 검증을 추가한다.
+function filterCorrections(corrections: unknown, studentText: string): unknown[] {
   if (!Array.isArray(corrections)) return [];
+  const normalizedStudentText = normalize(studentText);
   return corrections.filter((c) => {
     if (!c || typeof c !== "object") return false;
     const { original, corrected } = c as { original?: unknown; corrected?: unknown };
     if (typeof original !== "string" || typeof corrected !== "string") return false;
-    return normalize(original) !== normalize(corrected);
+    if (normalize(original) === normalize(corrected)) return false;
+    return normalizedStudentText.includes(normalize(original));
   });
 }
 
@@ -159,7 +164,7 @@ Rules:
 
     if (feedback) {
       feedback.goodPhrases = filterGoodPhrases(feedback.goodPhrases, studentText);
-      feedback.corrections = filterCorrections(feedback.corrections);
+      feedback.corrections = filterCorrections(feedback.corrections, studentText);
 
       // 오답노트(복습 기능) 재료로 저장 — 실패해도 피드백 응답 자체는 그대로 내려준다
       if (Array.isArray(feedback.corrections) && feedback.corrections.length > 0) {
