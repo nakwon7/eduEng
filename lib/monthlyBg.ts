@@ -19,16 +19,15 @@ const MONTH_LABEL: Record<number, string> = {
 // 월별로 채워진 시간대 슬롯 개수 (1=주간 사진 1장뿐, 4=아침/오후/저녁/밤 전부)
 // public/tutors/bg/ 에 0X-02.jpg, 0X-03.jpg, 0X-04.jpg 를 채운 뒤에만 숫자를 올릴 것
 // (숫자만 먼저 올리면 아직 없는 파일을 가리켜서 이미지가 깨짐)
+// 2026-08-29: 12개월 전부 4슬롯 채워짐 (48장 완비)
 const MONTH_SLOT_COUNT: Record<number, number> = {
-  1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 2,
+  1: 4, 2: 4, 3: 4, 4: 4, 5: 4, 6: 4,
   7: 4, 8: 4, 9: 4, 10: 4, 11: 4, 12: 4,
 };
 
-// 파일을 다른 달과 공유할 때 사용. 8월은 7월과 같은 해변 사진 세트를 그대로 쓴다.
-// (public/tutors/bg/에 08-0X.jpg를 따로 두지 않고 07-0X.jpg를 재사용)
-const FILE_MONTH_ALIAS: Record<number, number> = {
-  8: 7,
-};
+// 파일을 다른 달과 공유할 때 사용. 이제 8월도 자체 사진 세트가 있어서 비워둠
+// (필요하면 여기에 { 달: 재사용할달 } 형태로 다시 추가)
+const FILE_MONTH_ALIAS: Record<number, number> = {};
 
 // 슬롯 번호가 뜻하는 시간대 (파일명 0X-01~0X-04 순서와 대응)
 function timeSlotForHour(hour: number): number {
