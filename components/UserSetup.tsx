@@ -37,6 +37,22 @@ const TUTORS = [
   { id: "rachel", label: "Rachel", desc: "Warm & Patient" },
 ] as const;
 
+// "기본테마(자동)"는 고정 사진이 없어서 대표 계절 4장을 콜라주로 보여준다 —
+// 시간대/계절에 따라 자동으로 바뀐다는 걸 한눈에 알 수 있게
+const DEFAULT_THEME_PREVIEW = ["04-01.jpg", "07-01.jpg", "10-01.jpg", "01-01.jpg"];
+
+function DefaultThemeCollage() {
+  return (
+    <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 gap-px bg-gray-900">
+      {DEFAULT_THEME_PREVIEW.map((file) => (
+        <div key={file} className="relative bg-gray-700">
+          <Image src={`/tutors/bg/${file}`} alt="" fill className="object-cover object-top" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function UserSetup({ onComplete, existing, paymentRequestedAt, requestingPayment, onRequestPayment, paymentNote, onPaymentNoteChange, paymentRejectReason, hasActiveMembership, expiresAt, userId, sessionToken, liteEligible }: UserSetupProps) {
   const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   const [name, setName] = useState(existing?.name || "");
@@ -189,7 +205,7 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
             {selectedTheme ? (
               <Image src={`/tutors/bg/${selectedTheme.thumb}`} alt={selectedTheme.label} fill className="object-cover object-top" />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-lg">🔄</div>
+              <DefaultThemeCollage />
             )}
           </div>
           <div className="flex-1 min-w-0">
@@ -206,7 +222,7 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
           onClick={() => setBgPickerOpen(false)}
         >
           <div
-            className="w-full max-w-sm bg-gray-800 border border-gray-700 rounded-2xl p-4 shadow-xl max-h-[80vh] overflow-y-auto"
+            className="w-full max-w-sm bg-gradient-to-b from-gray-800 to-gray-900 border border-white/10 border-t-white/20 rounded-2xl p-4 shadow-xl max-h-[80vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-3">
@@ -220,7 +236,9 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
                   bgTheme == null ? "border-green-400 ring-2 ring-green-400/40" : "border-white/5 hover:border-white/20"
                 }`}
               >
-                <div className="w-full aspect-square bg-gray-700 flex items-center justify-center text-2xl">🔄</div>
+                <div className="relative w-full aspect-square bg-gray-700 overflow-hidden">
+                  <DefaultThemeCollage />
+                </div>
                 <div className="text-[11px] text-gray-300 py-1.5 px-1 truncate">기본테마</div>
               </button>
               {BG_THEMES.map((t) => (

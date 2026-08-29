@@ -727,7 +727,7 @@ export default function Home() {
             </div>
             {callState === "idle" && view === "home" && (
               <div className="flex gap-2 flex-shrink-0">
-                <button onClick={() => setView("help")} className="whitespace-nowrap flex items-center gap-1 px-2.5 py-1.5 bg-gray-700/80 hover:bg-gray-600/80 active:scale-95 backdrop-blur-sm ring-1 ring-white/10 rounded-xl text-gray-200 text-xs font-medium transition-all">
+                <button onClick={() => setView("help")} className="whitespace-nowrap flex items-center gap-1 px-2.5 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 active:scale-95 backdrop-blur-sm ring-1 ring-emerald-400/20 rounded-xl text-emerald-300 text-xs font-medium transition-all">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
                     <circle cx="12" cy="12" r="9" />
                     <path d="M9.5 9a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 2-2.4 3.7" />
@@ -735,7 +735,7 @@ export default function Home() {
                   </svg>
                   <span>도움말</span>
                 </button>
-                <button onClick={() => setView("settings")} className="whitespace-nowrap flex items-center gap-1 px-2.5 py-1.5 bg-gray-700/80 hover:bg-gray-600/80 active:scale-95 backdrop-blur-sm ring-1 ring-white/10 rounded-xl text-gray-200 text-xs font-medium transition-all">
+                <button onClick={() => setView("settings")} className="whitespace-nowrap flex items-center gap-1 px-2.5 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 active:scale-95 backdrop-blur-sm ring-1 ring-emerald-400/20 rounded-xl text-emerald-300 text-xs font-medium transition-all">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
                     <circle cx="12" cy="12" r="3" />
                     <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
@@ -763,7 +763,7 @@ export default function Home() {
                   onClick={() => setShowVisitorInfo(false)}
                 >
                   <div
-                    className="w-full max-w-sm bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-gray-300 text-xs text-left shadow-xl space-y-1.5 max-h-[80vh] overflow-y-auto"
+                    className="w-full max-w-sm bg-gradient-to-b from-gray-800 to-gray-900 border border-white/10 border-t-white/20 rounded-xl px-4 py-3 text-gray-300 text-xs text-left shadow-xl space-y-1.5 max-h-[80vh] overflow-y-auto"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <p className="text-gray-400 font-medium mb-1">최근 7일 방문자 (IP당 1시간 1회)</p>
@@ -832,7 +832,7 @@ export default function Home() {
                   onClick={() => setShowStreakInfo(false)}
                 >
                   <div
-                    className="w-full max-w-xs bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-gray-300 text-xs text-left shadow-xl space-y-1.5"
+                    className="w-full max-w-xs bg-gradient-to-b from-gray-800 to-gray-900 border border-white/10 border-t-white/20 rounded-xl px-4 py-3 text-gray-300 text-xs text-left shadow-xl space-y-1.5"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <p>짧게라도 하루 한 번 통화하면 연속일수가 올라가요.</p>
