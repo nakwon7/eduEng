@@ -2,14 +2,14 @@ export type MonthlyBg = { file: string; label: string };
 
 // 월별 대표 라벨 (배경 설명용, 파일명과는 무관)
 const MONTH_LABEL: Record<number, string> = {
-  1: "Winter snow",
+  1: "Cozy winter night",
   2: "Snowy forest",
   3: "Early cherry blossoms",
   4: "Cherry blossoms in full bloom",
   5: "Green fields",
   6: "Rainy café window",
   7: "Summer beach",
-  8: "Summer beach",
+  8: "Sunflower field",
   9: "Cosmos flowers",
   10: "Autumn leaves",
   11: "Late autumn fog",
