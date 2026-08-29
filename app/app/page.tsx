@@ -763,7 +763,7 @@ export default function Home() {
                   onClick={() => setShowVisitorInfo(false)}
                 >
                   <div
-                    className="w-full max-w-sm bg-gradient-to-b from-gray-800 to-gray-900 border border-white/10 border-t-white/20 rounded-xl px-4 py-3 text-gray-300 text-xs text-left shadow-xl space-y-1.5 max-h-[80vh] overflow-y-auto"
+                    className="w-full max-w-sm bg-gradient-to-b from-gray-800 to-gray-900 border border-white/10 border-t-emerald-400/30 rounded-xl px-4 py-3 text-gray-300 text-xs text-left space-y-1.5 max-h-[80vh] overflow-y-auto shadow-[0_20px_25px_-5px_rgba(0,0,0,0.4),0_0_40px_-12px_rgba(16,185,129,0.35)]"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <p className="text-gray-400 font-medium mb-1">최근 7일 방문자 (IP당 1시간 1회)</p>
@@ -832,7 +832,7 @@ export default function Home() {
                   onClick={() => setShowStreakInfo(false)}
                 >
                   <div
-                    className="w-full max-w-xs bg-gradient-to-b from-gray-800 to-gray-900 border border-white/10 border-t-white/20 rounded-xl px-4 py-3 text-gray-300 text-xs text-left shadow-xl space-y-1.5"
+                    className="w-full max-w-xs bg-gradient-to-b from-gray-800 to-gray-900 border border-white/10 border-t-emerald-400/30 rounded-xl px-4 py-3 text-gray-300 text-xs text-left space-y-1.5 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.4),0_0_40px_-12px_rgba(16,185,129,0.35)]"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <p>짧게라도 하루 한 번 통화하면 연속일수가 올라가요.</p>

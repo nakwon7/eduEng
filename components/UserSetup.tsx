@@ -41,7 +41,7 @@ const TUTORS = [
 // 시간대/계절에 따라 자동으로 바뀐다는 걸 한눈에 알 수 있게
 const DEFAULT_THEME_PREVIEW = ["04-01.jpg", "07-01.jpg", "10-01.jpg", "01-01.jpg"];
 
-function DefaultThemeCollage() {
+function DefaultThemeCollage({ showBadge }: { showBadge?: boolean }) {
   return (
     <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 gap-px bg-gray-900">
       {DEFAULT_THEME_PREVIEW.map((file) => (
@@ -49,6 +49,11 @@ function DefaultThemeCollage() {
           <Image src={`/tutors/bg/${file}`} alt="" fill className="object-cover object-top" />
         </div>
       ))}
+      {showBadge && (
+        <span className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded-full bg-emerald-500 text-white text-[8px] font-bold leading-none shadow">
+          자동
+        </span>
+      )}
     </div>
   );
 }
@@ -222,7 +227,7 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
           onClick={() => setBgPickerOpen(false)}
         >
           <div
-            className="w-full max-w-sm bg-gradient-to-b from-gray-800 to-gray-900 border border-white/10 border-t-white/20 rounded-2xl p-4 shadow-xl max-h-[80vh] overflow-y-auto"
+            className="w-full max-w-sm bg-gradient-to-b from-gray-800 to-gray-900 border border-white/10 border-t-emerald-400/30 rounded-2xl p-4 max-h-[80vh] overflow-y-auto shadow-[0_20px_25px_-5px_rgba(0,0,0,0.4),0_0_40px_-12px_rgba(16,185,129,0.35)]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-3">
@@ -237,7 +242,7 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
                 }`}
               >
                 <div className="relative w-full aspect-square bg-gray-700 overflow-hidden">
-                  <DefaultThemeCollage />
+                  <DefaultThemeCollage showBadge />
                 </div>
                 <div className="text-[11px] text-gray-300 py-1.5 px-1 truncate">기본테마</div>
               </button>
