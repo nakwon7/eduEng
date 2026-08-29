@@ -60,7 +60,7 @@ export default function Home() {
   >(null);
   const [showVisitorInfo, setShowVisitorInfo] = useState(false);
   const [loaded, setLoaded] = useState(false);
-  const monthlyBg = useMonthlyBg();
+  const monthlyBg = useMonthlyBg(profile?.bgTheme);
   const [feedback, setFeedback] = useState<FeedbackData | null>(null);
   const [isFetchingFeedback, setIsFetchingFeedback] = useState(false);
   const [monthlySeconds, setMonthlySeconds] = useState(0);
@@ -130,7 +130,7 @@ export default function Home() {
       const storedToken = localStorage.getItem("turingcall_session");
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("name, level, tutor, goal_topic, username, session_token, expires_at, unlimited, blocked, ko_access, payment_requested_at, payment_reject_reason, streak_count, streak_freezes, last_streak_date, plan, custom_minutes")
+        .select("name, level, tutor, goal_topic, bg_theme, username, session_token, expires_at, unlimited, blocked, ko_access, payment_requested_at, payment_reject_reason, streak_count, streak_freezes, last_streak_date, plan, custom_minutes")
         .eq("id", session.user.id)
         .single();
 
@@ -156,7 +156,7 @@ export default function Home() {
       }
       // goalTopic은 여기서 "daily"로 기본값을 채우지 않고 DB의 null을 그대로 넘긴다 —
       // UserSetup이 "한 번도 설정 안 한 기존 회원"인지 구분해서 NEW 안내를 보여줘야 하기 때문
-      setProfile({ name: profileData.name, level: profileData.level, tutor: profileData.tutor || "alex", goalTopic: profileData.goal_topic ?? undefined });
+      setProfile({ name: profileData.name, level: profileData.level, tutor: profileData.tutor || "alex", goalTopic: profileData.goal_topic ?? undefined, bgTheme: profileData.bg_theme ?? undefined });
       setStreakCount(profileData.streak_count ?? 0);
       setStreakFreezes(profileData.streak_freezes ?? 0);
       setLastStreakDate(profileData.last_streak_date ?? null);
@@ -282,7 +282,7 @@ export default function Home() {
 
   const saveProfile = async (p: UserProfile) => {
     if (!userId) return;
-    await supabase.from("profiles").update({ name: p.name, level: p.level, tutor: p.tutor, goal_topic: p.goalTopic }).eq("id", userId);
+    await supabase.from("profiles").update({ name: p.name, level: p.level, tutor: p.tutor, goal_topic: p.goalTopic, bg_theme: p.bgTheme ?? null }).eq("id", userId);
     setProfile(p);
     setView("home");
   };
@@ -679,7 +679,10 @@ export default function Home() {
     // 넘치는 내용은 Body 영역(flex-1 min-h-0 overflow-y-auto)만 안에서 스크롤되게 한다 — 헤더가
     // sticky/fixed로 스크롤에 반응할 일 자체를 없애서 지터 버그의 여지를 구조적으로 제거
     <main className="h-dvh overflow-hidden bg-gray-950 flex items-center justify-center p-4">
-      <div className={`w-full max-w-sm max-h-full bg-gray-900 rounded-3xl shadow-2xl flex flex-col overflow-hidden transition-all duration-500 ${callState !== "idle" ? "ring-2 ring-emerald-500/40 shadow-[0_0_50px_-8px_rgba(16,185,129,0.35)]" : "ring-1 ring-white/5"}`}>
+      {/* 관리자 화면은 회원 목록이 로딩 전/후로 높이가 크게 달라져 카드가 짧았다가
+          한 번에 뷰포트 높이까지 커지는 게 눈에 띄어서(헤더가 훅 움직여 보임),
+          해당 화면만 높이를 처음부터 고정(h-full)해 그 점프 자체를 없앤다 */}
+      <div className={`w-full max-w-sm ${view === "admin" ? "h-full" : "max-h-full"} bg-gray-900 rounded-3xl shadow-2xl flex flex-col overflow-hidden transition-shadow duration-500 ${callState !== "idle" ? "ring-2 ring-emerald-500/40 shadow-[0_0_50px_-8px_rgba(16,185,129,0.35)]" : "ring-1 ring-white/5"}`}>
         {/* Header (사진 배경이 상단 버튼 영역까지 확장, 이중 그라데이션으로 가독성 확보) — 이제 페이지 자체가
             스크롤되지 않으므로 sticky/clip-path 등 스크롤 대응 트릭이 전혀 필요 없다. 모서리는 카드
             바깥 래퍼의 overflow-hidden이 전담해서 자동으로 둥글게 잘린다 */}
@@ -742,7 +745,7 @@ export default function Home() {
               </div>
             )}
           </div>
-          <TutorAvatar tutor={effectiveTutor} fallbackBg="bg-green-600" />
+          <TutorAvatar tutor={effectiveTutor} fallbackBg="bg-green-600" connecting={callState === "calling"} speaking={isSpeaking} />
           <h1 className="text-white text-lg font-semibold [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">
             {effectiveTutor === "rachel" ? "Rachel" : "Alex"}
           </h1>

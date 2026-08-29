@@ -5,6 +5,7 @@ import Image from "next/image";
 import { UserProfile } from "@/hooks/useUserProfile";
 import { PlanId } from "@/lib/plans";
 import { GOAL_TOPICS } from "@/lib/goalTopics";
+import { BG_THEMES } from "@/lib/bgThemes";
 import UsageHistory from "./UsageHistory";
 import ChangePassword from "./ChangePassword";
 import MembershipOffer from "./MembershipOffer";
@@ -45,11 +46,19 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
   // existing이 있는(=프로필이 이미 로드된) 회원인데 goalTopic만 없다면 이번에 새로 생긴 기능을
   // 아직 한 번도 안 본 기존 회원 — 처음 설정 화면에 들어왔을 때만 NEW 안내를 보여준다
   const isGoalTopicNew = !!existing && !existing.goalTopic;
+  const [bgTheme, setBgTheme] = useState<number | undefined>(existing?.bgTheme);
+  const [bgPickerOpen, setBgPickerOpen] = useState(false);
+  const selectedTheme = bgTheme != null ? BG_THEMES.find((t) => t.id === bgTheme) : undefined;
+  const [justSaved, setJustSaved] = useState(false);
 
   const handleSubmit = () => {
-    if (!name.trim()) return;
+    if (!name.trim() || justSaved) return;
     // 모바일에서는 tutor를 변경하지 않고 기존 값 유지 (화면은 항상 Rachel이지만 DB는 PC 선택 보존)
-    onComplete({ name: name.trim(), level, tutor: isMobile ? (existing?.tutor || "alex") : tutor, goalTopic });
+    const payload = { name: name.trim(), level, tutor: isMobile ? (existing?.tutor || "alex") : tutor, goalTopic, bgTheme };
+    // 버튼에 체크마크가 잠깐 보이도록 저장 콜백을 살짝 늦춘다 — onComplete가 곧바로
+    // 화면을 홈으로 돌려버려서 즉시 호출하면 애니메이션이 보일 새가 없음
+    setJustSaved(true);
+    setTimeout(() => onComplete(payload), 750);
   };
 
   return (
@@ -170,12 +179,83 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
         )}
       </div>
 
+      <div className="mb-6">
+        <label className="text-gray-400 text-xs mb-2 block">배경 테마</label>
+        <button
+          onClick={() => setBgPickerOpen(true)}
+          className="w-full flex items-center gap-3 px-3 py-2.5 bg-green-500/5 border border-green-500/10 rounded-xl hover:bg-green-500/10 transition-all text-left"
+        >
+          <div className="relative w-11 h-11 rounded-lg overflow-hidden flex-shrink-0 bg-gray-700 ring-1 ring-white/10">
+            {selectedTheme ? (
+              <Image src={`/tutors/bg/${selectedTheme.thumb}`} alt={selectedTheme.label} fill className="object-cover object-top" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-lg">🔄</div>
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-white text-sm font-medium truncate">{selectedTheme ? selectedTheme.label : "기본테마 (자동)"}</div>
+            <div className="text-gray-500 text-xs">탭해서 변경</div>
+          </div>
+          <span className="text-gray-500 text-xs">›</span>
+        </button>
+      </div>
+
+      {bgPickerOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-6"
+          onClick={() => setBgPickerOpen(false)}
+        >
+          <div
+            className="w-full max-w-sm bg-gray-800 border border-gray-700 rounded-2xl p-4 shadow-xl max-h-[80vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-white text-sm font-semibold">배경 테마 선택</p>
+              <button onClick={() => setBgPickerOpen(false)} className="text-gray-500 hover:text-gray-300 text-xs">닫기</button>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                onClick={() => { setBgTheme(undefined); setBgPickerOpen(false); }}
+                className={`rounded-xl border overflow-hidden text-center transition-all ${
+                  bgTheme == null ? "border-green-400 ring-2 ring-green-400/40" : "border-white/5 hover:border-white/20"
+                }`}
+              >
+                <div className="w-full aspect-square bg-gray-700 flex items-center justify-center text-2xl">🔄</div>
+                <div className="text-[11px] text-gray-300 py-1.5 px-1 truncate">기본테마</div>
+              </button>
+              {BG_THEMES.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => { setBgTheme(t.id); setBgPickerOpen(false); }}
+                  className={`rounded-xl border overflow-hidden text-center transition-all ${
+                    bgTheme === t.id ? "border-green-400 ring-2 ring-green-400/40" : "border-white/5 hover:border-white/20"
+                  }`}
+                >
+                  <div className="relative w-full aspect-square bg-gray-700">
+                    <Image src={`/tutors/bg/${t.thumb}`} alt={t.label} fill className="object-cover object-top" />
+                  </div>
+                  <div className="text-[11px] text-gray-300 py-1.5 px-1 truncate">{t.label}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       <button
         onClick={handleSubmit}
-        disabled={!name.trim()}
-        className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 disabled:bg-none disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-xl font-semibold transition-all shadow-lg shadow-green-900/30"
+        disabled={!name.trim() || justSaved}
+        className={`w-full py-3 rounded-xl font-semibold transition-all shadow-lg shadow-green-900/30 ${
+          !name.trim()
+            ? "bg-gray-700 text-gray-500"
+            : "bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white"
+        }`}
       >
-        {existing ? "저장" : "시작하기"}
+        {justSaved ? (
+          <span className="inline-flex items-center gap-1.5 badge-pop-el" style={{ animation: "badge-pop 0.4s ease-out" }}>
+            <span className="text-lg">✓</span> 저장했어요
+          </span>
+        ) : existing ? "저장" : "시작하기"}
       </button>
 
       {hasActiveMembership ? (

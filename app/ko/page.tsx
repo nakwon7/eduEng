@@ -84,6 +84,9 @@ export default function KoPage() {
   const [isAiTyping, setIsAiTyping] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
   const [profile, setProfile] = useState<KoProfile>({ name: "Student", level: "beginner", tutor: "minjun" });
+  // /ko는 배경 테마 선택 팝업이 따로 없지만, /app 설정에서 고른 값은 같은 계정이면
+  // 여기서도 그대로 반영되도록 읽기만 한다
+  const [bgTheme, setBgTheme] = useState<number | undefined>(undefined);
   const [userId, setUserId] = useState<string | null>(null);
   const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
@@ -99,7 +102,7 @@ export default function KoPage() {
   const [loaded, setLoaded] = useState(false);
   const [showSetup, setShowSetup] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
-  const monthlyBg = useMonthlyBg();
+  const monthlyBg = useMonthlyBg(bgTheme);
   const [micError, setMicError] = useState(false);
   const [micPermState, setMicPermState] = useState<PermissionState | null>(null);
   const [showTerms, setShowTerms] = useState(false);
@@ -137,7 +140,7 @@ export default function KoPage() {
         const storedToken = localStorage.getItem("turingcall_session");
         const { data: profileData } = await supabase
           .from("profiles")
-          .select("username, name, level, ko_tutor, session_token, expires_at, unlimited, blocked, ko_access, payment_requested_at, payment_reject_reason, streak_count, streak_freezes, last_streak_date")
+          .select("username, name, level, ko_tutor, bg_theme, session_token, expires_at, unlimited, blocked, ko_access, payment_requested_at, payment_reject_reason, streak_count, streak_freezes, last_streak_date")
           .eq("id", session.user.id)
           .single();
 
@@ -162,6 +165,7 @@ export default function KoPage() {
           level: profileData.level || "beginner",
           tutor: profileData.ko_tutor || "minjun",
         });
+        setBgTheme(profileData.bg_theme ?? undefined);
 
         if (!profileData.unlimited) {
           const summaryRes = await fetch("/api/usage/summary", {
@@ -591,7 +595,7 @@ export default function KoPage() {
               </div>
             </div>
           )}
-          <TutorAvatar tutor={effectiveTutor} fallbackBg="bg-blue-600" />
+          <TutorAvatar tutor={effectiveTutor} fallbackBg="bg-blue-600" connecting={callState === "calling"} speaking={isSpeaking} />
           <h1 className="text-white text-lg font-semibold [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">{tutorName}</h1>
           <p className="text-gray-300 text-sm [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">Korean Tutor</p>
           <div className="flex items-center justify-center gap-2 mt-1">

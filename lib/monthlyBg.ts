@@ -40,8 +40,10 @@ function timeSlotForHour(hour: number): number {
 
 // 현재 시각(로컬) 기준으로 그 달의 시간대에 맞는 배경을 고른다.
 // 그 달에 아직 다 채워지지 않은 슬롯이면 채워진 것 중 가장 늦은 슬롯으로 대체.
-export function getMonthlyBg(date: Date): MonthlyBg {
-  const month = date.getMonth() + 1;
+// overrideMonth를 주면 실제 달력 월 대신 그 달로 고정하되(설정에서 테마를 직접 고른 경우),
+// 시간대별 슬롯 로테이션은 그대로 접속 시각 기준으로 유지한다.
+export function getMonthlyBg(date: Date, overrideMonth?: number | null): MonthlyBg {
+  const month = overrideMonth ?? date.getMonth() + 1;
   const srcMonth = FILE_MONTH_ALIAS[month] ?? month;
   const mm = String(srcMonth).padStart(2, "0");
   const available = MONTH_SLOT_COUNT[srcMonth] || 1;

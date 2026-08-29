@@ -99,7 +99,10 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
 
   const fetchUsers = async () => {
-    setLoading(true);
+    // 승인 등으로 인한 재조회는 이미 목록이 떠 있는 상태라 로딩 문구로
+    // 통째로 가려버리면(필터바까지 사라짐) 카드 높이가 출렁여 헤더가 흔들려
+    // 보임 — 최초 조회 때만 로딩 표시하고, 재조회는 기존 목록을 유지한 채 갱신
+    if (users.length === 0) setLoading(true);
     const res = await fetch("/api/admin/pending", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -261,15 +264,18 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
     setBusy(null);
   };
 
-  const filteredUsers = users.filter((u) => {
-    if (searchQuery.trim()) {
-      const q = searchQuery.trim().toLowerCase();
-      if (!u.username.toLowerCase().includes(q) && !u.name.toLowerCase().includes(q)) return false;
-    }
-    if (membershipOnly && !hasActiveMembership(u)) return false;
-    if (selectedDay && u.created_at?.slice(0, 10) !== selectedDay) return false;
-    return true;
-  });
+  const filteredUsers = users
+    .filter((u) => {
+      if (searchQuery.trim()) {
+        const q = searchQuery.trim().toLowerCase();
+        if (!u.username.toLowerCase().includes(q) && !u.name.toLowerCase().includes(q)) return false;
+      }
+      if (membershipOnly && !hasActiveMembership(u)) return false;
+      if (selectedDay && u.created_at?.slice(0, 10) !== selectedDay) return false;
+      return true;
+    })
+    // 멤버십 회원을 목록 상단에 고정 — 나머지는 기존 순서 유지(안정 정렬)
+    .sort((a, b) => Number(hasActiveMembership(b)) - Number(hasActiveMembership(a)));
   const hasFilter = !!(searchQuery || membershipOnly || selectedDay);
 
   const monthUsers = users.filter((u) => u.created_at?.slice(0, 7) === selectedMonth);
