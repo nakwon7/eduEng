@@ -727,7 +727,7 @@ export default function Home() {
             </div>
             {callState === "idle" && view === "home" && (
               <div className="flex gap-2 flex-shrink-0">
-                <button onClick={() => setView("help")} className="whitespace-nowrap flex items-center gap-1 px-2.5 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 active:scale-95 backdrop-blur-sm ring-1 ring-emerald-400/20 rounded-xl text-emerald-300 text-xs font-medium transition-all">
+                <button onClick={() => setView("help")} className="whitespace-nowrap flex items-center gap-1 px-2.5 py-1.5 bg-black/30 hover:bg-black/40 active:scale-95 backdrop-blur-sm ring-1 ring-emerald-400/25 rounded-xl text-emerald-300 text-xs font-medium transition-all">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
                     <circle cx="12" cy="12" r="9" />
                     <path d="M9.5 9a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 2-2.4 3.7" />
@@ -735,7 +735,7 @@ export default function Home() {
                   </svg>
                   <span>도움말</span>
                 </button>
-                <button onClick={() => setView("settings")} className="whitespace-nowrap flex items-center gap-1 px-2.5 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 active:scale-95 backdrop-blur-sm ring-1 ring-emerald-400/20 rounded-xl text-emerald-300 text-xs font-medium transition-all">
+                <button onClick={() => setView("settings")} className="whitespace-nowrap flex items-center gap-1 px-2.5 py-1.5 bg-black/30 hover:bg-black/40 active:scale-95 backdrop-blur-sm ring-1 ring-emerald-400/25 rounded-xl text-emerald-300 text-xs font-medium transition-all">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
                     <circle cx="12" cy="12" r="3" />
                     <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />

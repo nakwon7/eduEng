@@ -573,7 +573,7 @@ export default function KoPage() {
               <div className="flex gap-2 flex-shrink-0">
                 <button
                   onClick={() => { setShowSetup(false); setShowHelp(!showHelp); }}
-                  className="whitespace-nowrap flex items-center gap-1 px-2.5 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 active:scale-95 backdrop-blur-sm ring-1 ring-emerald-400/20 rounded-xl text-emerald-300 text-xs font-medium transition-all"
+                  className="whitespace-nowrap flex items-center gap-1 px-2.5 py-1.5 bg-black/30 hover:bg-black/40 active:scale-95 backdrop-blur-sm ring-1 ring-emerald-400/25 rounded-xl text-emerald-300 text-xs font-medium transition-all"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
                     <circle cx="12" cy="12" r="9" />
@@ -584,7 +584,7 @@ export default function KoPage() {
                 </button>
                 <button
                   onClick={() => { setShowHelp(false); setShowSetup(!showSetup); }}
-                  className="whitespace-nowrap flex items-center gap-1 px-2.5 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 active:scale-95 backdrop-blur-sm ring-1 ring-emerald-400/20 rounded-xl text-emerald-300 text-xs font-medium transition-all"
+                  className="whitespace-nowrap flex items-center gap-1 px-2.5 py-1.5 bg-black/30 hover:bg-black/40 active:scale-95 backdrop-blur-sm ring-1 ring-emerald-400/25 rounded-xl text-emerald-300 text-xs font-medium transition-all"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
                     <circle cx="12" cy="12" r="3" />
