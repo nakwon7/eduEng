@@ -79,6 +79,9 @@ const KO_TOPICS = [
 export default function KoPage() {
   const router = useRouter();
   const [callState, setCallState] = useState<CallState>("idle");
+  // 서버(app/api/greeting/route.ts)의 5초 쿨다운을 클라이언트에서도 미리 반영 —
+  // 안 그러면 "연결 중..." 화면까지 갔다가 몇 초 후에야 막혀서 사용자가 헷갈림
+  const [isCoolingDown, setIsCoolingDown] = useState(false);
   const [topic, setTopic] = useState(KO_TOPICS[0].value);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isAiTyping, setIsAiTyping] = useState(false);
@@ -121,6 +124,7 @@ export default function KoPage() {
   const lastSavedRef = useRef(0);
   const callStartWeeklySecondsRef = useRef(0);
   const callStartTrialSecondsLeftRef = useRef(0);
+  const cooldownTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { isRecording, isTranscribing, startRecording, stopRecording, consumeRateLimited } = useAudioRecorderKo();
   const { speak, stop: stopSpeaking, unlock: unlockTTS, isSpeaking } = useKoreanSpeech();
@@ -338,7 +342,7 @@ export default function KoPage() {
   }, [callDuration, callState, unlimited, endCall]);
 
   const startCall = useCallback(async () => {
-    if (!canMakeCall) return;
+    if (!canMakeCall || isCoolingDown) return;
     isTrialCallRef.current = !isPaid && !isUnlimited;
     setMicError(false);
     try {
@@ -351,6 +355,12 @@ export default function KoPage() {
       }
       return;
     }
+
+    // 서버의 last_call_started_at 쿨다운과 같은 시점(마이크 확인 통과 직후)부터 재기 시작
+    setIsCoolingDown(true);
+    if (cooldownTimerRef.current) clearTimeout(cooldownTimerRef.current);
+    cooldownTimerRef.current = setTimeout(() => setIsCoolingDown(false), 5000);
+
     unlockTTS();
     setCallState("calling");
 
@@ -399,8 +409,12 @@ export default function KoPage() {
           return;
         }
         if (err.error === "TOO_SOON") {
+          // alert()는 PWA/웹뷰 환경에서 비동기 콜백 안에서 조용히 무시되는 경우가 있어(제보로 확인),
+          // 팝업 대신 시작 버튼 쪽 쿨다운 UI(비활성화 + "One moment...")로만 상태를 알린다
           setCallState("idle");
-          alert("You restarted the call too quickly. Please try again in a moment.");
+          setIsCoolingDown(true);
+          if (cooldownTimerRef.current) clearTimeout(cooldownTimerRef.current);
+          cooldownTimerRef.current = setTimeout(() => setIsCoolingDown(false), 5000);
           return;
         }
         setCallState("idle");
@@ -422,7 +436,7 @@ export default function KoPage() {
 
     addMessage({ role: "assistant", content: greeting });
     speak(greeting, effectiveTutor === "jia" ? "female" : "male");
-  }, [topic, addMessage, speak, profile, unlockTTS, effectiveTutor, canMakeCall, isPaid, isUnlimited, userId, sessionToken, router, weeklySeconds, trialSecondsLeft]);
+  }, [topic, addMessage, speak, profile, unlockTTS, effectiveTutor, canMakeCall, isCoolingDown, isPaid, isUnlimited, userId, sessionToken, router, weeklySeconds, trialSecondsLeft]);
 
   const handleMicPress = useCallback(async () => {
     if (isRecording || isSpeaking) return;
@@ -945,14 +959,14 @@ export default function KoPage() {
                         }
                       </p>
                       <p className="text-gray-600 text-xs">After changing settings, tap the button below</p>
-                      <button onClick={startCall} className="mt-1 px-4 py-1.5 bg-gray-700 hover:bg-gray-600 text-white rounded-xl text-xs font-medium">
+                      <button onClick={startCall} disabled={isCoolingDown} className="mt-1 px-4 py-1.5 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-xs font-medium">
                         Try again
                       </button>
                     </>
                   ) : (
                     <>
                       <p className="text-gray-400 text-xs">Tap the button below to allow microphone access</p>
-                      <button onClick={startCall} className="mt-1 px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 text-white rounded-xl text-sm font-semibold shadow-md shadow-blue-900/30">
+                      <button onClick={startCall} disabled={isCoolingDown} className="mt-1 px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-sm font-semibold shadow-md shadow-blue-900/30">
                         🎙️ Allow Microphone
                       </button>
                     </>
@@ -961,9 +975,10 @@ export default function KoPage() {
               )}
               <button
                 onClick={startCall}
-                className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 text-white rounded-2xl font-semibold text-lg transition-all active:scale-95 shadow-lg shadow-blue-900/40"
+                disabled={isCoolingDown}
+                className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl font-semibold text-lg transition-all active:scale-95 shadow-lg shadow-blue-900/40"
               >
-                📞 Start Call
+                {isCoolingDown ? "One moment..." : "📞 Start Call"}
               </button>
             </>
             ) : weeklyLimitReached ? (

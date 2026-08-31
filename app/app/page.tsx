@@ -31,6 +31,10 @@ type View = "home" | "settings" | "admin" | "help";
 export default function Home() {
   const router = useRouter();
   const [callState, setCallState] = useState<CallState>("idle");
+  // 서버(app/api/greeting/route.ts)의 5초 쿨다운을 클라이언트에서도 미리 반영 —
+  // 안 그러면 "연결 중..." 화면까지 갔다가 몇 초 후에야 막혀서 사용자가 헷갈림
+  const [isCoolingDown, setIsCoolingDown] = useState(false);
+  const cooldownTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [topic, setTopic] = useState("Daily Conversation");
   const [dailyQuestions, setDailyQuestions] = useState<{ ko: string; en: string; categoryId?: string; categoryLabel?: string }[]>([]);
   const [reviewMistake, setReviewMistake] = useState<{ original: string; corrected: string; explanation?: string | null; topic?: string | null } | null>(null);
@@ -464,7 +468,7 @@ export default function Home() {
   }, [callDuration, callState, unlimited, plan, customMinutes, periodNoun, endCall]);
 
   const startCall = useCallback(async (overrideTopic?: string) => {
-    if (!canMakeCall) return;
+    if (!canMakeCall || isCoolingDown) return;
     const effectiveTopic = typeof overrideTopic === "string" ? overrideTopic : topic;
     if (typeof overrideTopic === "string") setTopic(overrideTopic);
     setMicError(false);
@@ -480,6 +484,11 @@ export default function Home() {
       }
       return;
     }
+
+    // 서버의 last_call_started_at 쿨다운과 같은 시점(마이크 확인 통과 직후)부터 재기 시작
+    setIsCoolingDown(true);
+    if (cooldownTimerRef.current) clearTimeout(cooldownTimerRef.current);
+    cooldownTimerRef.current = setTimeout(() => setIsCoolingDown(false), 5000);
 
     setCallState("calling");
 
@@ -527,8 +536,12 @@ export default function Home() {
           return;
         }
         if (err.error === "TOO_SOON") {
+          // alert()는 PWA/웹뷰 환경에서 비동기 콜백 안에서 조용히 무시되는 경우가 있어(제보로 확인),
+          // 팝업 대신 시작 버튼 쪽 쿨다운 UI(비활성화 + "잠시만요...")로만 상태를 알린다
           setCallState("idle");
-          alert("통화를 너무 빨리 다시 시작했어요. 잠시 후 다시 시도해 주세요.");
+          setIsCoolingDown(true);
+          if (cooldownTimerRef.current) clearTimeout(cooldownTimerRef.current);
+          cooldownTimerRef.current = setTimeout(() => setIsCoolingDown(false), 5000);
           return;
         }
         // 화면이 새로고침 안 된 채 멤버십/체험 상태가 바뀐 경우(관리자가 만료시킴 등) —
@@ -552,7 +565,7 @@ export default function Home() {
     timerRef.current = setInterval(() => setCallDuration((d) => d + 1), 1000);
     addMessage({ role: "assistant", content: greeting });
     speak(greeting, effectiveTutor === "rachel" ? "female" : "male");
-  }, [topic, addMessage, speak, profile, unlockTTS, canMakeCall, isPaid, username, userId, sessionToken, router, monthlySeconds, trialSecondsLeft]);
+  }, [topic, addMessage, speak, profile, unlockTTS, canMakeCall, isCoolingDown, isPaid, username, userId, sessionToken, router, monthlySeconds, trialSecondsLeft]);
 
   const handleMicPress = useCallback(async () => {
     if (isRecording || isSpeaking) return;
@@ -975,7 +988,7 @@ export default function Home() {
                   <DailyQuestionBanner
                     questions={dailyQuestions}
                     onStart={(q) => startCall(q.en)}
-                    disabled={!canMakeCall}
+                    disabled={!canMakeCall || isCoolingDown}
                   />
                 )}
                 {reviewMistake && (
@@ -986,7 +999,7 @@ export default function Home() {
                         `Review practice: help the student naturally use the correct expression "${reviewMistake.corrected}" in a sentence during the conversation. They previously said it incorrectly as "${reviewMistake.original}". Don't lecture about the mistake — just weave it into natural conversation about ${reviewMistake.topic || "daily life"}.`
                       )
                     }
-                    disabled={!canMakeCall}
+                    disabled={!canMakeCall || isCoolingDown}
                   />
                 )}
                 <TopicSelector selected={topic} onSelect={setTopic} />
@@ -1046,22 +1059,22 @@ export default function Home() {
                           }
                         </p>
                         <p className="text-gray-600 text-xs">설정 변경 후 아래 버튼을 눌러주세요</p>
-                        <button onClick={() => startCall()} className="mt-1 px-4 py-1.5 bg-gray-700 hover:bg-gray-600 text-white rounded-xl text-xs font-medium">
+                        <button onClick={() => startCall()} disabled={isCoolingDown} className="mt-1 px-4 py-1.5 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-xs font-medium">
                           다시 시도
                         </button>
                       </>
                     ) : (
                       <>
                         <p className="text-gray-400 text-xs">아래 버튼을 눌러 마이크를 허용해 주세요</p>
-                        <button onClick={() => startCall()} className="mt-1 px-5 py-2 bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white rounded-xl text-sm font-semibold shadow-md shadow-green-900/30">
+                        <button onClick={() => startCall()} disabled={isCoolingDown} className="mt-1 px-5 py-2 bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-sm font-semibold shadow-md shadow-green-900/30">
                           🎙️ 마이크 허용하기
                         </button>
                       </>
                     )}
                   </div>
                 )}
-                <button onClick={() => startCall()} className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white rounded-2xl font-semibold text-lg transition-all active:scale-95 shadow-lg shadow-green-900/40">
-                  📞 통화 시작
+                <button onClick={() => startCall()} disabled={isCoolingDown} className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl font-semibold text-lg transition-all active:scale-95 shadow-lg shadow-green-900/40">
+                  {isCoolingDown ? "잠시만요..." : "📞 통화 시작"}
                 </button>
               </div>
             ) : monthlyLimitReached ? (
