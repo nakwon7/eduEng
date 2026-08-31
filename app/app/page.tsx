@@ -526,6 +526,11 @@ export default function Home() {
           }
           return;
         }
+        if (err.error === "TOO_SOON") {
+          setCallState("idle");
+          alert("통화를 너무 빨리 다시 시작했어요. 잠시 후 다시 시도해 주세요.");
+          return;
+        }
         // 화면이 새로고침 안 된 채 멤버십/체험 상태가 바뀐 경우(관리자가 만료시킴 등) —
         // 실제로는 권한이 없으니 가짜 인사말로 통화를 이어가지 않고 여기서 멈춘다
         setCallState("idle");

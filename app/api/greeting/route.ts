@@ -8,6 +8,10 @@ import { effectiveSeconds } from "@/lib/plans";
 
 const getGroq = () => new Groq({ apiKey: process.env.GROQ_API_KEY });
 
+// 시작→즉시 종료를 반복하면 사용시간 차감(app/api/call/end/route.ts)은 거의 안 되면서
+// 이 라우트의 LLM 호출 비용만 계속 쌓일 수 있어, 통화 시작 사이에 최소 간격을 둔다.
+const CALL_START_COOLDOWN_MS = 5000;
+
 const LANGUAGE_LOCK = `ABSOLUTE RULE — READ THIS FIRST:
 Your output must contain ONLY Korean (한글) and English letters/numbers.
 NEVER write any Hindi, Spanish, Russian, Chinese, Japanese, Arabic, or any other script.
@@ -42,6 +46,21 @@ export async function POST(req: NextRequest) {
     if (!auth.ok) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const admin = supabaseAdmin();
+    const { data: profileRow } = await admin
+      .from("profiles")
+      .select("last_call_started_at")
+      .eq("id", userId)
+      .single();
+
+    if (profileRow?.last_call_started_at) {
+      const elapsed = Date.now() - new Date(profileRow.last_call_started_at).getTime();
+      if (elapsed < CALL_START_COOLDOWN_MS) {
+        return NextResponse.json({ error: "TOO_SOON" }, { status: 429 });
+      }
+    }
+    await admin.from("profiles").update({ last_call_started_at: new Date().toISOString() }).eq("id", userId);
 
     const isKorean = tutor === "minjun" || tutor === "jia";
     const quotaSeconds = isKorean ? 12000 : effectiveSeconds(auth.plan, auth.customMinutes);

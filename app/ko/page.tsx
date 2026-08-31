@@ -398,6 +398,11 @@ export default function KoPage() {
           }
           return;
         }
+        if (err.error === "TOO_SOON") {
+          setCallState("idle");
+          alert("You restarted the call too quickly. Please try again in a moment.");
+          return;
+        }
         setCallState("idle");
         alert("Could not verify your access. Please refresh and try again.");
         return;
