@@ -174,7 +174,7 @@ export default function TermsPage() {
         <section className="border-t border-gray-800 pt-6 text-xs text-gray-600 space-y-1">
           <p className="font-medium text-gray-500">사업자 정보</p>
           <p>상호: 송랩 | 사업자등록번호: 857-28-01961</p>
-          <p>서비스명: 튜링콜 (turingcall.vercel.app)</p>
+          <p>서비스명: 튜링콜 (turingcall.cloud)</p>
           <KbAuthMark />
         </section>
       </div>

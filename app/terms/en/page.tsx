@@ -165,7 +165,7 @@ export default function TermsEnPage() {
         <section className="border-t border-gray-800 pt-6 text-xs text-gray-600 space-y-1">
           <p className="font-medium text-gray-500">Business Information</p>
           <p>Company: SongLab | Business Registration No.: 857-28-01961</p>
-          <p>Service: TuringCall (turingcall-ten.vercel.app)</p>
+          <p>Service: TuringCall (turingcall.cloud)</p>
         </section>
       </div>
     </main>
