@@ -35,6 +35,10 @@ export default function Home() {
   // 안 그러면 "연결 중..." 화면까지 갔다가 몇 초 후에야 막혀서 사용자가 헷갈림
   const [isCoolingDown, setIsCoolingDown] = useState(false);
   const cooldownTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // startCall은 인사말 응답을 기다리는 동안 종료 버튼이 눌릴 수 있는 긴 비동기 함수라,
+  // 그 사이 endCall이 먼저 실행되면 뒤늦게 도착한 응답이 idle 상태를 active로 덮어써버림 —
+  // 매 시작/종료마다 값을 올려서 "이 시작 시도가 아직 유효한지" 판별하는 용도
+  const callSessionIdRef = useRef(0);
   const [topic, setTopic] = useState("Daily Conversation");
   const [dailyQuestions, setDailyQuestions] = useState<{ ko: string; en: string; categoryId?: string; categoryLabel?: string }[]>([]);
   const [reviewMistake, setReviewMistake] = useState<{ original: string; corrected: string; explanation?: string | null; topic?: string | null } | null>(null);
@@ -361,6 +365,7 @@ export default function Home() {
   }, []);
 
   const endCall = useCallback(async () => {
+    callSessionIdRef.current++; // 진행 중인 startCall이 있다면 이 시점부터 무효화
     if (timerRef.current) clearInterval(timerRef.current);
     stopSpeaking();
     const wasTrial = isTrialCallRef.current;
@@ -490,12 +495,14 @@ export default function Home() {
     if (cooldownTimerRef.current) clearTimeout(cooldownTimerRef.current);
     cooldownTimerRef.current = setTimeout(() => setIsCoolingDown(false), 5000);
 
+    const mySessionId = ++callSessionIdRef.current;
     setCallState("calling");
 
     const firstName = profile?.name || "there";
     const tutorName = effectiveTutor === "rachel" ? "Rachel" : "Alex";
 
     await new Promise((r) => setTimeout(r, 1500));
+    if (callSessionIdRef.current !== mySessionId) return; // 대기 중 종료됨
 
     let greeting: string;
     try {
@@ -555,6 +562,7 @@ export default function Home() {
     } catch {
       greeting = `Hey ${firstName}! This is ${tutorName}. Ready to practice some English?`;
     }
+    if (callSessionIdRef.current !== mySessionId) return; // 응답 기다리는 동안 종료됨
 
     setCallState("active");
     setCallDuration(0);

@@ -125,6 +125,10 @@ export default function KoPage() {
   const callStartWeeklySecondsRef = useRef(0);
   const callStartTrialSecondsLeftRef = useRef(0);
   const cooldownTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // startCall은 인사말 응답을 기다리는 동안 종료 버튼이 눌릴 수 있는 긴 비동기 함수라,
+  // 그 사이 endCall이 먼저 실행되면 뒤늦게 도착한 응답이 idle 상태를 active로 덮어써버림 —
+  // 매 시작/종료마다 값을 올려서 "이 시작 시도가 아직 유효한지" 판별하는 용도
+  const callSessionIdRef = useRef(0);
 
   const { isRecording, isTranscribing, startRecording, stopRecording, consumeRateLimited } = useAudioRecorderKo();
   const { speak, stop: stopSpeaking, unlock: unlockTTS, isSpeaking } = useKoreanSpeech();
@@ -272,6 +276,7 @@ export default function KoPage() {
   }, []);
 
   const endCall = useCallback(async () => {
+    callSessionIdRef.current++; // 진행 중인 startCall이 있다면 이 시점부터 무효화
     if (timerRef.current) clearInterval(timerRef.current);
     stopSpeaking();
     const wasTrial = isTrialCallRef.current;
@@ -362,6 +367,7 @@ export default function KoPage() {
     cooldownTimerRef.current = setTimeout(() => setIsCoolingDown(false), 5000);
 
     unlockTTS();
+    const mySessionId = ++callSessionIdRef.current;
     setCallState("calling");
 
     const tutorName = effectiveTutor === "jia" ? "지아" : "민준";
@@ -369,6 +375,7 @@ export default function KoPage() {
     const fallbackGreeting = `안녕하세요, ${profile.name}! 저는 ${tutorCopula}. 오늘도 한국어 연습 해봐요!`;
 
     await new Promise((r) => setTimeout(r, 1500));
+    if (callSessionIdRef.current !== mySessionId) return; // 대기 중 종료됨
 
     let greeting: string;
     try {
@@ -426,6 +433,7 @@ export default function KoPage() {
     } catch {
       greeting = fallbackGreeting;
     }
+    if (callSessionIdRef.current !== mySessionId) return; // 응답 기다리는 동안 종료됨
 
     setCallState("active");
     setCallDuration(0);
