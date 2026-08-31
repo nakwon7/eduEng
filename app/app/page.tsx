@@ -32,7 +32,7 @@ export default function Home() {
   const router = useRouter();
   const [callState, setCallState] = useState<CallState>("idle");
   const [topic, setTopic] = useState("Daily Conversation");
-  const [dailyQuestion, setDailyQuestion] = useState<{ ko: string; en: string; categoryId?: string; categoryLabel?: string } | null>(null);
+  const [dailyQuestions, setDailyQuestions] = useState<{ ko: string; en: string; categoryId?: string; categoryLabel?: string }[]>([]);
   const [reviewMistake, setReviewMistake] = useState<{ original: string; corrected: string; explanation?: string | null; topic?: string | null } | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isAiTyping, setIsAiTyping] = useState(false);
@@ -220,9 +220,9 @@ export default function Home() {
 
     const today = seoulDateKey();
     try {
-      const cached = JSON.parse(localStorage.getItem("dailyQuestion_v2") || "null");
-      if (cached && cached.date === today && cached.ko && cached.en) {
-        setDailyQuestion({ ko: cached.ko, en: cached.en, categoryId: cached.categoryId, categoryLabel: cached.categoryLabel });
+      const cached = JSON.parse(localStorage.getItem("dailyQuestions_v3") || "null");
+      if (cached && cached.date === today && Array.isArray(cached.questions) && cached.questions.length > 0) {
+        setDailyQuestions(cached.questions);
         return;
       }
     } catch {
@@ -236,10 +236,9 @@ export default function Home() {
     })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
-        if (data?.ko && data?.en) {
-          const q = { ko: data.ko, en: data.en, categoryId: data.categoryId, categoryLabel: data.categoryLabel };
-          setDailyQuestion(q);
-          localStorage.setItem("dailyQuestion_v2", JSON.stringify({ date: today, ...q }));
+        if (Array.isArray(data?.questions) && data.questions.length > 0) {
+          setDailyQuestions(data.questions);
+          localStorage.setItem("dailyQuestions_v3", JSON.stringify({ date: today, questions: data.questions }));
         }
       })
       .catch(() => {});
@@ -967,10 +966,10 @@ export default function Home() {
           ) : callState === "idle" ? (
             <div className="flex-1 flex flex-col justify-between">
               <div>
-                {dailyQuestion && (
+                {dailyQuestions.length > 0 && (
                   <DailyQuestionBanner
-                    question={dailyQuestion}
-                    onStart={() => startCall(dailyQuestion.en)}
+                    questions={dailyQuestions}
+                    onStart={(q) => startCall(q.en)}
                     disabled={!canMakeCall}
                   />
                 )}
