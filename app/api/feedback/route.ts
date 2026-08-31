@@ -107,7 +107,7 @@ Return a JSON object with this exact structure:
     {
       "original": "what the student said (keep it short, the key wrong part)",
       "corrected": "the correct version",
-      "explanation": "short explanation in Korean"
+      "explanation": "short explanation in Korean — must be grammatically natural Korean (e.g. '더 자연스럽습니다', not '더 자연합니다')"
     }
   ],
   "goodPhrases": ["exact phrase the student used well"],
