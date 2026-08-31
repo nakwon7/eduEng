@@ -141,7 +141,7 @@ export default function Home() {
       if (!profileData || profileData.session_token !== storedToken) {
         await supabase.auth.signOut();
         localStorage.removeItem("turingcall_session");
-        router.push("/login");
+        router.push("/login?reason=other_device");
         return;
       }
 
@@ -517,7 +517,7 @@ export default function Home() {
         if (err.error === "SESSION_EXPIRED") {
           setCallState("idle");
           await supabase.auth.signOut();
-          router.push("/login");
+          router.push("/login?reason=other_device");
           return;
         }
         if (err.error === "QUOTA_EXCEEDED") {
@@ -618,7 +618,7 @@ export default function Home() {
         }
         if (err.error === "SESSION_EXPIRED") {
           await supabase.auth.signOut();
-          router.push("/login");
+          router.push("/login?reason=other_device");
           return;
         }
         if (err.error === "RATE_LIMIT") {

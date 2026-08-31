@@ -28,18 +28,28 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  // 다른 기기에서 로그인해서(세션 토큰 덮어써짐) 강제 로그아웃된 경우, 그냥 로그인 폼만
+  // 덩그러니 보이면 버그처럼 느껴져서 이유를 안내 — app/app/page.tsx·app/ko/page.tsx가 붙여주는 쿼리파라미터
+  const [otherDeviceNotice, setOtherDeviceNotice] = useState(false);
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("reason") === "other_device") {
+      setOtherDeviceNotice(true);
+    }
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
+    const trimmedUsername = username.trim();
 
     try {
       // 서버에서 아이디로 이메일 조회 (RLS 우회)
       const res = await fetch("/api/auth/lookup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username }),
+        body: JSON.stringify({ username: trimmedUsername }),
       });
 
       if (!res.ok) throw new Error("아이디 또는 비밀번호가 올바르지 않습니다");
@@ -64,7 +74,7 @@ export default function LoginPage() {
       localStorage.setItem("turingcall_session", sessionToken);
 
       // 관리자 계정은 방문자수 집계에서 제외 (proxy.ts에서 이 쿠키를 확인함)
-      if (username === "gooster") {
+      if (trimmedUsername === "gooster") {
         document.cookie = "tc_skip_visit=1; path=/; max-age=31536000; SameSite=Lax";
       }
 
@@ -96,6 +106,14 @@ export default function LoginPage() {
           <h1 className="text-white text-xl font-bold">튜링콜</h1>
           <p className="text-gray-400 text-sm mt-1">AI 전화영어</p>
         </div>
+
+        {otherDeviceNotice && (
+          <div className="mb-6 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-center">
+            <p className="text-amber-400 text-xs leading-relaxed">
+              다른 기기에서 로그인하셔서 로그아웃됐어요.<br />다시 로그인해 주세요.
+            </p>
+          </div>
+        )}
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>

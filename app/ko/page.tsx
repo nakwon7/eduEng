@@ -390,7 +390,7 @@ export default function KoPage() {
         if (err.error === "SESSION_EXPIRED") {
           setCallState("idle");
           await supabase.auth.signOut();
-          router.push("/login/ko");
+          router.push("/login/ko?reason=other_device");
           return;
         }
         if (err.error === "QUOTA_EXCEEDED") {
@@ -489,7 +489,7 @@ export default function KoPage() {
         }
         if (err.error === "SESSION_EXPIRED") {
           await supabase.auth.signOut();
-          router.push("/login/ko");
+          router.push("/login/ko?reason=other_device");
           return;
         }
         if (err.error === "RATE_LIMIT") {

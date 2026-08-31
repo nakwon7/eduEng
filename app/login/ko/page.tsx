@@ -28,17 +28,27 @@ export default function LoginKoPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  // 다른 기기에서 로그인해서(세션 토큰 덮어써짐) 강제 로그아웃된 경우, 그냥 로그인 폼만
+  // 덩그러니 보이면 버그처럼 느껴져서 이유를 안내 — app/ko/page.tsx가 붙여주는 쿼리파라미터
+  const [otherDeviceNotice, setOtherDeviceNotice] = useState(false);
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("reason") === "other_device") {
+      setOtherDeviceNotice(true);
+    }
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
+    const trimmedUsername = username.trim();
 
     try {
       const res = await fetch("/api/auth/lookup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username }),
+        body: JSON.stringify({ username: trimmedUsername }),
       });
 
       if (!res.ok) throw new Error("Incorrect username or password");
@@ -89,6 +99,14 @@ export default function LoginKoPage() {
           <h1 className="text-white text-xl font-bold">TuringCall</h1>
           <p className="text-gray-400 text-sm mt-1">Learn Korean with AI</p>
         </div>
+
+        {otherDeviceNotice && (
+          <div className="mb-6 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-center">
+            <p className="text-amber-400 text-xs leading-relaxed">
+              You were logged out because you signed in on another device.<br />Please log in again.
+            </p>
+          </div>
+        )}
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
