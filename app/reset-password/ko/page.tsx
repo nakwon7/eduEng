@@ -9,21 +9,24 @@ export default function ResetPasswordKoPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const [contactProvided, setContactProvided] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
     try {
+      const trimmedContact = contact.trim();
       const res = await fetch("/api/reset-password-request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: username.trim(), name: name.trim(), contact: contact.trim() }),
+        body: JSON.stringify({ username: username.trim(), name: name.trim(), contact: trimmedContact }),
       });
       if (!res.ok) {
         if (res.status === 429) throw new Error("Please try again later.");
         throw new Error("Username or name doesn't match our records.");
       }
+      setContactProvided(!!trimmedContact);
       setDone(true);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Request failed");
@@ -48,7 +51,10 @@ export default function ResetPasswordKoPage() {
         {done ? (
           <div className="text-center space-y-4">
             <p className="text-gray-300 text-sm leading-relaxed">
-              Your request has been received.<br />We'll verify your identity and send you a new password through the contact info you provided.
+              Your request has been received.<br />
+              {contactProvided
+                ? "We'll verify your identity and send you a new password through the contact info you provided."
+                : "We'll verify your identity and send you a new password to the email you signed up with."}
             </p>
             <a href="/login/ko" className="inline-block text-blue-400 hover:text-blue-300 text-sm">
               Back to login

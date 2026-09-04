@@ -9,21 +9,24 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const [contactProvided, setContactProvided] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
     try {
+      const trimmedContact = contact.trim();
       const res = await fetch("/api/reset-password-request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: username.trim(), name: name.trim(), contact: contact.trim() }),
+        body: JSON.stringify({ username: username.trim(), name: name.trim(), contact: trimmedContact }),
       });
       if (!res.ok) {
         if (res.status === 429) throw new Error("잠시 후 다시 시도해주세요.");
         throw new Error("아이디 또는 이름이 일치하지 않습니다.");
       }
+      setContactProvided(!!trimmedContact);
       setDone(true);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "요청 실패");
@@ -48,7 +51,10 @@ export default function ResetPasswordPage() {
         {done ? (
           <div className="text-center space-y-4">
             <p className="text-gray-300 text-sm leading-relaxed">
-              요청이 접수되었습니다.<br />본인 확인 후 입력하신 연락처로 새 비밀번호를 안내해드릴게요.
+              요청이 접수되었습니다.<br />
+              {contactProvided
+                ? "본인 확인 후 입력하신 연락처로 새 비밀번호를 안내해드릴게요."
+                : "본인 확인 후 가입 시 등록하신 이메일로 새 비밀번호를 안내해드릴게요."}
             </p>
             <a href="/login" className="inline-block text-green-400 hover:text-green-300 text-sm">
               로그인 화면으로 돌아가기
