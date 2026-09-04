@@ -291,7 +291,11 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
     .filter((u) => {
       if (searchQuery.trim()) {
         const q = searchQuery.trim().toLowerCase();
-        if (!u.username.toLowerCase().includes(q) && !u.name.toLowerCase().includes(q)) return false;
+        if (
+          !u.username.toLowerCase().includes(q) &&
+          !u.name.toLowerCase().includes(q) &&
+          !u.email?.toLowerCase().includes(q)
+        ) return false;
       }
       if (membershipOnly && !hasActiveMembership(u)) return false;
       if (selectedDay && u.created_at?.slice(0, 10) !== selectedDay) return false;
@@ -391,7 +395,7 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="아이디 또는 이름 검색"
+              placeholder="아이디, 이름 또는 이메일 검색"
               className="flex-1 min-w-0 bg-gray-800 border border-white/5 text-white rounded-xl px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-600"
             />
             <button
@@ -487,6 +491,7 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                   <div>
                     <p className="text-white text-sm font-medium">{u.username}</p>
                     <p className="text-gray-400 text-xs">{u.name} · {LEVEL_LABEL[u.level] || u.level}</p>
+                    <p className="text-gray-600 text-xs">{u.email}</p>
                   </div>
                   <span className={`text-xs font-medium ${status.color}`}>{status.text}</span>
                 </div>
