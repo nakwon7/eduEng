@@ -162,6 +162,7 @@ export default function SignupKoPage() {
               placeholder="e.g. Emily"
               className="w-full bg-gray-800 border border-white/5 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
             />
+            <p className="text-gray-600 text-xs mt-1">We'll also use this to verify your identity if you ever need a password reset — please remember it</p>
           </div>
           <div>
             <div className="flex justify-between items-center mb-1">
@@ -177,7 +178,7 @@ export default function SignupKoPage() {
               placeholder="example@email.com"
               className="w-full bg-gray-800 border border-white/5 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <p className="text-gray-600 text-xs mt-1">Used for things like password reset — please use a real email you can access</p>
+            <p className="text-amber-500/80 text-xs mt-1">⚠️ If you forget your password, we'll help you reset it through this email. A typo can make it hard to recover your account — please double-check it's a real, working email.</p>
             {emailError && <p className="text-red-400 text-xs mt-1">{emailError}</p>}
           </div>
           <div>

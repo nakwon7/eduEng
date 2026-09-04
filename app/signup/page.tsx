@@ -170,6 +170,7 @@ export default function SignupPage() {
               placeholder="e.g. Minjun"
               className="w-full bg-gray-800 border border-white/5 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
             />
+            <p className="text-gray-600 text-xs mt-1">비밀번호 재설정 시 본인 확인에도 쓰이니 기억해주세요</p>
           </div>
           <div>
             <div className="flex justify-between items-center mb-1">
@@ -185,7 +186,7 @@ export default function SignupPage() {
               placeholder="example@email.com"
               className="w-full bg-gray-800 border border-white/5 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
             />
-            <p className="text-gray-600 text-xs mt-1">비밀번호 재설정 등에 사용되니 실제 사용 가능한 이메일을 입력해주세요</p>
+            <p className="text-amber-500/80 text-xs mt-1">⚠️ 비밀번호를 잊으면 이 이메일로 재설정을 도와드려요. 오타가 있으면 계정 복구가 어려워지니 실제 사용 가능한 이메일인지 한 번 더 확인해주세요.</p>
             {emailError && <p className="text-red-400 text-xs mt-1">{emailError}</p>}
           </div>
           <div>
