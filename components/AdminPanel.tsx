@@ -253,6 +253,29 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
     setBusy(null);
   };
 
+  const handleResetPassword = async (targetId: string, username: string) => {
+    const suggested = Math.random().toString(36).slice(-8);
+    const newPassword = window.prompt(`${username}님의 새 비밀번호 (6~20자) — 확인 후 이 비밀번호를 회원에게 직접 전달해주세요.`, suggested);
+    if (!newPassword) return;
+    if (newPassword.length < 6 || newPassword.length > 20) {
+      alert("비밀번호는 6~20자여야 합니다.");
+      return;
+    }
+
+    setBusy(targetId + "_resetpw");
+    const res = await fetch("/api/admin/reset-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, sessionToken, targetId, newPassword }),
+    });
+    if (res.ok) {
+      alert(`비밀번호가 재설정되었습니다. 회원에게 새 비밀번호를 전달해주세요:\n${newPassword}`);
+    } else {
+      alert("비밀번호 재설정에 실패했습니다.");
+    }
+    setBusy(null);
+  };
+
   const handleResetTrial = async (targetId: string) => {
     setBusy(targetId + "_trial");
     await fetch("/api/admin/reset-trial", {
@@ -654,6 +677,13 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                         }`}
                       >
                         {busy === u.id + "_ko" ? "..." : u.ko_access ? "한국어판 ON" : "한국어판 OFF"}
+                      </button>
+                      <button
+                        onClick={() => handleResetPassword(u.id, u.username)}
+                        disabled={!!busy}
+                        className="w-full py-1.5 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 text-white text-xs rounded-xl transition-all"
+                      >
+                        {busy === u.id + "_resetpw" ? "..." : "🔑 비밀번호 재설정"}
                       </button>
                       <button
                         onClick={() => handleBlock(u.id, u.blocked)}

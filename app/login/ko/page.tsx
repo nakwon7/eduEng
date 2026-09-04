@@ -145,6 +145,12 @@ export default function LoginKoPage() {
           </button>
         </form>
 
+        <p className="text-center mt-4">
+          <a href="/reset-password/ko" className="text-gray-500 hover:text-gray-300 text-xs">
+            Forgot your password?
+          </a>
+        </p>
+
         <p className="text-center text-gray-500 text-sm mt-6">
           Don&apos;t have an account?{" "}
           <a href="/signup/ko" className="text-blue-400 hover:text-blue-300">
