@@ -157,7 +157,7 @@ export default function SignupPage() {
           <div>
             <div className="flex justify-between items-center mb-1">
               <label className="text-gray-400 text-xs">
-                영어 이름 <span className="text-gray-600">(AI 튜터가 부르는 이름)</span>
+                닉네임 <span className="text-gray-600">(AI 튜터가 부르는 이름)</span>
               </label>
               <span className="text-gray-600 text-xs">{name.length}/20</span>
             </div>

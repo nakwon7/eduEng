@@ -70,7 +70,7 @@ export default function ResetPasswordPage() {
             </div>
             <div>
               <label className="text-gray-400 text-xs mb-1 block">
-                영어 이름 <span className="text-gray-600">(가입 시 입력한 닉네임 — 본명 아님)</span>
+                닉네임 <span className="text-gray-600">(가입 시 입력한 이름 — 본명 아님)</span>
               </label>
               <input
                 type="text"
