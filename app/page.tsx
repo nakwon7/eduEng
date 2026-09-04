@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import ZoomableImage from "@/components/ZoomableImage";
 
 export default function LandingPage() {
   const router = useRouter();
@@ -205,6 +206,22 @@ export default function LandingPage() {
               </svg>
             </div>
             <p className="pt-1"><span className="text-gray-300">PC / 기타 브라우저</span> — 주소창 오른쪽 설치(⊕) 버튼 클릭</p>
+          </div>
+          <div className="space-y-3">
+            <ZoomableImage
+              src="/install-guide/edge-pc.png"
+              alt="엣지 PC 설치 안내"
+              width={1203}
+              height={595}
+              caption="Edge — 주소창 오른쪽 튜링콜 설치 알림 클릭 (탭하면 확대)"
+            />
+            <ZoomableImage
+              src="/install-guide/chrome-pc.png"
+              alt="크롬 PC 설치 안내"
+              width={1013}
+              height={630}
+              caption="Chrome — 설치 버튼 클릭 후 뜨는 팝업에서 '설치' 선택 (탭하면 확대)"
+            />
           </div>
         </div>
       </div>

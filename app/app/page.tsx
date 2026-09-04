@@ -20,6 +20,7 @@ import AdminPanel from "@/components/AdminPanel";
 import TermsModal from "@/components/TermsModal";
 import TutorAvatar from "@/components/TutorAvatar";
 import PaymentNoteInput from "@/components/PaymentNoteInput";
+import ZoomableImage from "@/components/ZoomableImage";
 import PaymentRejectNotice from "@/components/PaymentRejectNotice";
 import MembershipOffer from "@/components/MembershipOffer";
 import { PLANS, PlanId, planOf, effectiveSeconds, effectiveMinutes } from "@/lib/plans";
@@ -958,9 +959,27 @@ export default function Home() {
                       {item.icon}
                     </svg>
                   </div>
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <p className="text-white text-sm font-medium">{item.title}</p>
                     <p className="text-gray-400 text-xs mt-0.5 leading-relaxed whitespace-pre-line">{item.desc}</p>
+                    {item.title === "앱으로 설치하기" && (
+                      <div className="mt-3 space-y-3">
+                        <ZoomableImage
+                          src="/install-guide/edge-pc.png"
+                          alt="엣지 PC 설치 안내"
+                          width={1203}
+                          height={595}
+                          caption="Edge — 주소창 오른쪽 튜링콜 설치 알림 클릭 (탭하면 확대)"
+                        />
+                        <ZoomableImage
+                          src="/install-guide/chrome-pc.png"
+                          alt="크롬 PC 설치 안내"
+                          width={1013}
+                          height={630}
+                          caption="Chrome — 설치 버튼 클릭 후 뜨는 팝업에서 '설치' 선택 (탭하면 확대)"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
