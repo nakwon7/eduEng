@@ -74,14 +74,16 @@ export default function ResetPasswordKoPage() {
               />
             </div>
             <div>
-              <label className="text-gray-400 text-xs mb-1 block">Name</label>
+              <label className="text-gray-400 text-xs mb-1 block">
+                Your name <span className="text-gray-600">(the nickname you signed up with — not your legal name)</span>
+              </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
                 className="w-full bg-gray-800 border border-white/5 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Name used at sign up"
+                placeholder="e.g. Emily"
               />
             </div>
             <div>

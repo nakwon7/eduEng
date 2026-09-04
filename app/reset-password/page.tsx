@@ -74,14 +74,16 @@ export default function ResetPasswordPage() {
               />
             </div>
             <div>
-              <label className="text-gray-400 text-xs mb-1 block">이름</label>
+              <label className="text-gray-400 text-xs mb-1 block">
+                영어 이름 <span className="text-gray-600">(가입 시 입력한 닉네임 — 본명 아님)</span>
+              </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
                 className="w-full bg-gray-800 border border-white/5 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
-                placeholder="가입 시 입력한 이름"
+                placeholder="가입 시 입력한 이름 (예: Minjun)"
               />
             </div>
             <div>
