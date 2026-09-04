@@ -139,7 +139,9 @@ export default function SignupPage() {
 
         <div className="mb-4 rounded-xl border border-amber-500/20 bg-amber-500/5 px-3 py-2.5">
           <p className="text-amber-500/80 text-xs leading-relaxed">
-            📌 아이디 · 닉네임 · 이메일 세 가지 조합이 나중에 비밀번호를 잊었을 때 본인 확인에 함께 쓰여요. 정확히 기억해두세요.
+            📌 아이디 · 닉네임 · 이메일 조합이<br />
+            비밀번호를 잊었을 때 본인 확인에 쓰여요.<br />
+            정확히 기억해두세요.
           </p>
         </div>
 
