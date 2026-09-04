@@ -269,7 +269,7 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
       body: JSON.stringify({ userId, sessionToken, targetId, newPassword }),
     });
     if (res.ok) {
-      alert(`비밀번호가 재설정되었습니다. 회원에게 새 비밀번호를 전달해주세요:\n${newPassword}`);
+      alert(`비밀번호가 재설정되었습니다. 아래 메시지를 복사해서 회원에게 전달해주세요:\n\n임시 비밀번호: ${newPassword}\n로그인 후 설정에서 반드시 새 비밀번호로 변경해주세요.`);
     } else {
       alert("비밀번호 재설정에 실패했습니다.");
     }
