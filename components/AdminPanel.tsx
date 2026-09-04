@@ -254,6 +254,8 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
   };
 
   const handleResetPassword = async (targetId: string, username: string, name: string, email: string) => {
+    if (!window.confirm(`${username}님이 실제로 비밀번호 재설정을 요청했나요?\n\n요청 없이 재설정하면 기존 비밀번호가 즉시 무효화되고 로그인 중이던 세션도 강제 로그아웃돼요.`)) return;
+
     const suggested = Math.random().toString(36).slice(-8);
     const newPassword = window.prompt(`${username}님의 새 비밀번호 (6~20자) — 확인 후 등록 이메일로 전송할 수 있어요.`, suggested);
     if (!newPassword) return;
