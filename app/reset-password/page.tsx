@@ -9,7 +9,6 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
-  const [contactProvided, setContactProvided] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +25,6 @@ export default function ResetPasswordPage() {
         if (res.status === 429) throw new Error("잠시 후 다시 시도해주세요.");
         throw new Error("아이디 또는 이름이 일치하지 않습니다.");
       }
-      setContactProvided(!!trimmedContact);
       setDone(true);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "요청 실패");
@@ -51,10 +49,7 @@ export default function ResetPasswordPage() {
         {done ? (
           <div className="text-center space-y-4">
             <p className="text-gray-300 text-sm leading-relaxed">
-              요청이 접수되었습니다.<br />
-              {contactProvided
-                ? "본인 확인 후 입력하신 연락처로 새 비밀번호를 안내해드릴게요."
-                : "본인 확인 후 가입 시 등록하신 이메일로 새 비밀번호를 안내해드릴게요."}
+              요청이 접수되었습니다.<br />본인 확인 후 입력하신 연락처로 새 비밀번호를 안내해드릴게요.
             </p>
             <a href="/login" className="inline-block text-green-400 hover:text-green-300 text-sm">
               로그인 화면으로 돌아가기
@@ -87,16 +82,17 @@ export default function ResetPasswordPage() {
               />
             </div>
             <div>
-              <label className="text-gray-400 text-xs mb-1 block">연락받을 방법 (선택)</label>
+              <label className="text-gray-400 text-xs mb-1 block">연락받을 방법</label>
               <input
                 type="text"
                 value={contact}
                 onChange={(e) => setContact(e.target.value)}
+                required
                 maxLength={100}
                 className="w-full bg-gray-800 border border-white/5 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
                 placeholder="카카오톡 ID, 전화번호 등"
               />
-              <p className="text-gray-600 text-xs mt-1">가입 이메일이 확실하지 않다면 남겨주세요.</p>
+              <p className="text-gray-600 text-xs mt-1">가입 이메일이 정확하지 않을 수 있어, 새 비밀번호는 여기로 안내해드려요.</p>
             </div>
 
             {error && <p className="text-red-400 text-xs text-center">{error}</p>}

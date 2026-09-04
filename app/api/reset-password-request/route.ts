@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
   if (
     typeof username !== "string" || !username.trim() ||
     typeof name !== "string" || !name.trim() ||
-    (contact != null && (typeof contact !== "string" || contact.length > 100))
+    typeof contact !== "string" || !contact.trim() || contact.length > 100
   ) {
     return NextResponse.json({ error: "invalid_input" }, { status: 400 });
   }
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
 
   const trimmedUsername = username.trim();
   const trimmedName = name.trim();
-  const trimmedContact = typeof contact === "string" ? contact.trim() : "";
+  const trimmedContact = contact.trim();
 
   const admin = supabaseAdmin();
   const { data: profile } = await admin
@@ -60,8 +60,7 @@ export async function POST(req: NextRequest) {
   // 등록 이메일을 같이 보내는 건 관리자가 요청자가 적어낸 연락처와 대조해서
   // 본인이 맞는지 확인하라는 용도 — 아이디+닉네임만으론 도용 여부를 가리기 약함
   await sendTelegramAlert(
-    `🔑 [EduEng] 비밀번호 재설정 요청\n아이디: ${trimmedUsername} · 이름: ${trimmedName}\n등록 이메일: ${profile.email}` +
-      (trimmedContact ? `\n요청자가 남긴 연락처: ${trimmedContact} (등록 이메일과 대조해서 본인 확인 후 발급하세요)` : "\n(연락처 미입력 — 등록 이메일로 연락 시도)"),
+    `🔑 [EduEng] 비밀번호 재설정 요청\n아이디: ${trimmedUsername} · 이름: ${trimmedName}\n등록 이메일: ${profile.email}\n요청자가 남긴 연락처: ${trimmedContact} (등록 이메일과 대조해서 본인 확인 후 발급하세요)`,
     `reset-${trimmedUsername}`
   );
 

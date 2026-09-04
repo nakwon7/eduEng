@@ -9,7 +9,6 @@ export default function ResetPasswordKoPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
-  const [contactProvided, setContactProvided] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +25,6 @@ export default function ResetPasswordKoPage() {
         if (res.status === 429) throw new Error("Please try again later.");
         throw new Error("Username or name doesn't match our records.");
       }
-      setContactProvided(!!trimmedContact);
       setDone(true);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Request failed");
@@ -51,10 +49,7 @@ export default function ResetPasswordKoPage() {
         {done ? (
           <div className="text-center space-y-4">
             <p className="text-gray-300 text-sm leading-relaxed">
-              Your request has been received.<br />
-              {contactProvided
-                ? "We'll verify your identity and send you a new password through the contact info you provided."
-                : "We'll verify your identity and send you a new password to the email you signed up with."}
+              Your request has been received.<br />We'll verify your identity and send you a new password through the contact info you provided.
             </p>
             <a href="/login/ko" className="inline-block text-blue-400 hover:text-blue-300 text-sm">
               Back to login
@@ -87,16 +82,17 @@ export default function ResetPasswordKoPage() {
               />
             </div>
             <div>
-              <label className="text-gray-400 text-xs mb-1 block">How to reach you (optional)</label>
+              <label className="text-gray-400 text-xs mb-1 block">How to reach you</label>
               <input
                 type="text"
                 value={contact}
                 onChange={(e) => setContact(e.target.value)}
+                required
                 maxLength={100}
                 className="w-full bg-gray-800 border border-white/5 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Phone, another email, etc."
               />
-              <p className="text-gray-600 text-xs mt-1">Add this if you're not sure your sign-up email is correct.</p>
+              <p className="text-gray-600 text-xs mt-1">Your sign-up email might not be reachable, so we'll send your new password here instead.</p>
             </div>
 
             {error && <p className="text-red-400 text-xs text-center">{error}</p>}
