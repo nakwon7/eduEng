@@ -82,6 +82,7 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
+  const [pendingMailto, setPendingMailto] = useState<{ targetId: string; email: string; url: string } | null>(null);
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
   const [callLogs, setCallLogs] = useState<Record<string, { date: string; seconds: number }[]>>({});
   const [expandedPaymentId, setExpandedPaymentId] = useState<string | null>(null);
@@ -280,8 +281,9 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
         `━━━━━━━━━━━━━━━\r\n\r\n` +
         `로그인 후 설정 화면에서 꼭 새 비밀번호로 변경해주세요.\r\n\r\n` +
         `감사합니다.\r\n튜링콜 드림`;
-      window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      alert(`이메일 앱이 열립니다 (수신: ${email}). 내용을 확인하고 전송해주세요.\n\n혹시 이메일 앱이 안 열리면 아래 비밀번호를 다른 방법으로 직접 전달해주세요:\n${newPassword}`);
+      const url = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      setPendingMailto({ targetId, email, url });
+      alert(`비밀번호가 재설정되었습니다.\n임시 비밀번호: ${newPassword}\n\n아래 회원 카드에 뜬 "📧 이메일 보내기" 버튼을 눌러 발송해주세요.`);
     } else {
       alert("비밀번호 재설정에 실패했습니다.");
     }
@@ -702,6 +704,15 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                       >
                         {busy === u.id + "_resetpw" ? "..." : "🔑 비밀번호 재설정"}
                       </button>
+                      {pendingMailto?.targetId === u.id && (
+                        <a
+                          href={pendingMailto.url}
+                          onClick={() => setPendingMailto(null)}
+                          className="block w-full py-1.5 bg-emerald-700 hover:bg-emerald-600 text-white text-xs rounded-xl text-center transition-all"
+                        >
+                          📧 {pendingMailto.email}로 이메일 보내기
+                        </a>
+                      )}
                       <button
                         onClick={() => handleBlock(u.id, u.blocked)}
                         disabled={!!busy}
