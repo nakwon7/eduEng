@@ -253,9 +253,9 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
     setBusy(null);
   };
 
-  const handleResetPassword = async (targetId: string, username: string) => {
+  const handleResetPassword = async (targetId: string, username: string, name: string, email: string) => {
     const suggested = Math.random().toString(36).slice(-8);
-    const newPassword = window.prompt(`${username}님의 새 비밀번호 (6~20자) — 확인 후 이 비밀번호를 회원에게 직접 전달해주세요.`, suggested);
+    const newPassword = window.prompt(`${username}님의 새 비밀번호 (6~20자) — 확인 후 등록 이메일로 전송할 수 있어요.`, suggested);
     if (!newPassword) return;
     if (newPassword.length < 6 || newPassword.length > 20) {
       alert("비밀번호는 6~20자여야 합니다.");
@@ -269,7 +269,17 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
       body: JSON.stringify({ userId, sessionToken, targetId, newPassword }),
     });
     if (res.ok) {
-      alert(`비밀번호가 재설정되었습니다. 아래 메시지를 복사해서 회원에게 전달해주세요:\n\n임시 비밀번호: ${newPassword}\n로그인 후 설정에서 반드시 새 비밀번호로 변경해주세요.`);
+      const subject = "[튜링콜] 비밀번호가 재설정되었습니다";
+      const body =
+        `안녕하세요 ${name}님 👋\r\n\r\n` +
+        `요청하신 비밀번호 재설정이 완료되었습니다.\r\n\r\n` +
+        `━━━━━━━━━━━━━━━\r\n` +
+        `🔑 임시 비밀번호: ${newPassword}\r\n` +
+        `━━━━━━━━━━━━━━━\r\n\r\n` +
+        `로그인 후 설정 화면에서 꼭 새 비밀번호로 변경해주세요.\r\n\r\n` +
+        `감사합니다.\r\n튜링콜 드림`;
+      window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      alert(`이메일 앱이 열립니다 (수신: ${email}). 내용을 확인하고 전송해주세요.\n\n혹시 이메일 앱이 안 열리면 아래 비밀번호를 다른 방법으로 직접 전달해주세요:\n${newPassword}`);
     } else {
       alert("비밀번호 재설정에 실패했습니다.");
     }
@@ -684,7 +694,7 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                         {busy === u.id + "_ko" ? "..." : u.ko_access ? "한국어판 ON" : "한국어판 OFF"}
                       </button>
                       <button
-                        onClick={() => handleResetPassword(u.id, u.username)}
+                        onClick={() => handleResetPassword(u.id, u.username, u.name, u.email)}
                         disabled={!!busy}
                         className="w-full py-1.5 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 text-white text-xs rounded-xl transition-all"
                       >
