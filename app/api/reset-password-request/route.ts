@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
   const admin = supabaseAdmin();
   const { data: profile } = await admin
     .from("profiles")
-    .select("name")
+    .select("name, email")
     .eq("username", trimmedUsername)
     .single();
 
@@ -57,9 +57,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
 
+  // 등록 이메일을 같이 보내는 건 관리자가 요청자가 적어낸 연락처와 대조해서
+  // 본인이 맞는지 확인하라는 용도 — 아이디+닉네임만으론 도용 여부를 가리기 약함
   await sendTelegramAlert(
-    `🔑 [EduEng] 비밀번호 재설정 요청\n아이디: ${trimmedUsername} · 이름: ${trimmedName}` +
-      (trimmedContact ? `\n연락처: ${trimmedContact}` : "\n(연락처 미입력 — 가입 이메일로 시도 필요)"),
+    `🔑 [EduEng] 비밀번호 재설정 요청\n아이디: ${trimmedUsername} · 이름: ${trimmedName}\n등록 이메일: ${profile.email}` +
+      (trimmedContact ? `\n요청자가 남긴 연락처: ${trimmedContact} (등록 이메일과 대조해서 본인 확인 후 발급하세요)` : "\n(연락처 미입력 — 등록 이메일로 연락 시도)"),
     `reset-${trimmedUsername}`
   );
 
