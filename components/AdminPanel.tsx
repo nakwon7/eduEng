@@ -25,6 +25,7 @@ interface User {
   requested_plan: PlanId | null;
   custom_minutes: number | null;
   cycle_baseline_seconds: number | null;
+  signup_provider: string;
 }
 
 function remainingMinutes(u: User): number {
@@ -698,13 +699,15 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                       >
                         {busy === u.id + "_ko" ? "..." : u.ko_access ? "한국어판 ON" : "한국어판 OFF"}
                       </button>
-                      <button
-                        onClick={() => handleResetPassword(u.id, u.username, u.name, u.email)}
-                        disabled={!!busy}
-                        className="w-full py-1.5 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 text-white text-xs rounded-xl transition-all"
-                      >
-                        {busy === u.id + "_resetpw" ? "..." : "🔑 비밀번호 재설정"}
-                      </button>
+                      {u.signup_provider !== "google" && (
+                        <button
+                          onClick={() => handleResetPassword(u.id, u.username, u.name, u.email)}
+                          disabled={!!busy}
+                          className="w-full py-1.5 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 text-white text-xs rounded-xl transition-all"
+                        >
+                          {busy === u.id + "_resetpw" ? "..." : "🔑 비밀번호 재설정"}
+                        </button>
+                      )}
                       {pendingMailto?.targetId === u.id && (
                         <a
                           href={pendingMailto.url}

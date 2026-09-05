@@ -83,6 +83,7 @@ export async function POST(req: NextRequest) {
     goal_topic: null,
     approved: true,
     session_token: null,
+    signup_provider: "google",
   });
 
   if (profileError) {
