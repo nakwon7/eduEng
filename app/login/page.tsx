@@ -32,6 +32,7 @@ export default function LoginPage() {
   // 다른 기기에서 로그인해서(세션 토큰 덮어써짐) 강제 로그아웃된 경우, 그냥 로그인 폼만
   // 덩그러니 보이면 버그처럼 느껴져서 이유를 안내 — app/app/page.tsx·app/ko/page.tsx가 붙여주는 쿼리파라미터
   const [otherDeviceNotice, setOtherDeviceNotice] = useState(false);
+  const [showGoogleNotice, setShowGoogleNotice] = useState(false);
 
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("reason") === "other_device") {
@@ -165,8 +166,8 @@ export default function LoginPage() {
 
         <button
           type="button"
-          onClick={handleGoogleLogin}
-          className="w-full py-3 bg-white hover:bg-gray-100 text-gray-400 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 shadow-lg"
+          onClick={() => setShowGoogleNotice(true)}
+          className="w-full py-3 bg-white hover:bg-gray-100 text-gray-800 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 shadow-lg"
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5">
             <path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.87c2.27-2.09 3.58-5.17 3.58-8.82z" />
@@ -176,6 +177,38 @@ export default function LoginPage() {
           </svg>
           Google로 계속하기
         </button>
+
+        {showGoogleNotice && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+            <div className="w-full max-w-xs bg-gray-900 rounded-2xl ring-1 ring-white/10 p-6 shadow-2xl">
+              <p className="text-white font-semibold text-sm mb-2">잠깐만요!</p>
+              <p className="text-gray-400 text-xs leading-relaxed mb-5">
+                기존에 <span className="text-white">아이디/비밀번호로 가입</span>하신 회원이라면,
+                구글 로그인은 기존 계정과 연결되지 않고 <span className="text-white">완전히 새로운 계정</span>이 만들어져요.
+                기존 계정은 아이디/비밀번호로 로그인해주세요.
+              </p>
+              <div className="flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowGoogleNotice(false);
+                    handleGoogleLogin();
+                  }}
+                  className="w-full py-2.5 bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white rounded-xl text-sm font-semibold transition-all"
+                >
+                  신규 회원이에요, 계속할게요
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowGoogleNotice(false)}
+                  className="w-full py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-sm font-semibold transition-all"
+                >
+                  아이디/비밀번호로 로그인할게요
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <p className="text-center mt-4">
           <a href="/reset-password" className="text-gray-400 hover:text-gray-300 text-xs">
