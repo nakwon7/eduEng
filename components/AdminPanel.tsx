@@ -276,8 +276,9 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
       const body =
         `안녕하세요 ${name}님 👋\r\n\r\n` +
         `요청하신 비밀번호 재설정이 완료되었습니다.\r\n\r\n` +
+        `🔑 임시 비밀번호 (아래 줄을 통째로 선택해 복사하세요)\r\n` +
         `━━━━━━━━━━━━━━━\r\n` +
-        `🔑 임시 비밀번호: ${newPassword}\r\n` +
+        `${newPassword}\r\n` +
         `━━━━━━━━━━━━━━━\r\n\r\n` +
         `로그인 후 설정 화면에서 꼭 새 비밀번호로 변경해주세요.\r\n\r\n` +
         `감사합니다.\r\n튜링콜 드림`;
