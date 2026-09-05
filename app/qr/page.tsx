@@ -25,7 +25,7 @@ export default function QRPage() {
 
         <div className="space-y-1">
           <p className="text-gray-400 text-sm">QR코드를 스캔하면 바로 시작!</p>
-          <p className="text-gray-600 text-xs">{APP_URL}</p>
+          <p className="text-gray-400 text-xs">{APP_URL}</p>
         </div>
 
         <div className="bg-gray-900 rounded-2xl px-6 py-4 space-y-1.5 text-sm text-gray-300 w-full max-w-xs">
@@ -34,7 +34,7 @@ export default function QRPage() {
           <p>✅ AI 튜터 Alex · Rachel</p>
         </div>
 
-        <p className="text-gray-600 text-xs">월 9,900원 · Chrome / Samsung 브라우저 권장</p>
+        <p className="text-gray-400 text-xs">월 9,900원 · Chrome / Samsung 브라우저 권장</p>
       </div>
     </main>
   );

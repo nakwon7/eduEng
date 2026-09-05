@@ -3,17 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { isDisposableEmail } from "@/lib/disposableEmailDomains";
-import { GOAL_TOPICS } from "@/lib/goalTopics";
-
-const LEVELS = [
-  { id: "beginner", label: "초급", desc: "기초 문법, 간단한 대화" },
-  { id: "intermediate", label: "중급", desc: "일상 대화 가능, 표현 확장 중" },
-  { id: "advanced", label: "고급", desc: "자유로운 대화, 뉘앙스 학습" },
-] as const;
-
-const USERNAME_REGEX = /^[A-Za-z][A-Za-z0-9]{3,19}$/;
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function SignupPage() {
   const router = useRouter();
@@ -31,95 +20,17 @@ export default function SignupPage() {
     check();
   }, [router]);
 
-  const [step, setStep] = useState<"form" | "done">("form");
-  const [username, setUsername] = useState("");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordConfirm, setPasswordConfirm] = useState("");
-  const [level, setLevel] = useState<"beginner" | "intermediate" | "advanced">("intermediate");
-  const [goalTopic, setGoalTopic] = useState("daily");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [agreedTerms, setAgreedTerms] = useState(false);
-  const [termsHighlight, setTermsHighlight] = useState(false);
-
-  const usernameError = username && !USERNAME_REGEX.test(username)
-    ? "영문자로 시작, 영문+숫자 4~20자"
-    : "";
-  const emailError = email && !EMAIL_REGEX.test(email)
-    ? "올바른 이메일 형식이 아닙니다"
-    : email && isDisposableEmail(email)
-    ? "일회용/임시 이메일 서비스는 사용할 수 없습니다"
-    : "";
-  const passwordConfirmError = passwordConfirm && password !== passwordConfirm
-    ? "비밀번호가 일치하지 않습니다"
-    : "";
-
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (usernameError || emailError || passwordConfirmError) return;
-    if (!agreedTerms) {
-      setError("이용약관 및 개인정보처리방침에 동의해주세요");
-      setTermsHighlight(true);
-      return;
-    }
-    setError("");
-    setLoading(true);
-
-    try {
-      const res = await fetch("/api/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, name, email, password, level, goalTopic }),
-      });
-      const result = await res.json();
-
-      if (!res.ok) {
-        if (result.error === "rate_limited") {
-          throw new Error("너무 많은 가입 시도가 있었습니다. 잠시 후 다시 시도해주세요");
-        }
-        if (result.error === "username_taken") {
-          throw new Error("이미 사용 중인 아이디입니다");
-        }
-        if (result.error === "email_taken") {
-          throw new Error("이미 가입된 이메일입니다");
-        }
-        if (result.error === "disposable_email") {
-          throw new Error("일회용/임시 이메일 서비스는 사용할 수 없습니다");
-        }
-        throw new Error(result.error || "가입 실패");
-      }
-
-      setStep("done");
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "가입 실패");
-    } finally {
-      setLoading(false);
-    }
+  const handleGoogleSignup = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    });
   };
 
   if (checking) {
     return (
       <main className="min-h-screen bg-gray-950 flex items-center justify-center">
-        <p className="text-gray-600 text-sm">로딩 중...</p>
-      </main>
-    );
-  }
-
-  if (step === "done") {
-    return (
-      <main className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
-        <div className="w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl ring-1 ring-white/5 p-8 text-center">
-          <div className="text-5xl mb-4">🎉</div>
-          <h2 className="text-white text-lg font-bold mb-2">가입 완료!</h2>
-          <p className="text-gray-400 text-sm leading-relaxed">
-            바로 로그인해서 무료 체험을 시작해보세요!
-          </p>
-          <a href="/login" className="mt-6 inline-block text-green-400 hover:text-green-300 text-sm">
-            로그인 페이지로 →
-          </a>
-        </div>
+        <p className="text-gray-400 text-sm">로딩 중...</p>
       </main>
     );
   }
@@ -127,7 +38,7 @@ export default function SignupPage() {
   return (
     <main className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl ring-1 ring-white/5 p-8">
-        <div className="text-center mb-6">
+        <div className="text-center mb-8">
           <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg shadow-green-900/40">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8">
               <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
@@ -137,168 +48,24 @@ export default function SignupPage() {
           <p className="text-gray-400 text-xs mt-1">가입 즉시 무료 체험 이용 가능합니다</p>
         </div>
 
-        <div className="mb-4 rounded-xl border border-amber-500/20 bg-amber-500/5 px-3 py-2.5">
-          <p className="text-amber-500/80 text-xs leading-relaxed">
-            📌 아이디 · 닉네임 · 이메일 조합이<br />
-            비밀번호를 잊었을 때 본인 확인에 쓰여요.<br />
-            정확히 기억해두세요.
-          </p>
+        <div className="relative">
+          <div className="absolute -inset-2 bg-emerald-500/20 rounded-3xl blur-xl" aria-hidden="true" />
+          <button
+            type="button"
+            onClick={handleGoogleSignup}
+            className="relative w-full py-4 bg-white hover:bg-gray-50 active:scale-[0.98] text-gray-800 rounded-2xl font-bold text-base transition-all flex items-center justify-center gap-3 shadow-xl shadow-black/30 ring-1 ring-black/5"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-6 h-6">
+              <path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.87c2.27-2.09 3.58-5.17 3.58-8.82z" />
+              <path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.91l-3.87-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.27v3.09A12 12 0 0 0 12 24z" />
+              <path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28V6.63H1.27A12 12 0 0 0 0 12c0 1.94.46 3.77 1.27 5.37z" />
+              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0A12 12 0 0 0 1.27 6.63l4 3.09C6.22 6.86 8.87 4.75 12 4.75z" />
+            </svg>
+            Google로 3초 만에 시작하기
+          </button>
         </div>
 
-        <form onSubmit={handleSignup} className="space-y-4">
-          <div>
-            <div className="flex justify-between items-center mb-1">
-              <label className="text-gray-400 text-xs">아이디</label>
-              <span className="text-gray-600 text-xs">{username.length}/20</span>
-            </div>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              maxLength={20}
-              placeholder="영문자로 시작, 영문+숫자 4~20자"
-              className="w-full bg-gray-800 border border-white/5 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
-            />
-            {usernameError && <p className="text-red-400 text-xs mt-1">{usernameError}</p>}
-          </div>
-          <div>
-            <div className="flex justify-between items-center mb-1">
-              <label className="text-gray-400 text-xs">
-                닉네임 <span className="text-gray-600">(AI 튜터가 부르는 이름)</span>
-              </label>
-              <span className="text-gray-600 text-xs">{name.length}/20</span>
-            </div>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              maxLength={20}
-              placeholder="e.g. Minjun"
-              className="w-full bg-gray-800 border border-white/5 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
-            />
-          </div>
-          <div>
-            <div className="flex justify-between items-center mb-1">
-              <label className="text-gray-400 text-xs">이메일</label>
-              <span className="text-gray-600 text-xs">{email.length}/50</span>
-            </div>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              maxLength={50}
-              placeholder="example@email.com"
-              className="w-full bg-gray-800 border border-white/5 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
-            />
-            <p className="text-gray-600 text-xs mt-1">실제 사용 가능한 이메일인지 한 번 더 확인해주세요</p>
-            {emailError && <p className="text-red-400 text-xs mt-1">{emailError}</p>}
-          </div>
-          <div>
-            <div className="flex justify-between items-center mb-1">
-              <label className="text-gray-400 text-xs">비밀번호</label>
-              <span className="text-gray-600 text-xs">{password.length}/20</span>
-            </div>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              maxLength={20}
-              placeholder="6자 이상"
-              className="w-full bg-gray-800 border border-white/5 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
-            />
-          </div>
-          <div>
-            <label className="text-gray-400 text-xs mb-1 block">비밀번호 확인</label>
-            <input
-              type="password"
-              value={passwordConfirm}
-              onChange={(e) => setPasswordConfirm(e.target.value)}
-              required
-              minLength={6}
-              maxLength={20}
-              placeholder="비밀번호를 한번 더 입력해주세요"
-              className="w-full bg-gray-800 border border-white/5 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
-            />
-            {passwordConfirmError && <p className="text-red-400 text-xs mt-1">{passwordConfirmError}</p>}
-          </div>
-          <div>
-            <label className="text-gray-400 text-xs mb-2 block">영어 레벨</label>
-            <div className="space-y-2">
-              {LEVELS.map((l) => (
-                <button
-                  key={l.id}
-                  type="button"
-                  onClick={() => setLevel(l.id)}
-                  className={`w-full px-4 py-2 rounded-xl border text-left transition-all ${
-                    level === l.id
-                      ? "bg-gradient-to-r from-green-600 to-emerald-500 border-transparent text-white shadow-md shadow-green-900/30"
-                      : "bg-green-500/5 border-green-500/10 text-gray-300 hover:bg-green-500/10"
-                  }`}
-                >
-                  <span className="font-medium text-sm">{l.label}</span>
-                  <span className="text-xs opacity-70 ml-2">{l.desc}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <label className="text-gray-400 text-xs mb-2 block">
-              관심 주제 <span className="text-gray-600">(나중에 설정에서 변경 가능)</span>
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              {GOAL_TOPICS.map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => setGoalTopic(t.id)}
-                  className={`px-3 py-2 rounded-xl border text-left transition-all ${
-                    goalTopic === t.id
-                      ? "bg-gradient-to-r from-green-600 to-emerald-500 border-transparent text-white shadow-md shadow-green-900/30"
-                      : "bg-green-500/5 border-green-500/10 text-gray-300 hover:bg-green-500/10"
-                  }`}
-                >
-                  <span className="font-medium text-sm">{t.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <label
-            className={`flex items-start gap-2 cursor-pointer p-2 -m-2 rounded-lg border transition-colors ${
-              termsHighlight ? "border-red-500/60 bg-red-500/5" : "border-transparent"
-            }`}
-          >
-            <input
-              type="checkbox"
-              checked={agreedTerms}
-              onChange={(e) => {
-                setAgreedTerms(e.target.checked);
-                if (e.target.checked) setTermsHighlight(false);
-              }}
-              className="mt-0.5 w-4 h-4 accent-green-500 shrink-0"
-            />
-            <span className="text-gray-400 text-xs leading-relaxed">
-              <a href="/terms" target="_blank" className="text-green-400 underline hover:text-green-300">이용약관 및 개인정보처리방침</a>에 동의합니다 (필수)
-            </span>
-          </label>
-
-          {error && <p className="text-red-400 text-xs text-center">{error}</p>}
-
-          <button
-            type="submit"
-            disabled={loading || !!usernameError || !!emailError || !!passwordConfirmError || !password || !passwordConfirm}
-            className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 disabled:bg-none disabled:bg-gray-700 text-white rounded-xl font-semibold transition-all shadow-lg shadow-green-900/30"
-          >
-            {loading ? "가입 중..." : "가입하기"}
-          </button>
-        </form>
-
-        <p className="text-center text-gray-500 text-sm mt-4">
+        <p className="text-center text-gray-400 text-sm mt-6">
           이미 계정이 있으신가요?{" "}
           <a href="/login" className="text-green-400 hover:text-green-300">로그인</a>
         </p>

@@ -58,7 +58,7 @@ export default function ResetPasswordPage() {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="text-gray-400 text-xs mb-1 block">아이디</label>
+              <label className="text-emerald-400/70 text-xs mb-1 block">아이디</label>
               <input
                 type="text"
                 value={username}
@@ -69,8 +69,8 @@ export default function ResetPasswordPage() {
               />
             </div>
             <div>
-              <label className="text-gray-400 text-xs mb-1 block">
-                닉네임 <span className="text-gray-600">(가입 시 입력한 이름 — 본명 아님)</span>
+              <label className="text-emerald-400/70 text-xs mb-1 block">
+                닉네임 <span className="text-gray-400">(가입 시 입력한 이름 — 본명 아님)</span>
               </label>
               <input
                 type="text"
@@ -82,7 +82,7 @@ export default function ResetPasswordPage() {
               />
             </div>
             <div>
-              <label className="text-gray-400 text-xs mb-1 block">연락받을 이메일</label>
+              <label className="text-emerald-400/70 text-xs mb-1 block">연락받을 이메일</label>
               <input
                 type="email"
                 value={contact}
@@ -92,7 +92,7 @@ export default function ResetPasswordPage() {
                 className="w-full bg-gray-800 border border-white/5 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
                 placeholder="example@email.com"
               />
-              <p className="text-gray-600 text-xs mt-1">가입 이메일이 정확하지 않을 수 있어요. 새 비밀번호를 받을 이메일을 입력해주세요.</p>
+              <p className="text-gray-400 text-xs mt-1">가입 이메일이 정확하지 않을 수 있어요. 새 비밀번호를 받을 이메일을 입력해주세요.</p>
             </div>
 
             {error && <p className="text-red-400 text-xs text-center">{error}</p>}
@@ -107,7 +107,7 @@ export default function ResetPasswordPage() {
           </form>
         )}
 
-        <p className="text-center text-gray-500 text-sm mt-6">
+        <p className="text-center text-gray-400 text-sm mt-6">
           <a href="/login" className="text-green-400 hover:text-green-300">
             로그인으로 돌아가기
           </a>

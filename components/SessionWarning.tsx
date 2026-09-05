@@ -38,7 +38,7 @@ export default function SessionWarning({ onRelogin }: SessionWarningProps) {
         </button>
         <button
           onClick={onRelogin}
-          className="mt-3 text-gray-500 text-sm hover:text-gray-400"
+          className="mt-3 text-gray-400 text-sm hover:text-gray-300"
         >
           닫기
         </button>

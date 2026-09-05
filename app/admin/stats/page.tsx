@@ -79,7 +79,7 @@ export default function StatsPage() {
 
   if (loading) return (
     <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-      <p className="text-gray-500">불러오는 중...</p>
+      <p className="text-gray-400">불러오는 중...</p>
     </div>
   );
 
@@ -142,7 +142,7 @@ export default function StatsPage() {
           <div className="bg-blue-500/5 border border-blue-500/15 rounded-2xl p-6 space-y-3">
             <h2 className="text-sm font-semibold text-gray-300 mb-4">최근 30일 통화 시간</h2>
             {stats.daily.length === 0 ? (
-              <p className="text-gray-500 text-sm">데이터 없음</p>
+              <p className="text-gray-400 text-sm">데이터 없음</p>
             ) : (() => {
               const max = Math.max(...stats.daily.map((d) => d.seconds));
               return stats.daily.map((d) => (
@@ -163,7 +163,7 @@ export default function StatsPage() {
           <div className="bg-indigo-500/5 border border-indigo-500/15 rounded-2xl p-6 space-y-3">
             <h2 className="text-sm font-semibold text-gray-300 mb-4">최근 12개월 통화 시간</h2>
             {stats.monthly.length === 0 ? (
-              <p className="text-gray-500 text-sm">데이터 없음</p>
+              <p className="text-gray-400 text-sm">데이터 없음</p>
             ) : (() => {
               const max = Math.max(...stats.monthly.map((d) => d.seconds));
               return stats.monthly.map((d) => (
@@ -184,7 +184,7 @@ export default function StatsPage() {
           <div className="bg-purple-500/5 border border-purple-500/15 rounded-2xl p-6 space-y-3">
             <h2 className="text-sm font-semibold text-gray-300 mb-4">연별 통화 시간</h2>
             {stats.yearly.length === 0 ? (
-              <p className="text-gray-500 text-sm">데이터 없음</p>
+              <p className="text-gray-400 text-sm">데이터 없음</p>
             ) : (() => {
               const max = Math.max(...stats.yearly.map((d) => d.seconds));
               return stats.yearly.map((d) => (
@@ -205,7 +205,7 @@ export default function StatsPage() {
           <div className="bg-emerald-500/5 border border-emerald-500/15 rounded-2xl p-6 space-y-3">
             <h2 className="text-sm font-semibold text-gray-300 mb-4">주제별 사용 현황</h2>
             {stats.byTopic.length === 0 ? (
-              <p className="text-gray-500 text-sm">데이터 없음</p>
+              <p className="text-gray-400 text-sm">데이터 없음</p>
             ) : (() => {
               const max = Math.max(...stats.byTopic.map((d) => d.seconds));
               return stats.byTopic.map((d) => (
@@ -227,11 +227,11 @@ export default function StatsPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-800">
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium">사용자</th>
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium">레벨</th>
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium">상태</th>
-                  <th className="text-left px-4 py-3 text-gray-400 font-medium">가입일</th>
-                  <th className="text-right px-4 py-3 text-gray-400 font-medium">누적 통화</th>
+                  <th className="text-left px-4 py-3 text-emerald-400/70 font-medium">사용자</th>
+                  <th className="text-left px-4 py-3 text-emerald-400/70 font-medium">레벨</th>
+                  <th className="text-left px-4 py-3 text-emerald-400/70 font-medium">상태</th>
+                  <th className="text-left px-4 py-3 text-emerald-400/70 font-medium">가입일</th>
+                  <th className="text-right px-4 py-3 text-emerald-400/70 font-medium">누적 통화</th>
                 </tr>
               </thead>
               <tbody>
@@ -239,7 +239,7 @@ export default function StatsPage() {
                   <tr key={u.id} className={i % 2 === 0 ? "bg-gray-900" : "bg-gray-800/40"}>
                     <td className="px-4 py-3">
                       <p className="text-white font-medium">{u.username}</p>
-                      <p className="text-gray-500 text-xs">{u.name}</p>
+                      <p className="text-gray-400 text-xs">{u.name}</p>
                     </td>
                     <td className="px-4 py-3 text-gray-300">{LEVEL[u.level] || u.level}</td>
                     <td className="px-4 py-3">

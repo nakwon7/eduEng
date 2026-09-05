@@ -54,8 +54,8 @@ export default function InAppBrowserRedirect() {
         </div>
       )}
 
-      <p className="text-gray-600 text-xs mt-5">
-        또는 우측 하단 <strong className="text-gray-500">···</strong> → 다른 브라우저로 열기
+      <p className="text-gray-400 text-xs mt-5">
+        또는 우측 하단 <strong className="text-gray-400">···</strong> → 다른 브라우저로 열기
       </p>
     </div>
   );

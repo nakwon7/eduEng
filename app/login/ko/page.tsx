@@ -82,7 +82,7 @@ export default function LoginKoPage() {
   if (checking) {
     return (
       <main className="min-h-screen bg-gray-950 flex items-center justify-center">
-        <p className="text-gray-600 text-sm">Loading...</p>
+        <p className="text-gray-400 text-sm">Loading...</p>
       </main>
     );
   }
@@ -110,7 +110,7 @@ export default function LoginKoPage() {
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="text-gray-400 text-xs mb-1 block">Username</label>
+            <label className="text-emerald-400/70 text-xs mb-1 block">Username</label>
             <input
               type="text"
               value={username}
@@ -122,7 +122,7 @@ export default function LoginKoPage() {
             />
           </div>
           <div>
-            <label className="text-gray-400 text-xs mb-1 block">Password</label>
+            <label className="text-emerald-400/70 text-xs mb-1 block">Password</label>
             <input
               type="password"
               value={password}
@@ -146,12 +146,12 @@ export default function LoginKoPage() {
         </form>
 
         <p className="text-center mt-4">
-          <a href="/reset-password/ko" className="text-gray-500 hover:text-gray-300 text-xs">
+          <a href="/reset-password/ko" className="text-gray-400 hover:text-gray-300 text-xs">
             Forgot your password?
           </a>
         </p>
 
-        <p className="text-center text-gray-500 text-sm mt-6">
+        <p className="text-center text-gray-400 text-sm mt-6">
           Don&apos;t have an account?{" "}
           <a href="/signup/ko" className="text-blue-400 hover:text-blue-300">
             Sign up

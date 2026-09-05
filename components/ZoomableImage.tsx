@@ -28,7 +28,7 @@ export default function ZoomableImage({
         >
           <Image src={src} alt={alt} width={width} height={height} className="w-full h-auto" />
         </button>
-        {caption && <p className="text-xs text-gray-500 text-center">{caption}</p>}
+        {caption && <p className="text-xs text-gray-400 text-center">{caption}</p>}
       </div>
 
       {open && (

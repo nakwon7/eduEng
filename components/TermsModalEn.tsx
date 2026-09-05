@@ -127,8 +127,8 @@ export default function TermsModalEn({ onClose }: TermsModalEnProps) {
         </section>
 
         {/* Business Info */}
-        <section className="border-t border-gray-800 pt-4 text-xs text-gray-600 space-y-1">
-          <p className="font-medium text-gray-500">Business Information</p>
+        <section className="border-t border-gray-800 pt-4 text-xs text-gray-400 space-y-1">
+          <p className="font-medium text-gray-400">Business Information</p>
           <p>Company: SongLab | Business Registration No.: 857-28-01961</p>
           <p>Service: TuringCall (turingcall.cloud)</p>
           <KbAuthMark />

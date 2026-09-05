@@ -47,10 +47,12 @@ export default function DailyQuestionBanner({ questions, onStart, disabled }: Da
 
   return (
     <div className="w-full mb-4">
-      <div className="flex items-center gap-2 mb-2 px-1">
-        <span className="text-gray-400 text-xs">💬 오늘의 질문</span>
+      <div className="flex items-center justify-between gap-2 mb-2 px-1">
+        <span className="text-gray-200 text-sm font-semibold">오늘의 질문</span>
         {questions.length > 1 && (
-          <span className="text-gray-600 text-[10px]">좌우로 넘겨서 다른 주제 보기</span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/5 text-gray-400 text-[10px]">
+            <span aria-hidden="true">↔</span> 좌우로 넘겨서 다른 주제 보기
+          </span>
         )}
       </div>
       <div className="relative">

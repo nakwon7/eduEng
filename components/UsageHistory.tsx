@@ -70,8 +70,8 @@ export default function UsageHistory({ userId, sessionToken, lang = "ko" }: Usag
   return (
     <div className="mt-4 bg-gray-900 rounded-xl p-4">
       <button onClick={() => setOpen((v) => !v)} className="w-full flex items-center justify-between">
-        <p className="text-gray-400 text-xs font-medium">{t.title}</p>
-        <span className={`text-gray-500 text-xs transition-transform ${open ? "rotate-180" : ""}`}>▾</span>
+        <p className="text-emerald-400/70 text-xs font-medium">{t.title}</p>
+        <span className={`text-gray-400 text-xs transition-transform ${open ? "rotate-180" : ""}`}>▾</span>
       </button>
 
       {open && (
@@ -98,16 +98,16 @@ export default function UsageHistory({ userId, sessionToken, lang = "ko" }: Usag
           </div>
 
           {loading ? (
-            <p className="text-gray-600 text-xs text-center py-2">{t.loading}</p>
+            <p className="text-gray-400 text-xs text-center py-2">{t.loading}</p>
           ) : logs.length === 0 ? (
-            <p className="text-gray-600 text-xs text-center py-2">{t.empty}</p>
+            <p className="text-gray-400 text-xs text-center py-2">{t.empty}</p>
           ) : (
             <>
               <p className="text-gray-300 text-xs font-medium pt-1">{t.total(formatMinutes(totalSeconds, t))}</p>
-              <div className="space-y-1 max-h-48 overflow-y-auto">
+              <div className="space-y-1 max-h-48 overflow-y-auto scrollbar-hide">
                 {logs.map((l) => (
                   <div key={l.date} className="flex justify-between text-xs">
-                    <span className="text-gray-500">{l.date}</span>
+                    <span className="text-gray-400">{l.date}</span>
                     <span className="text-gray-300">{formatMinutes(l.seconds, t)}</span>
                   </div>
                 ))}

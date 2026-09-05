@@ -695,7 +695,7 @@ export default function Home() {
   if (!loaded) {
     return (
       <main className="h-dvh overflow-hidden bg-gray-950 flex items-center justify-center">
-        <p className="text-gray-500 text-sm">로딩 중...</p>
+        <p className="text-gray-400 text-sm">로딩 중...</p>
       </main>
     );
   }
@@ -792,7 +792,7 @@ export default function Home() {
                     className="w-full max-w-sm bg-gradient-to-b from-gray-800 to-gray-900 border border-white/10 border-t-emerald-400/30 rounded-xl px-4 py-3 text-gray-300 text-xs text-left space-y-1.5 max-h-[80vh] overflow-y-auto shadow-[0_20px_25px_-5px_rgba(0,0,0,0.4),0_0_40px_-12px_rgba(16,185,129,0.35)]"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <p className="text-gray-400 font-medium mb-1">최근 7일 방문자 (IP당 1시간 1회)</p>
+                    <p className="text-emerald-400/70 font-medium mb-1">최근 7일 방문자 (IP당 1시간 1회)</p>
                     {visitorWeek.map((d) => (
                       <div key={d.date} className="flex justify-between">
                         <span>{d.date}</span>
@@ -801,7 +801,7 @@ export default function Home() {
                     ))}
                     {visitorRecent && visitorRecent.length > 0 && (
                       <>
-                        <p className="text-gray-400 font-medium mt-3 mb-1 pt-2 border-t border-gray-700">
+                        <p className="text-emerald-400/70 font-medium mt-3 mb-1 pt-2 border-t border-gray-700">
                           최근 방문 로그 (최대 50건)
                         </p>
                         <div className="space-y-1">
@@ -814,7 +814,7 @@ export default function Home() {
                               <span className="text-gray-400 shrink-0 max-w-[88px] truncate">
                                 {v.region || "-"}
                               </span>
-                              <span className="text-gray-500 shrink-0">
+                              <span className="text-gray-400 shrink-0">
                                 {new Date(v.createdAt).toLocaleTimeString("ko-KR", {
                                   hour: "2-digit",
                                   minute: "2-digit",
@@ -1043,7 +1043,7 @@ export default function Home() {
             blocked ? (
               <div className="text-center space-y-2 py-4">
                 <p className="text-red-400 text-sm font-medium">이용이 제한된 계정입니다</p>
-                <p className="text-gray-500 text-xs">관리자에게 문의해 주세요</p>
+                <p className="text-gray-400 text-xs">관리자에게 문의해 주세요</p>
                 <a href="https://open.kakao.com/o/sPanl0Ci" target="_blank" rel="noopener noreferrer" className="block text-yellow-400 hover:text-yellow-300 text-xs">
                   카카오톡 문의 →
                 </a>
@@ -1069,7 +1069,7 @@ export default function Home() {
                   </div>
                 )}
                 {!isUnlimited && isPaid && (
-                  <p className="text-gray-500 text-xs text-center mb-2">
+                  <p className="text-gray-400 text-xs text-center mb-2">
                     이번{periodNoun} {Math.floor(monthlySeconds / 60)}분 사용 · 잔여 {Math.max(0, effectiveMinutes(plan, customMinutes) - Math.floor(monthlySeconds / 60))}분
                   </p>
                 )}
@@ -1085,7 +1085,7 @@ export default function Home() {
                             : <>주소창 자물쇠(🔒) → 마이크 → 허용</>
                           }
                         </p>
-                        <p className="text-gray-600 text-xs">설정 변경 후 아래 버튼을 눌러주세요</p>
+                        <p className="text-gray-400 text-xs">설정 변경 후 아래 버튼을 눌러주세요</p>
                         <button onClick={() => startCall()} disabled={isCoolingDown} className="mt-1 px-4 py-1.5 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-xs font-medium">
                           다시 시도
                         </button>
@@ -1107,7 +1107,7 @@ export default function Home() {
             ) : monthlyLimitReached ? (
               <div className="space-y-3 text-center py-2">
                 <p className="text-orange-400 text-sm font-medium">이번{periodNoun} 사용 시간({effectiveMinutes(plan, customMinutes)}분)을 모두 사용했습니다</p>
-                <p className="text-gray-500 text-xs">
+                <p className="text-gray-400 text-xs">
                   {expiresAt
                     ? <>멤버십 갱신 시 초기화돼요 (이용기간 종료: {new Date(expiresAt).toLocaleString("ko-KR", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })})</>
                     : `다음${periodNoun}에 다시 이용할 수 있어요`}
@@ -1192,7 +1192,7 @@ export default function Home() {
                     <path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08c-.18-.17-.29-.42-.29-.7 0-.28.11-.53.29-.71C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71 0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28-.79-.74-1.69-1.36-2.67-1.85-.33-.16-.56-.5-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z" />
                   </svg>
                 </button>
-                <span className="text-gray-500 text-[10px]">통화 종료</span>
+                <span className="text-gray-400 text-[10px]">통화 종료</span>
               </div>
               <button
                 onMouseDown={handleMicPress}
@@ -1212,7 +1212,7 @@ export default function Home() {
             </div>
           )}
 
-          {callState === "active" && <p className="text-gray-500 text-xs text-center mt-3">{micStatus}</p>}
+          {callState === "active" && <p className="text-gray-400 text-xs text-center mt-3">{micStatus}</p>}
         </div>
 
         {/* 문의하기 — 차단/한도초과/체험소진 화면엔 이미 자체 문의 링크가 있어 중복 노출 방지 */}
@@ -1232,9 +1232,9 @@ export default function Home() {
         {/* 사업자 정보 — 통화 중엔 화면을 깔끔하게 유지하기 위해 숨김 */}
         {callState === "idle" && (
           <div className="px-4 pb-4 text-center space-y-0.5">
-            <p className="text-gray-700 text-xs">송랩 · 사업자등록번호: 857-28-01961</p>
-            <p className="text-gray-700 text-xs">
-              <button onClick={() => setShowTerms(true)} className="underline hover:text-gray-500">이용약관 및 개인정보처리방침</button>
+            <p className="text-gray-400 text-xs">송랩 · 사업자등록번호: 857-28-01961</p>
+            <p className="text-gray-400 text-xs">
+              <button onClick={() => setShowTerms(true)} className="underline hover:text-gray-400">이용약관 및 개인정보처리방침</button>
             </p>
           </div>
         )}

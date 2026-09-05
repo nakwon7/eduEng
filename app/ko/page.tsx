@@ -558,7 +558,7 @@ export default function KoPage() {
   if (!loaded) {
     return (
       <main className="min-h-screen bg-gray-950 flex items-center justify-center">
-        <p className="text-gray-500 text-sm">Loading...</p>
+        <p className="text-gray-400 text-sm">Loading...</p>
       </main>
     );
   }
@@ -716,8 +716,8 @@ export default function KoPage() {
 
               <div>
                 <div className="flex justify-between items-center mb-1">
-                  <label className="text-gray-400 text-xs">Your Name</label>
-                  <span className="text-gray-600 text-xs">{profile.name.length}/20</span>
+                  <label className="text-emerald-400/70 text-xs">Your Name</label>
+                  <span className="text-gray-400 text-xs">{profile.name.length}/20</span>
                 </div>
                 <input
                   type="text"
@@ -729,7 +729,7 @@ export default function KoPage() {
               </div>
 
               <div>
-                <label className="text-gray-400 text-xs mb-1 block">Korean Level</label>
+                <label className="text-emerald-400/70 text-xs mb-1 block">Korean Level</label>
                 <div className="grid grid-cols-3 gap-2">
                   {(["beginner", "intermediate", "advanced"] as const).map((lvl) => (
                     <button
@@ -748,7 +748,7 @@ export default function KoPage() {
               </div>
 
               <div>
-                <label className="text-gray-400 text-xs mb-1 block">Tutor</label>
+                <label className="text-emerald-400/70 text-xs mb-1 block">Tutor</label>
                 {isMobile ? (
                   <div className="bg-gray-800 border border-white/5 rounded-xl px-4 py-3 text-xs text-gray-400">
                     Tutor selection is available on PC. On mobile, you'll chat with Jia.
@@ -804,12 +804,12 @@ export default function KoPage() {
                 </div>
               ) : (
                 <div className="mt-4 bg-blue-500/5 border border-blue-500/15 rounded-xl p-4 space-y-2">
-                  <p className="text-gray-400 text-xs font-medium">Membership</p>
+                  <p className="text-emerald-400/70 text-xs font-medium">Membership</p>
                   <div className="flex items-baseline gap-1">
                     <span className="text-white text-lg font-bold">$3</span>
-                    <span className="text-gray-500 text-xs">/ week</span>
+                    <span className="text-gray-400 text-xs">/ week</span>
                   </div>
-                  <p className="text-gray-500 text-xs">2 free trial sessions (up to 5 min each)</p>
+                  <p className="text-gray-400 text-xs">2 free trial sessions (up to 5 min each)</p>
                   <a
                     href="https://www.paypal.com/ncp/payment/DC7LDXNCBE4NY"
                     target="_blank"
@@ -819,9 +819,9 @@ export default function KoPage() {
                   >
                     💳 Pay with PayPal
                   </a>
-                  <p className="text-gray-600 text-xs text-center">or bank transfer</p>
-                  <p className="text-gray-500 text-xs flex items-center gap-1">KB Kookmin Bank 758637-00-012739<CopyButton text="758637-00-012739" label="Copy" copiedLabel="Copied!" /></p>
-                  <p className="text-gray-500 text-xs">예금주: 송랩</p>
+                  <p className="text-gray-400 text-xs text-center">or bank transfer</p>
+                  <p className="text-gray-400 text-xs flex items-center gap-1">KB Kookmin Bank 758637-00-012739<CopyButton text="758637-00-012739" label="Copy" copiedLabel="Copied!" /></p>
+                  <p className="text-gray-400 text-xs">예금주: 송랩</p>
                   {paymentRequestedAt ? (
                     <p className="mt-1 text-emerald-400 text-xs">✅ Confirmation requested — admin will review shortly</p>
                   ) : (
@@ -900,7 +900,7 @@ export default function KoPage() {
               </div>
 
               <div className="mt-4 text-center">
-                <p className="text-gray-500 text-xs mb-1">
+                <p className="text-gray-400 text-xs mb-1">
                   Hello, {profile.name} · Level: {profile.level}
                 </p>
                 {username === "gooster" && !isMobile && (
@@ -924,7 +924,7 @@ export default function KoPage() {
             blocked ? (
               <div className="text-center space-y-2 py-4">
                 <p className="text-red-400 text-sm font-medium">Your account has been restricted</p>
-                <p className="text-gray-500 text-xs">Please contact the admin</p>
+                <p className="text-gray-400 text-xs">Please contact the admin</p>
                 <a href="https://open.kakao.com/o/sPanl0Ci" target="_blank" rel="noopener noreferrer" className="block text-yellow-400 hover:text-yellow-300 text-xs">
                   Contact us (KakaoTalk) →
                 </a>
@@ -950,7 +950,7 @@ export default function KoPage() {
                 </div>
               )}
               {!isUnlimited && isPaid && (
-                <p className="text-gray-500 text-xs text-center mb-2">
+                <p className="text-gray-400 text-xs text-center mb-2">
                   {Math.floor(weeklySeconds / 60)} min used this week · {Math.max(0, 200 - Math.floor(weeklySeconds / 60))} min left
                 </p>
               )}
@@ -966,7 +966,7 @@ export default function KoPage() {
                           : <>Click the lock(🔒) in the address bar → Microphone → Allow</>
                         }
                       </p>
-                      <p className="text-gray-600 text-xs">After changing settings, tap the button below</p>
+                      <p className="text-gray-400 text-xs">After changing settings, tap the button below</p>
                       <button onClick={startCall} disabled={isCoolingDown} className="mt-1 px-4 py-1.5 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-xs font-medium">
                         Try again
                       </button>
@@ -992,7 +992,7 @@ export default function KoPage() {
             ) : weeklyLimitReached ? (
               <div className="space-y-3 text-center py-2">
                 <p className="text-orange-400 text-sm font-medium">You&apos;ve used all your time for this billing period (200 min)</p>
-                <p className="text-gray-500 text-xs">
+                <p className="text-gray-400 text-xs">
                   {expiresAt
                     ? <>It normally resets when your membership renews (current period ends {new Date(expiresAt).toLocaleString("en-US", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })})</>
                     : "It resets next Monday"}
@@ -1091,7 +1091,7 @@ export default function KoPage() {
                     <path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08c-.18-.17-.29-.42-.29-.7 0-.28.11-.53.29-.71C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71 0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28-.79-.74-1.69-1.36-2.67-1.85-.33-.16-.56-.5-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z" />
                   </svg>
                 </button>
-                <span className="text-gray-500 text-[10px]">End call</span>
+                <span className="text-gray-400 text-[10px]">End call</span>
               </div>
               <button
                 onMouseDown={handleMicPress}
@@ -1112,7 +1112,7 @@ export default function KoPage() {
           )}
 
           {callState === "active" && (
-            <p className="text-gray-500 text-xs text-center mt-3">
+            <p className="text-gray-400 text-xs text-center mt-3">
               {isRecording ? "Listening... release to send"
                 : isTranscribing ? "Recognizing Korean..."
                 : isAiTyping ? `${tutorName} is thinking...`
@@ -1125,9 +1125,9 @@ export default function KoPage() {
         {/* Business Info — hidden during calls to keep the call screen clean */}
         {callState === "idle" && (
           <div className="px-4 pb-4 text-center space-y-0.5">
-            <p className="text-gray-700 text-xs">SongLab · Business Reg. No.: 857-28-01961</p>
-            <p className="text-gray-700 text-xs">
-              <button onClick={() => setShowTerms(true)} className="hover:text-gray-500">Terms &amp; Privacy Policy</button>
+            <p className="text-gray-400 text-xs">SongLab · Business Reg. No.: 857-28-01961</p>
+            <p className="text-gray-400 text-xs">
+              <button onClick={() => setShowTerms(true)} className="hover:text-gray-400">Terms &amp; Privacy Policy</button>
             </p>
           </div>
         )}

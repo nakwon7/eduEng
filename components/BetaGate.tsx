@@ -17,7 +17,7 @@ export default function BetaGate({ onConfirm }: BetaGateProps) {
         <p>✅ AI 튜터 Alex와 실시간 영어 대화</p>
         <p>✅ 음성 인식 + 음성 응답</p>
         <p>✅ 문법 교정 피드백</p>
-        <p className="text-gray-500 text-xs pt-2 border-t border-gray-700">
+        <p className="text-gray-400 text-xs pt-2 border-t border-gray-700">
           Chrome 또는 Samsung 브라우저를 권장합니다.
         </p>
       </div>

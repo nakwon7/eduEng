@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { UserProfile } from "@/hooks/useUserProfile";
 import { PlanId } from "@/lib/plans";
@@ -67,6 +67,16 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
   // existing이 있는(=프로필이 이미 로드된) 회원인데 goalTopic만 없다면 이번에 새로 생긴 기능을
   // 아직 한 번도 안 본 기존 회원 — 처음 설정 화면에 들어왔을 때만 NEW 안내를 보여준다
   const isGoalTopicNew = !!existing && !existing.goalTopic;
+  // 구글 가입 시 물어보지 않고 기본값(중급)으로 채워 넣었다는 걸 처음 설정 화면에
+  // 열 때 한 번만 안내 — 안 그러면 "내가 이걸 언제 골랐지" 헷갈림
+  const [isLevelDefaulted, setIsLevelDefaulted] = useState(false);
+  useEffect(() => {
+    if (!existing || typeof window === "undefined") return;
+    if (localStorage.getItem("tc_level_default") === "1") {
+      setIsLevelDefaulted(true);
+      localStorage.removeItem("tc_level_default");
+    }
+  }, [existing]);
   const [bgTheme, setBgTheme] = useState<number | undefined>(existing?.bgTheme);
   const [bgPickerOpen, setBgPickerOpen] = useState(false);
   const selectedTheme = bgTheme != null ? BG_THEMES.find((t) => t.id === bgTheme) : undefined;
@@ -90,8 +100,8 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
 
       <div className="mb-5">
         <div className="flex justify-between items-center mb-2">
-          <label className="text-gray-400 text-xs">이름 (영어로)</label>
-          <span className="text-gray-600 text-xs">{name.length}/20</span>
+          <label className="text-emerald-400/70 text-xs">이름 (영어로)</label>
+          <span className="text-gray-400 text-xs">{name.length}/20</span>
         </div>
         <input
           type="text"
@@ -112,7 +122,7 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
 
       {!isMobile && (
         <div className="mb-5">
-          <label className="text-gray-400 text-xs mb-2 block">AI 튜터</label>
+          <label className="text-emerald-400/70 text-xs mb-2 block">AI 튜터</label>
           <div className="grid grid-cols-2 gap-2">
             {TUTORS.map((t) => (
               <button
@@ -137,8 +147,17 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
         </div>
       )}
 
-      <div className="mb-6">
-        <label className="text-gray-400 text-xs mb-2 block">영어 레벨</label>
+      <div
+        className={`mb-6 rounded-2xl transition-all ${
+          isLevelDefaulted ? "p-3 -m-3 ring-2 ring-emerald-400/40 shadow-[0_0_24px_-6px_rgba(16,185,129,0.45)] bg-emerald-500/[0.04]" : ""
+        }`}
+      >
+        <label className="text-emerald-400/70 text-xs mb-2 block">영어 레벨</label>
+        {isLevelDefaulted && (
+          <p className="text-gray-400 text-xs mb-2 leading-relaxed">
+            가입할 때 기본값(중급)으로 설정해뒀어요. 실제 레벨에 맞게 골라주세요.
+          </p>
+        )}
         <div className="grid grid-cols-3 gap-2">
           {LEVELS.map((l) => (
             <button
@@ -154,7 +173,7 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
             </button>
           ))}
         </div>
-        <p className="text-gray-500 text-xs mt-2">{LEVELS.find((l) => l.id === level)?.desc}</p>
+        <p className="text-gray-400 text-xs mt-2">{LEVELS.find((l) => l.id === level)?.desc}</p>
       </div>
 
       <div
@@ -163,7 +182,7 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
         }`}
       >
         <div className="flex items-center gap-2 mb-2">
-          <label className="text-gray-400 text-xs">관심 주제</label>
+          <label className="text-emerald-400/70 text-xs">관심 주제</label>
           {isGoalTopicNew && (
             <span
               className="badge-pop-el text-[10px] px-1.5 py-0.5 rounded-full font-bold bg-emerald-500/20 text-emerald-400"
@@ -174,8 +193,8 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
           )}
         </div>
         {isGoalTopicNew && (
-          <p className="text-gray-500 text-xs mb-2 leading-relaxed">
-            새로 추가된 기능이에요! 관심 주제를 골라두면 홈 화면 기본 통화 주제와 통화 후 추천 표현이 이 주제에 맞춰져요.
+          <p className="text-gray-400 text-xs mb-2 leading-relaxed">
+            아직 안 골라두셨어요! 관심 주제를 골라두면 홈 화면 기본 통화 주제와 통화 후 추천 표현이 이 주제에 맞춰져요.
           </p>
         )}
         <div className="grid grid-cols-2 gap-2">
@@ -194,14 +213,14 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
           ))}
         </div>
         {!isGoalTopicNew && (
-          <p className="text-gray-500 text-xs mt-2">
+          <p className="text-gray-400 text-xs mt-2">
             홈 화면 기본 통화 주제와 통화 후 추천 표현이 여기서 고른 주제에 맞춰져요.
           </p>
         )}
       </div>
 
       <div className="mb-6">
-        <label className="text-gray-400 text-xs mb-2 block">배경 테마</label>
+        <label className="text-emerald-400/70 text-xs mb-2 block">배경 테마</label>
         <button
           onClick={() => setBgPickerOpen(true)}
           className="w-full flex items-center gap-3 px-3 py-2.5 bg-green-500/5 border border-green-500/10 rounded-xl hover:bg-green-500/10 transition-all text-left"
@@ -215,9 +234,9 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-white text-sm font-medium truncate">{selectedTheme ? selectedTheme.label : "기본테마 (자동)"}</div>
-            <div className="text-gray-500 text-xs">탭해서 변경</div>
+            <div className="text-gray-400 text-xs">탭해서 변경</div>
           </div>
-          <span className="text-gray-500 text-xs">›</span>
+          <span className="text-gray-400 text-xs">›</span>
         </button>
       </div>
 
@@ -232,7 +251,7 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
           >
             <div className="flex items-center justify-between mb-3">
               <p className="text-white text-sm font-semibold">배경 테마 선택</p>
-              <button onClick={() => setBgPickerOpen(false)} className="text-gray-500 hover:text-gray-300 text-xs">닫기</button>
+              <button onClick={() => setBgPickerOpen(false)} className="text-gray-400 hover:text-gray-300 text-xs">닫기</button>
             </div>
             <div className="grid grid-cols-3 gap-2">
               <button
@@ -270,7 +289,7 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
         disabled={!name.trim() || justSaved}
         className={`w-full py-3 rounded-xl font-semibold transition-all shadow-lg shadow-green-900/30 ${
           !name.trim()
-            ? "bg-gray-700 text-gray-500"
+            ? "bg-gray-700 text-gray-400"
             : "bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white"
         }`}
       >
@@ -297,8 +316,8 @@ export default function UserSetup({ onComplete, existing, paymentRequestedAt, re
         </div>
       ) : (
         <div className="mt-6 bg-green-500/5 border border-green-500/15 rounded-xl p-4 space-y-2">
-          <p className="text-gray-400 text-xs font-medium">멤버십 요금</p>
-          <p className="text-gray-500 text-xs">무료 체험 10분 제공 (가입 후 1주일 이내 자유롭게 이용)</p>
+          <p className="text-emerald-400/70 text-xs font-medium">멤버십 요금</p>
+          <p className="text-gray-400 text-xs">무료 체험 10분 제공 (가입 후 1주일 이내 자유롭게 이용)</p>
           <MembershipOffer
             liteEligible={liteEligible}
             paymentRequestedAt={paymentRequestedAt}

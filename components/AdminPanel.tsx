@@ -377,23 +377,23 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
               className="flex-1 flex items-center justify-between text-gray-300 text-xs"
             >
               <span>가입자 {monthUsers.length}명</span>
-              <span className="text-gray-500">{statsOpen ? "▲" : "▼"}</span>
+              <span className="text-gray-400">{statsOpen ? "▲" : "▼"}</span>
             </button>
           </div>
           {statsOpen && (
             <div className="mt-2 pt-2 border-t border-gray-700 space-y-1 max-h-48 overflow-y-auto">
               {dailyBreakdown.length === 0 ? (
-                <p className="text-gray-600 text-xs text-center">가입자 없음</p>
+                <p className="text-gray-400 text-xs text-center">가입자 없음</p>
               ) : (
                 dailyBreakdown.map(([date, count]) => (
                   <button
                     key={date}
                     onClick={() => setSelectedDay((d) => (d === date ? null : date))}
                     className={`w-full flex justify-between text-xs rounded-lg px-2 py-1 transition-all ${
-                      selectedDay === date ? "bg-blue-700 text-white" : "hover:bg-gray-700 text-gray-500"
+                      selectedDay === date ? "bg-blue-700 text-white" : "hover:bg-gray-700 text-gray-400"
                     }`}
                   >
-                    <span className={selectedDay === date ? "text-white" : "text-gray-500"}>{date}</span>
+                    <span className={selectedDay === date ? "text-white" : "text-gray-400"}>{date}</span>
                     <span className={selectedDay === date ? "text-white" : "text-gray-300"}>{count}명</span>
                   </button>
                 ))
@@ -424,14 +424,14 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
             {hasFilter && (
               <button
                 onClick={() => { setSearchQuery(""); setMembershipOnly(false); setSelectedDay(null); }}
-                className="text-gray-500 hover:text-gray-300 text-xs whitespace-nowrap shrink-0"
+                className="text-gray-400 hover:text-gray-300 text-xs whitespace-nowrap shrink-0"
               >
                 초기화
               </button>
             )}
           </div>
           {hasFilter && (
-            <p className="text-gray-600 text-xs">
+            <p className="text-gray-400 text-xs">
               {selectedDay && <>{selectedDay} 가입자만 · </>}
               {filteredUsers.length}명 표시 중 (전체 {users.length}명)
             </p>
@@ -440,11 +440,11 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
       )}
 
       {loading ? (
-        <p className="text-gray-500 text-xs text-center">불러오는 중...</p>
+        <p className="text-gray-400 text-xs text-center">불러오는 중...</p>
       ) : users.length === 0 ? (
-        <p className="text-gray-500 text-xs text-center">가입된 회원이 없습니다</p>
+        <p className="text-gray-400 text-xs text-center">가입된 회원이 없습니다</p>
       ) : filteredUsers.length === 0 ? (
-        <p className="text-gray-500 text-xs text-center">검색 결과가 없습니다</p>
+        <p className="text-gray-400 text-xs text-center">검색 결과가 없습니다</p>
       ) : (
         <div className="space-y-3">
           {filteredUsers.map((u) => {
@@ -476,7 +476,7 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                         placeholder="반려 사유 (비우면 기본 문구로 전송)"
                         className="w-full bg-gray-800 text-white rounded-lg px-2 py-1.5 text-xs outline-none focus:ring-2 focus:ring-red-500 placeholder-gray-600"
                       />
-                      <p className="text-gray-600 text-xs text-right">{rejectReason.length}/100</p>
+                      <p className="text-gray-400 text-xs text-right">{rejectReason.length}/100</p>
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleReject(u.id)}
@@ -506,14 +506,14 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                   <div>
                     <p className="text-white text-sm font-medium">{u.username}</p>
                     <p className="text-gray-400 text-xs">{u.name} · {LEVEL_LABEL[u.level] || u.level}</p>
-                    <p className="text-gray-600 text-xs">{u.email}</p>
+                    <p className="text-gray-400 text-xs">{u.email}</p>
                   </div>
                   <span className={`text-xs font-medium ${status.color}`}>{status.text}</span>
                 </div>
 
                 {u.expires_at && new Date(u.expires_at) > new Date() && (
                   <>
-                    <p className="text-gray-500 text-xs">
+                    <p className="text-gray-400 text-xs">
                       만료: {new Date(u.expires_at).toLocaleDateString("ko-KR")} · 잔여 {remainingMinutes(u)}분 / {effectiveMinutes(u.plan, u.custom_minutes)}분
                     </p>
                     <div className="flex items-center gap-2">
@@ -538,27 +538,27 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                 {!hasActiveMembership(u) && !u.unlimited && trialRemainingSeconds(u.total_seconds ?? 0, u.trial_baseline_seconds ?? 0, u.trial_reset_at ?? null) > 0 && (() => {
                   const expiry = trialExpiresAt(u);
                   return expiry ? (
-                    <p className="text-gray-500 text-xs">
+                    <p className="text-gray-400 text-xs">
                       체험 만료: {expiry.toLocaleString("ko-KR", { month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}까지
                     </p>
                   ) : null;
                 })()}
                 <button
                   onClick={() => handleToggleLogs(u.id)}
-                  className="block text-gray-500 hover:text-gray-300 text-xs text-left transition-colors"
+                  className="block text-gray-400 hover:text-gray-300 text-xs text-left transition-colors"
                 >
                   누적 사용: {u.total_seconds > 0 ? formatTime(u.total_seconds) : "없음"} {u.total_seconds > 0 ? (expandedUserId === u.id ? "▲" : "▼") : ""}
                 </button>
                 {expandedUserId === u.id && (
                   <div className="bg-gray-900 rounded-xl p-2 space-y-1">
                     {!callLogs[u.id] ? (
-                      <p className="text-gray-600 text-xs text-center">불러오는 중...</p>
+                      <p className="text-gray-400 text-xs text-center">불러오는 중...</p>
                     ) : callLogs[u.id].length === 0 ? (
-                      <p className="text-gray-600 text-xs text-center">기록 없음</p>
+                      <p className="text-gray-400 text-xs text-center">기록 없음</p>
                     ) : (
                       callLogs[u.id].map((log) => (
                         <div key={log.date} className="flex justify-between text-xs">
-                          <span className="text-gray-500">{log.date}</span>
+                          <span className="text-gray-400">{log.date}</span>
                           <span className="text-gray-300">{formatTime(log.seconds)}</span>
                         </div>
                       ))
@@ -568,20 +568,20 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
 
                 <button
                   onClick={() => handleTogglePayments(u.id)}
-                  className="block text-gray-500 hover:text-gray-300 text-xs text-left transition-colors"
+                  className="block text-gray-400 hover:text-gray-300 text-xs text-left transition-colors"
                 >
                   결제 {u.payment_count}회 {u.payment_count > 0 ? (expandedPaymentId === u.id ? "▲" : "▼") : ""}
                 </button>
                 {expandedPaymentId === u.id && (
                   <div className="bg-gray-900 rounded-xl p-2 space-y-1">
                     {!paymentHistory[u.id] ? (
-                      <p className="text-gray-600 text-xs text-center">불러오는 중...</p>
+                      <p className="text-gray-400 text-xs text-center">불러오는 중...</p>
                     ) : paymentHistory[u.id].length === 0 ? (
-                      <p className="text-gray-600 text-xs text-center">기록 없음</p>
+                      <p className="text-gray-400 text-xs text-center">기록 없음</p>
                     ) : (
                       paymentHistory[u.id].map((h) => (
                         <div key={h.id} className="flex justify-between items-center text-xs">
-                          <span className="text-gray-500">
+                          <span className="text-gray-400">
                             {new Date(h.approved_at).toLocaleString("ko-KR", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                           </span>
                           <span className="flex items-center gap-2">
@@ -633,7 +633,7 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                         </div>
                       )}
                       {liteSelected && (
-                        <p className="text-gray-500 text-xs">라이트는 7일 단위로만 승인돼요</p>
+                        <p className="text-gray-400 text-xs">라이트는 7일 단위로만 승인돼요</p>
                       )}
                       <div className="flex items-center gap-2">
                         <input

@@ -16,7 +16,7 @@ export default function ReviewBanner({ mistake, onStart, disabled }: ReviewBanne
         </span>
       </div>
       <p className="text-gray-100 text-base font-semibold leading-snug">{mistake.corrected}</p>
-      <p className="text-gray-500 text-xs mt-1 line-through">{mistake.original}</p>
+      <p className="text-gray-400 text-xs mt-1 line-through">{mistake.original}</p>
       {mistake.explanation && (
         <p className="text-gray-400 text-xs mt-1">{mistake.explanation}</p>
       )}

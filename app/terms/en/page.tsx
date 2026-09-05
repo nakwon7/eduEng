@@ -5,7 +5,7 @@ export default function TermsEnPage() {
         <div>
           <a href="/landing/ko" className="text-blue-400 text-sm hover:text-blue-300">← Home</a>
           <h1 className="text-2xl font-bold mt-4 mb-1">Terms of Service & Privacy Policy</h1>
-          <p className="text-gray-500 text-xs">Last updated: August 2, 2026 · Effective: August 2, 2026</p>
+          <p className="text-gray-400 text-xs">Last updated: August 2, 2026 · Effective: August 2, 2026</p>
         </div>
 
         {/* Terms of Service */}
@@ -162,8 +162,8 @@ export default function TermsEnPage() {
         </section>
 
         {/* Business Info */}
-        <section className="border-t border-gray-800 pt-6 text-xs text-gray-600 space-y-1">
-          <p className="font-medium text-gray-500">Business Information</p>
+        <section className="border-t border-gray-800 pt-6 text-xs text-gray-400 space-y-1">
+          <p className="font-medium text-gray-400">Business Information</p>
           <p>Company: SongLab | Business Registration No.: 857-28-01961</p>
           <p>Service: TuringCall (turingcall.cloud)</p>
         </section>

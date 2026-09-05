@@ -53,7 +53,7 @@ export default function CallFeedback({ feedback, isLoading, onDismiss }: Props) 
         <p className="text-gray-400 text-sm">AI가 피드백을 분석 중이에요...</p>
         <button
           onClick={onDismiss}
-          className="mt-2 text-gray-500 hover:text-gray-300 text-xs underline"
+          className="mt-2 text-gray-400 hover:text-gray-300 text-xs underline"
         >
           건너뛰고 메인으로
         </button>
@@ -88,7 +88,7 @@ export default function CallFeedback({ feedback, isLoading, onDismiss }: Props) 
                   <span className="text-green-400 text-xs mt-0.5">✓</span>
                   <span className="text-green-300 text-xs font-medium">{c.corrected}</span>
                 </div>
-                <p className="text-gray-500 text-xs pl-4">{c.explanation}</p>
+                <p className="text-gray-400 text-xs pl-4">{c.explanation}</p>
               </div>
             ))}
           </div>

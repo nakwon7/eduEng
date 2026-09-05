@@ -8,7 +8,7 @@ export default function TermsPage() {
         <div>
           <a href="/" className="text-green-400 text-sm hover:text-green-300">← 홈으로</a>
           <h1 className="text-2xl font-bold mt-4 mb-1">이용약관 및 개인정보처리방침</h1>
-          <p className="text-gray-500 text-xs">최종 수정일: 2026년 8월 2일 · 시행일: 2026년 8월 2일</p>
+          <p className="text-gray-400 text-xs">최종 수정일: 2026년 8월 2일 · 시행일: 2026년 8월 2일</p>
         </div>
 
         {/* ───── 이용약관 ───── */}
@@ -171,8 +171,8 @@ export default function TermsPage() {
         </section>
 
         {/* ───── 사업자 정보 ───── */}
-        <section className="border-t border-gray-800 pt-6 text-xs text-gray-600 space-y-1">
-          <p className="font-medium text-gray-500">사업자 정보</p>
+        <section className="border-t border-gray-800 pt-6 text-xs text-gray-400 space-y-1">
+          <p className="font-medium text-gray-400">사업자 정보</p>
           <p>상호: 송랩 | 사업자등록번호: 857-28-01961</p>
           <p>서비스명: 튜링콜 (turingcall.cloud)</p>
           <KbAuthMark />

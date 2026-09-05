@@ -58,7 +58,7 @@ export default function ResetPasswordKoPage() {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="text-gray-400 text-xs mb-1 block">Username</label>
+              <label className="text-emerald-400/70 text-xs mb-1 block">Username</label>
               <input
                 type="text"
                 value={username}
@@ -69,8 +69,8 @@ export default function ResetPasswordKoPage() {
               />
             </div>
             <div>
-              <label className="text-gray-400 text-xs mb-1 block">
-                Your name <span className="text-gray-600">(the nickname you signed up with — not your legal name)</span>
+              <label className="text-emerald-400/70 text-xs mb-1 block">
+                Your name <span className="text-gray-400">(the nickname you signed up with — not your legal name)</span>
               </label>
               <input
                 type="text"
@@ -82,7 +82,7 @@ export default function ResetPasswordKoPage() {
               />
             </div>
             <div>
-              <label className="text-gray-400 text-xs mb-1 block">Email to reach you</label>
+              <label className="text-emerald-400/70 text-xs mb-1 block">Email to reach you</label>
               <input
                 type="email"
                 value={contact}
@@ -92,7 +92,7 @@ export default function ResetPasswordKoPage() {
                 className="w-full bg-gray-800 border border-white/5 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="example@email.com"
               />
-              <p className="text-gray-600 text-xs mt-1">Your sign-up email might not be reachable, so let us know a working email to send your new password to.</p>
+              <p className="text-gray-400 text-xs mt-1">Your sign-up email might not be reachable, so let us know a working email to send your new password to.</p>
             </div>
 
             {error && <p className="text-red-400 text-xs text-center">{error}</p>}
@@ -107,7 +107,7 @@ export default function ResetPasswordKoPage() {
           </form>
         )}
 
-        <p className="text-center text-gray-500 text-sm mt-6">
+        <p className="text-center text-gray-400 text-sm mt-6">
           <a href="/login/ko" className="text-blue-400 hover:text-blue-300">
             Back to login
           </a>

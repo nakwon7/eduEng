@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { establishClientSession } from "@/lib/session";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -68,10 +69,7 @@ export default function LoginPage() {
       const userId = data.user?.id;
       if (!userId) throw new Error("로그인 실패");
 
-      // 세션 토큰 발급 (중복 로그인 차단)
-      const sessionToken = crypto.randomUUID();
-      await supabase.from("profiles").update({ session_token: sessionToken }).eq("id", userId);
-      localStorage.setItem("turingcall_session", sessionToken);
+      await establishClientSession(userId);
 
       // 관리자 계정은 방문자수 집계에서 제외 (proxy.ts에서 이 쿠키를 확인함)
       if (trimmedUsername === "gooster") {
@@ -86,10 +84,17 @@ export default function LoginPage() {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    });
+  };
+
   if (checking) {
     return (
       <main className="min-h-screen bg-gray-950 flex items-center justify-center">
-        <p className="text-gray-600 text-sm">로딩 중...</p>
+        <p className="text-gray-400 text-sm">로딩 중...</p>
       </main>
     );
   }
@@ -117,7 +122,7 @@ export default function LoginPage() {
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="text-gray-400 text-xs mb-1 block">아이디</label>
+            <label className="text-emerald-400/70 text-xs mb-1 block">아이디</label>
             <input
               type="text"
               value={username}
@@ -129,7 +134,7 @@ export default function LoginPage() {
             />
           </div>
           <div>
-            <label className="text-gray-400 text-xs mb-1 block">비밀번호</label>
+            <label className="text-emerald-400/70 text-xs mb-1 block">비밀번호</label>
             <input
               type="password"
               value={password}
@@ -152,13 +157,33 @@ export default function LoginPage() {
           </button>
         </form>
 
+        <div className="flex items-center gap-3 my-5">
+          <div className="flex-1 h-px bg-white/10" />
+          <span className="text-gray-400 text-xs">또는</span>
+          <div className="flex-1 h-px bg-white/10" />
+        </div>
+
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          className="w-full py-3 bg-white hover:bg-gray-100 text-gray-400 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 shadow-lg"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5">
+            <path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.87c2.27-2.09 3.58-5.17 3.58-8.82z" />
+            <path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.91l-3.87-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.27v3.09A12 12 0 0 0 12 24z" />
+            <path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28V6.63H1.27A12 12 0 0 0 0 12c0 1.94.46 3.77 1.27 5.37z" />
+            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0A12 12 0 0 0 1.27 6.63l4 3.09C6.22 6.86 8.87 4.75 12 4.75z" />
+          </svg>
+          Google로 계속하기
+        </button>
+
         <p className="text-center mt-4">
-          <a href="/reset-password" className="text-gray-500 hover:text-gray-300 text-xs">
+          <a href="/reset-password" className="text-gray-400 hover:text-gray-300 text-xs">
             비밀번호를 잊으셨나요?
           </a>
         </p>
 
-        <p className="text-center text-gray-500 text-sm mt-6">
+        <p className="text-center text-gray-400 text-sm mt-6">
           계정이 없으신가요?{" "}
           <a href="/signup" className="text-green-400 hover:text-green-300">
             회원가입

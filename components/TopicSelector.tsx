@@ -72,7 +72,7 @@ export default function TopicSelector({ selected, onSelect }: TopicSelectorProps
   return (
     <div className="w-full">
       <div className="flex items-center justify-between mb-3">
-        <p className="text-gray-400 text-sm">오늘의 주제 선택</p>
+        <p className="text-gray-200 text-sm font-semibold">오늘의 주제 선택</p>
         <button
           onClick={handleRandom}
           className="flex items-center gap-1 text-xs text-green-400 hover:text-green-300 bg-gray-800 hover:bg-gray-700 px-2 py-1 rounded-lg transition-all"

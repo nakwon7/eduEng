@@ -94,7 +94,7 @@ export default function SignupKoPage() {
   if (checking) {
     return (
       <main className="min-h-screen bg-gray-950 flex items-center justify-center">
-        <p className="text-gray-600 text-sm">Loading...</p>
+        <p className="text-gray-400 text-sm">Loading...</p>
       </main>
     );
   }
@@ -132,8 +132,8 @@ export default function SignupKoPage() {
         <form onSubmit={handleSignup} className="space-y-4">
           <div>
             <div className="flex justify-between items-center mb-1">
-              <label className="text-gray-400 text-xs">Username</label>
-              <span className="text-gray-600 text-xs">{username.length}/20</span>
+              <label className="text-emerald-400/70 text-xs">Username</label>
+              <span className="text-gray-400 text-xs">{username.length}/20</span>
             </div>
             <input
               type="text"
@@ -148,10 +148,10 @@ export default function SignupKoPage() {
           </div>
           <div>
             <div className="flex justify-between items-center mb-1">
-              <label className="text-gray-400 text-xs">
-                Your name <span className="text-gray-600">(your AI tutor will call you this)</span>
+              <label className="text-emerald-400/70 text-xs">
+                Your name <span className="text-gray-400">(your AI tutor will call you this)</span>
               </label>
-              <span className="text-gray-600 text-xs">{name.length}/20</span>
+              <span className="text-gray-400 text-xs">{name.length}/20</span>
             </div>
             <input
               type="text"
@@ -162,12 +162,12 @@ export default function SignupKoPage() {
               placeholder="e.g. Emily"
               className="w-full bg-gray-800 border border-white/5 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <p className="text-gray-600 text-xs mt-1">We'll also use this to verify your identity if you ever need a password reset — please remember it</p>
+            <p className="text-gray-400 text-xs mt-1">We'll also use this to verify your identity if you ever need a password reset — please remember it</p>
           </div>
           <div>
             <div className="flex justify-between items-center mb-1">
-              <label className="text-gray-400 text-xs">Email</label>
-              <span className="text-gray-600 text-xs">{email.length}/50</span>
+              <label className="text-emerald-400/70 text-xs">Email</label>
+              <span className="text-gray-400 text-xs">{email.length}/50</span>
             </div>
             <input
               type="email"
@@ -183,8 +183,8 @@ export default function SignupKoPage() {
           </div>
           <div>
             <div className="flex justify-between items-center mb-1">
-              <label className="text-gray-400 text-xs">Password</label>
-              <span className="text-gray-600 text-xs">{password.length}/20</span>
+              <label className="text-emerald-400/70 text-xs">Password</label>
+              <span className="text-gray-400 text-xs">{password.length}/20</span>
             </div>
             <input
               type="password"
@@ -198,7 +198,7 @@ export default function SignupKoPage() {
             />
           </div>
           <div>
-            <label className="text-gray-400 text-xs mb-1 block">Confirm password</label>
+            <label className="text-emerald-400/70 text-xs mb-1 block">Confirm password</label>
             <input
               type="password"
               value={passwordConfirm}
@@ -212,7 +212,7 @@ export default function SignupKoPage() {
             {passwordConfirmError && <p className="text-red-400 text-xs mt-1">{passwordConfirmError}</p>}
           </div>
           <div>
-            <label className="text-gray-400 text-xs mb-2 block">Korean level</label>
+            <label className="text-emerald-400/70 text-xs mb-2 block">Korean level</label>
             <div className="space-y-2">
               {LEVELS.map((l) => (
                 <button
@@ -258,7 +258,7 @@ export default function SignupKoPage() {
           </button>
         </form>
 
-        <p className="text-center text-gray-500 text-sm mt-4">
+        <p className="text-center text-gray-400 text-sm mt-4">
           Already have an account?{" "}
           <a href="/login/ko" className="text-blue-400 hover:text-blue-300">Log in</a>
         </p>

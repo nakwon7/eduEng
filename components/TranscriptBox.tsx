@@ -29,7 +29,7 @@ export default function TranscriptBox({
   return (
     <div className="flex-1 overflow-y-auto space-y-3 py-2 min-h-0">
       {messages.length === 0 && (
-        <p className="text-gray-500 text-sm text-center mt-4">
+        <p className="text-gray-400 text-sm text-center mt-4">
           통화 시작 후 마이크 버튼을 누르고 말하세요
         </p>
       )}
@@ -46,7 +46,7 @@ export default function TranscriptBox({
             }`}
           >
             {msg.role === "assistant" && (
-              <p className="text-xs text-gray-400 mb-1">{tutorLabel}</p>
+              <p className="text-xs text-emerald-400/70 mb-1">{tutorLabel}</p>
             )}
             {msg.content}
           </div>

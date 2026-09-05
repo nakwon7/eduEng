@@ -22,7 +22,7 @@ export default function PaymentNoteInput({ value, onChange, variant }: PaymentNo
 
   return (
     <div className="mt-1">
-      <label className="block text-gray-500 text-[11px] mb-1">{label}</label>
+      <label className="block text-gray-400 text-[11px] mb-1">{label}</label>
       <input
         type="text"
         value={value}

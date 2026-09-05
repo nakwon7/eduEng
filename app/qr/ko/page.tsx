@@ -25,7 +25,7 @@ export default function QRKoPage() {
 
         <div className="space-y-1">
           <p className="text-gray-400 text-sm">Scan to sign up & start learning Korean!</p>
-          <p className="text-gray-600 text-xs">{SIGNUP_URL}</p>
+          <p className="text-gray-400 text-xs">{SIGNUP_URL}</p>
         </div>
 
         <div className="bg-gray-900 rounded-2xl px-6 py-4 space-y-1.5 text-sm text-gray-300 w-full max-w-xs">
@@ -34,7 +34,7 @@ export default function QRKoPage() {
           <p>✅ AI tutor available 24/7</p>
         </div>
 
-        <p className="text-gray-600 text-xs">Recommended: Chrome or Samsung Browser</p>
+        <p className="text-gray-400 text-xs">Recommended: Chrome or Samsung Browser</p>
       </div>
     </main>
   );

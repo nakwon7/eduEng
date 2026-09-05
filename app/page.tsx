@@ -8,6 +8,7 @@ import ZoomableImage from "@/components/ZoomableImage";
 export default function LandingPage() {
   const router = useRouter();
   const [fromKarrot, setFromKarrot] = useState(false);
+  const [showInstallGuide, setShowInstallGuide] = useState(false);
 
   useEffect(() => {
     const utmSource = new URLSearchParams(window.location.search).get("utm_source");
@@ -63,7 +64,7 @@ export default function LandingPage() {
       </div>
 
       {/* Features */}
-      <div className="px-6 pb-10 max-w-sm mx-auto space-y-3">
+      <div className="px-6 pb-10 max-w-sm mx-auto grid grid-cols-2 gap-3">
         {[
           {
             icon: (
@@ -72,7 +73,7 @@ export default function LandingPage() {
             accent: "bg-blue-500/15 text-blue-400",
             cardTint: "bg-blue-500/5 border-blue-500/15",
             title: "실시간 AI 영어 통화",
-            desc: "AI 튜터 Alex · Rachel과 대화하며 실수를 바로 교정받아요",
+            desc: "대화하며 실수 바로 교정",
           },
           {
             icon: (
@@ -86,7 +87,7 @@ export default function LandingPage() {
             accent: "bg-violet-500/15 text-violet-400",
             cardTint: "bg-violet-500/5 border-violet-500/15",
             title: "실시간 음성 인식",
-            desc: "말하면 바로 인식하고, 어색한 표현은 그 자리에서 짚어드려요",
+            desc: "어색한 표현 그 자리에서 교정",
           },
           {
             icon: (
@@ -97,8 +98,8 @@ export default function LandingPage() {
             ),
             accent: "bg-emerald-500/15 text-emerald-400",
             cardTint: "bg-emerald-500/5 border-emerald-500/15",
-            title: "통화 후 AI 피드백 리포트",
-            desc: "표현 교정, 잘한 표현, 추천 표현까지 통화가 끝나면 리포트로 받아보세요",
+            title: "AI 피드백 리포트",
+            desc: "통화 후 교정·추천 표현 요약",
           },
           {
             icon: (
@@ -109,8 +110,8 @@ export default function LandingPage() {
             ),
             accent: "bg-orange-500/15 text-orange-400",
             cardTint: "bg-orange-500/5 border-orange-500/15",
-            title: "🔁 복습 배너로 오답 리마인드",
-            desc: "교정받은 표현은 자동 저장돼요. 다음 방문 때 복습 배너로 떠서 버튼 한 번에 다시 연습할 수 있어요",
+            title: "🔁 복습 배너",
+            desc: "오답 자동저장, 재방문시 복습",
           },
           {
             icon: (
@@ -122,19 +123,21 @@ export default function LandingPage() {
             accent: "bg-amber-500/15 text-amber-400",
             cardTint: "bg-amber-500/5 border-amber-500/15",
             title: "다양한 주제",
-            desc: "일상, 비즈니스, 여행 등 상황별 대화",
+            desc: "일상·비즈니스·여행 등",
+            span: true,
           },
         ].map((f) => (
-          <div key={f.title} className={`flex items-start gap-4 border rounded-2xl p-4 ${f.cardTint}`}>
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${f.accent}`}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+          <div
+            key={f.title}
+            className={`flex flex-col items-center text-center gap-1.5 border rounded-2xl p-3 ${f.cardTint} ${f.span ? "col-span-2" : ""}`}
+          >
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${f.accent}`}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
                 {f.icon}
               </svg>
             </div>
-            <div>
-              <p className="text-white text-sm font-semibold">{f.title}</p>
-              <p className="text-gray-400 text-xs mt-0.5">{f.desc}</p>
-            </div>
+            <p className="text-white text-xs font-semibold">{f.title}</p>
+            <p className="text-gray-400 text-[11px] leading-snug">{f.desc}</p>
           </div>
         ))}
       </div>
@@ -150,7 +153,7 @@ export default function LandingPage() {
             <p>✅ 가입 즉시 무료 통화 10분</p>
             <p>✅ 체험 후 멤버십 가입하면 매월 600분 이용</p>
           </div>
-          <p className="text-gray-500 text-xs mt-3">
+          <p className="text-gray-400 text-xs mt-3">
             첫 결제는 <span className="text-white font-medium">주 5,000원 · 주140분 라이트</span> 요금제로 더 가볍게 시작할 수도 있어요
           </p>
         </div>
@@ -172,57 +175,80 @@ export default function LandingPage() {
         </a>
 
         {/* 홈 화면 추가 안내 */}
-        <div className="bg-gray-900 border border-white/5 rounded-2xl p-4 text-xs text-gray-400 space-y-3">
-          <div className="flex items-center gap-1.5">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 text-green-400">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
+        <div className="bg-gray-900 border border-white/5 rounded-2xl p-4 text-xs text-gray-400">
+          <button
+            type="button"
+            onClick={() => setShowInstallGuide((v) => !v)}
+            className="w-full flex items-center justify-between gap-1.5"
+          >
+            <span className="flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 text-green-400 shrink-0">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              <span className="text-white text-xs font-semibold">앱처럼 설치하기 (무료 · 앱스토어 불필요)</span>
+            </span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={`w-3.5 h-3.5 text-gray-400 shrink-0 transition-transform ${showInstallGuide ? "rotate-180" : ""}`}
+            >
+              <polyline points="6 9 12 15 18 9" />
             </svg>
-            <p className="text-white text-xs font-semibold">앱처럼 설치하기 (무료 · 앱스토어 불필요)</p>
-          </div>
-          <div className="flex items-start gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-gray-800 flex items-center justify-center shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" fill="currentColor" className="w-3.5 h-3.5 text-gray-300">
-                <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
-              </svg>
+          </button>
+
+          {showInstallGuide && (
+            <div className="space-y-3 mt-3">
+              <div className="flex items-start gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-gray-800 flex items-center justify-center shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" fill="currentColor" className="w-3.5 h-3.5 text-gray-300">
+                    <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
+                  </svg>
+                </div>
+                <p className="pt-1"><span className="text-gray-300">iPhone</span> — Safari에서 접속 → 하단 공유(□↑) → 홈 화면에 추가</p>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-gray-800 flex items-center justify-center shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="currentColor" className="w-4 h-4 text-green-400">
+                    <path d="M420.55 301.93a24 24 0 1 1 24-24 24 24 0 0 1-24 24m-265.1 0a24 24 0 1 1 24-24 24 24 0 0 1-24 24m273.7-144.48 47.94-83a10 10 0 1 0-17.27-10l-48.54 84.07a301.25 301.25 0 0 0-246.56 0L116.18 64.45a10 10 0 1 0-17.27 10l47.94 83C64.53 202.22 8.24 285.55 0 384h576c-8.24-98.45-64.54-181.78-146.85-226.55" />
+                  </svg>
+                </div>
+                <p className="pt-1"><span className="text-gray-300">Android</span> — Chrome에서 접속 → 우상단 메뉴(⋮) → 설치 및 바로가기 만들기</p>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-gray-800 flex items-center justify-center shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 text-gray-300">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                    <line x1="8" y1="21" x2="16" y2="21" />
+                    <line x1="12" y1="17" x2="12" y2="21" />
+                  </svg>
+                </div>
+                <p className="pt-1"><span className="text-gray-300">PC / 기타 브라우저</span> — 주소창 오른쪽 설치(⊕) 버튼 클릭</p>
+              </div>
+              <div className="space-y-3">
+                <ZoomableImage
+                  src="/install-guide/edge-pc.png"
+                  alt="엣지 PC 설치 안내"
+                  width={1203}
+                  height={595}
+                  caption="Edge — 주소창 오른쪽 튜링콜 설치 알림 클릭 (탭하면 확대)"
+                />
+                <ZoomableImage
+                  src="/install-guide/chrome-pc.png"
+                  alt="크롬 PC 설치 안내"
+                  width={1013}
+                  height={630}
+                  caption="Chrome — 설치 버튼 클릭 후 뜨는 팝업에서 '설치' 선택 (탭하면 확대)"
+                />
+              </div>
             </div>
-            <p className="pt-1"><span className="text-gray-300">iPhone</span> — Safari에서 접속 → 하단 공유(□↑) → 홈 화면에 추가</p>
-          </div>
-          <div className="flex items-start gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-gray-800 flex items-center justify-center shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="currentColor" className="w-4 h-4 text-green-400">
-                <path d="M420.55 301.93a24 24 0 1 1 24-24 24 24 0 0 1-24 24m-265.1 0a24 24 0 1 1 24-24 24 24 0 0 1-24 24m273.7-144.48 47.94-83a10 10 0 1 0-17.27-10l-48.54 84.07a301.25 301.25 0 0 0-246.56 0L116.18 64.45a10 10 0 1 0-17.27 10l47.94 83C64.53 202.22 8.24 285.55 0 384h576c-8.24-98.45-64.54-181.78-146.85-226.55" />
-              </svg>
-            </div>
-            <p className="pt-1"><span className="text-gray-300">Android</span> — Chrome에서 접속 → 우상단 메뉴(⋮) → 설치 및 바로가기 만들기</p>
-          </div>
-          <div className="flex items-start gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-gray-800 flex items-center justify-center shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 text-gray-300">
-                <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-                <line x1="8" y1="21" x2="16" y2="21" />
-                <line x1="12" y1="17" x2="12" y2="21" />
-              </svg>
-            </div>
-            <p className="pt-1"><span className="text-gray-300">PC / 기타 브라우저</span> — 주소창 오른쪽 설치(⊕) 버튼 클릭</p>
-          </div>
-          <div className="space-y-3">
-            <ZoomableImage
-              src="/install-guide/edge-pc.png"
-              alt="엣지 PC 설치 안내"
-              width={1203}
-              height={595}
-              caption="Edge — 주소창 오른쪽 튜링콜 설치 알림 클릭 (탭하면 확대)"
-            />
-            <ZoomableImage
-              src="/install-guide/chrome-pc.png"
-              alt="크롬 PC 설치 안내"
-              width={1013}
-              height={630}
-              caption="Chrome — 설치 버튼 클릭 후 뜨는 팝업에서 '설치' 선택 (탭하면 확대)"
-            />
-          </div>
+          )}
         </div>
       </div>
 
@@ -238,13 +264,13 @@ export default function LandingPage() {
           </svg>
           카카오톡 문의하기
         </a>
-        <p className="text-gray-600 text-xs">TuringCall v1.0 · Chrome / Samsung 브라우저 권장</p>
+        <p className="text-gray-400 text-xs">TuringCall v1.0 · Chrome / Samsung 브라우저 권장</p>
       </div>
 
       {/* Footer */}
       <div className="border-t border-gray-900 px-6 py-6 text-center space-y-1.5">
-        <p className="text-gray-700 text-xs">송랩 | 사업자등록번호: 857-28-01961</p>
-        <a href="/terms" className="text-gray-600 text-xs hover:text-gray-400 underline">이용약관 · 개인정보처리방침</a>
+        <p className="text-gray-400 text-xs">송랩 | 사업자등록번호: 857-28-01961</p>
+        <a href="/terms" className="text-gray-400 text-xs hover:text-gray-300 underline">이용약관 · 개인정보처리방침</a>
       </div>
     </main>
   );

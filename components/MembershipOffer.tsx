@@ -53,13 +53,13 @@ export default function MembershipOffer({
       ) : (
         <div className="flex items-baseline gap-1">
           <span className="text-white text-lg font-bold">{PLANS.standard.priceWon.toLocaleString()}원</span>
-          <span className="text-gray-500 text-xs">/ 월 · 매월 {PLANS.standard.minutes}분 제공</span>
+          <span className="text-gray-400 text-xs">/ 월 · 매월 {PLANS.standard.minutes}분 제공</span>
         </div>
       )}
-      <p className="text-gray-500 text-xs flex items-center gap-1">
+      <p className="text-gray-400 text-xs flex items-center gap-1">
         KB국민은행 758637-00-012739<CopyButton text="758637-00-012739" />
       </p>
-      <p className="text-gray-500 text-xs">예금주: 송랩</p>
+      <p className="text-gray-400 text-xs">예금주: 송랩</p>
       {!paymentExempt && onRequestPayment && (
         paymentRequestedAt ? (
           <p className="mt-1 text-emerald-400 text-xs">✅ 확인 요청됨 · 관리자 확인 후 곧 승인됩니다</p>
