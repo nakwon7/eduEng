@@ -82,17 +82,17 @@ export default function ResetPasswordKoPage() {
               />
             </div>
             <div>
-              <label className="text-gray-400 text-xs mb-1 block">How to reach you</label>
+              <label className="text-gray-400 text-xs mb-1 block">Email to reach you</label>
               <input
-                type="text"
+                type="email"
                 value={contact}
                 onChange={(e) => setContact(e.target.value)}
                 required
                 maxLength={100}
                 className="w-full bg-gray-800 border border-white/5 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Phone, another email, etc."
+                placeholder="example@email.com"
               />
-              <p className="text-gray-600 text-xs mt-1">Your sign-up email might not be reachable, so we'll send your new password here instead.</p>
+              <p className="text-gray-600 text-xs mt-1">Your sign-up email might not be reachable, so let us know a working email to send your new password to.</p>
             </div>
 
             {error && <p className="text-red-400 text-xs text-center">{error}</p>}

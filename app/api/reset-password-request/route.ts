@@ -6,6 +6,7 @@ import { sendTelegramAlert } from "@/lib/telegram";
 
 const RATE_LIMIT_MAX = 3;
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1시간
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // 서버 인스턴스 단위 in-memory 카운터. 이 엔드포인트는 계정을 만들거나 바꾸는 게
 // 아니라 관리자에게 텔레그램 알림만 보내는 것이라 signup처럼 DB 테이블까지는 불필요.
@@ -32,7 +33,8 @@ export async function POST(req: NextRequest) {
   if (
     typeof username !== "string" || !username.trim() ||
     typeof name !== "string" || !name.trim() ||
-    typeof contact !== "string" || !contact.trim() || contact.length > 100
+    typeof contact !== "string" || !contact.trim() || contact.length > 100 ||
+    !EMAIL_RE.test(contact.trim())
   ) {
     return NextResponse.json({ error: "invalid_input" }, { status: 400 });
   }
@@ -57,10 +59,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
 
-  // 등록 이메일을 같이 보내는 건 관리자가 요청자가 적어낸 연락처와 대조해서
+  // 등록 이메일을 같이 보내는 건 관리자가 요청자가 적어낸 이메일과 대조해서
   // 본인이 맞는지 확인하라는 용도 — 아이디+닉네임만으론 도용 여부를 가리기 약함
   await sendTelegramAlert(
-    `🔑 [EduEng] 비밀번호 재설정 요청\n아이디: ${trimmedUsername} · 이름: ${trimmedName}\n등록 이메일: ${profile.email}\n요청자가 남긴 연락처: ${trimmedContact} (등록 이메일과 대조해서 본인 확인 후 발급하세요)`,
+    `🔑 [EduEng] 비밀번호 재설정 요청\n아이디: ${trimmedUsername} · 이름: ${trimmedName}\n등록 이메일: ${profile.email}\n요청자가 적은 이메일: ${trimmedContact} (등록 이메일과 대조해서 본인 확인 후 발급하세요)`,
     `reset-${trimmedUsername}`
   );
 

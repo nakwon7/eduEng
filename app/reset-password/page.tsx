@@ -82,17 +82,17 @@ export default function ResetPasswordPage() {
               />
             </div>
             <div>
-              <label className="text-gray-400 text-xs mb-1 block">연락받을 방법</label>
+              <label className="text-gray-400 text-xs mb-1 block">연락받을 이메일</label>
               <input
-                type="text"
+                type="email"
                 value={contact}
                 onChange={(e) => setContact(e.target.value)}
                 required
                 maxLength={100}
                 className="w-full bg-gray-800 border border-white/5 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
-                placeholder="카카오톡 ID, 전화번호 등"
+                placeholder="example@email.com"
               />
-              <p className="text-gray-600 text-xs mt-1">가입 이메일이 정확하지 않을 수 있어, 새 비밀번호는 여기로 안내해드려요.</p>
+              <p className="text-gray-600 text-xs mt-1">가입 이메일이 정확하지 않을 수 있어요. 새 비밀번호를 받을 이메일을 입력해주세요.</p>
             </div>
 
             {error && <p className="text-red-400 text-xs text-center">{error}</p>}
