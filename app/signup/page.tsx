@@ -21,10 +21,12 @@ export default function SignupPage() {
   }, [router]);
 
   const handleGoogleSignup = async () => {
-    await supabase.auth.signInWithOAuth({
+    // login/page.tsx handleGoogleLogin과 동일한 이유로 replace 방식 리다이렉트 사용
+    const { data } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo: `${window.location.origin}/auth/callback`, skipBrowserRedirect: true },
     });
+    if (data?.url) window.location.replace(data.url);
   };
 
   if (checking) {

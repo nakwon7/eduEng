@@ -86,10 +86,14 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = async () => {
-    await supabase.auth.signInWithOAuth({
+    // signInWithOAuth 기본 리다이렉트는 location.href(push) 방식이라 /login 히스토리가
+    // 남는다 — 로그인 후 뒤로가기하면 로그인 화면으로 돌아가버려서, location.replace로
+    // 직접 이동시켜 아이디/패스워드 로그인(router.replace)과 동일하게 히스토리를 지운다
+    const { data } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo: `${window.location.origin}/auth/callback`, skipBrowserRedirect: true },
     });
+    if (data?.url) window.location.replace(data.url);
   };
 
   if (checking) {
