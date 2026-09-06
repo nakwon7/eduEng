@@ -20,11 +20,16 @@ export default function SignupPage() {
     check();
   }, [router]);
 
-  const handleGoogleSignup = async () => {
-    // login/page.tsx handleGoogleLogin과 동일한 이유로 replace 방식 리다이렉트 사용
+  const handleOAuthSignup = async (provider: "google" | "kakao") => {
+    // login/page.tsx handleOAuthLogin과 동일한 이유로 replace 방식 리다이렉트 사용
     const { data } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback`, skipBrowserRedirect: true },
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        skipBrowserRedirect: true,
+        // login/page.tsx handleOAuthLogin과 동일한 이유로 카카오는 닉네임만 요청
+        ...(provider === "kakao" ? { scopes: "profile_nickname" } : {}),
+      },
     });
     if (data?.url) window.location.replace(data.url);
   };
@@ -50,11 +55,11 @@ export default function SignupPage() {
           <p className="text-gray-400 text-xs mt-1">가입 즉시 무료 체험 이용 가능합니다</p>
         </div>
 
-        <div className="relative">
+        <div className="relative space-y-2">
           <div className="absolute -inset-2 bg-emerald-500/20 rounded-3xl blur-xl" aria-hidden="true" />
           <button
             type="button"
-            onClick={handleGoogleSignup}
+            onClick={() => handleOAuthSignup("google")}
             className="relative w-full py-4 bg-white hover:bg-gray-50 active:scale-[0.98] text-gray-800 rounded-2xl font-bold text-base transition-all flex items-center justify-center gap-3 shadow-xl shadow-black/30 ring-1 ring-black/5"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-6 h-6">
@@ -64,6 +69,16 @@ export default function SignupPage() {
               <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0A12 12 0 0 0 1.27 6.63l4 3.09C6.22 6.86 8.87 4.75 12 4.75z" />
             </svg>
             Google로 3초 만에 시작하기
+          </button>
+          <button
+            type="button"
+            onClick={() => handleOAuthSignup("kakao")}
+            className="relative w-full py-4 bg-[#FEE500] hover:bg-[#FADA00] active:scale-[0.98] text-[#191919] rounded-2xl font-bold text-base transition-all flex items-center justify-center gap-3 shadow-xl shadow-black/30 ring-1 ring-black/5"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-6 h-6" fill="#191919">
+              <path d="M12 3C6.48 3 2 6.48 2 10.78c0 2.72 1.8 5.1 4.5 6.48-.2.72-.72 2.6-.82 3-.13.5.18.5.38.36.16-.11 2.5-1.7 3.52-2.39.78.11 1.58.17 2.42.17 5.52 0 10-3.48 10-7.78S17.52 3 12 3z" />
+            </svg>
+            카카오로 3초 만에 시작하기
           </button>
         </div>
 

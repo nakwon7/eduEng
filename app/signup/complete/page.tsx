@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { establishClientSession } from "@/lib/session";
 
-export default function GoogleSignupCompletePage() {
+export default function OAuthSignupCompletePage() {
   const router = useRouter();
   const [checking, setChecking] = useState(true);
   const [email, setEmail] = useState("");
@@ -43,7 +43,7 @@ export default function GoogleSignupCompletePage() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error("세션이 만료되었습니다. 다시 로그인해주세요.");
 
-      const res = await fetch("/api/signup/google-complete", {
+      const res = await fetch("/api/signup/complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, accessToken: session.access_token }),
@@ -94,7 +94,7 @@ export default function GoogleSignupCompletePage() {
           <div>
             <label className="text-emerald-400/70 text-xs mb-1 block">이메일</label>
             <div className="w-full bg-gray-800/50 border border-white/5 text-gray-400 rounded-xl px-4 py-3 text-sm">
-              {email}
+              {email || "이메일 정보 없음"}
             </div>
           </div>
           <div>

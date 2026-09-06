@@ -25,7 +25,7 @@ export default function AuthCallbackPage() {
         .single();
 
       if (!profile) {
-        router.replace("/signup/google");
+        router.replace("/signup/complete");
         return;
       }
 

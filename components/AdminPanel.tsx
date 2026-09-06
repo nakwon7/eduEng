@@ -699,7 +699,7 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                       >
                         {busy === u.id + "_ko" ? "..." : u.ko_access ? "한국어판 ON" : "한국어판 OFF"}
                       </button>
-                      {u.signup_provider !== "google" && (
+                      {u.signup_provider === "password" && (
                         <button
                           onClick={() => handleResetPassword(u.id, u.username, u.name, u.email)}
                           disabled={!!busy}

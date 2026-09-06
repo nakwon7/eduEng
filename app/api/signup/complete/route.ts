@@ -14,8 +14,8 @@ function getClientIp(req: NextRequest): string {
 }
 
 // 아이디는 사용자에게 노출되지 않는 내부 식별자라 이메일 앞부분 기반으로 서버가 자동 생성
-async function generateUniqueUsername(email: string, admin: ReturnType<typeof supabaseAdmin>): Promise<string> {
-  const local = email.split("@")[0].replace(/[^A-Za-z0-9]/g, "").slice(0, 12);
+async function generateUniqueUsername(seed: string, admin: ReturnType<typeof supabaseAdmin>): Promise<string> {
+  const local = seed.split("@")[0].replace(/[^A-Za-z0-9]/g, "").slice(0, 12);
   const base = /^[A-Za-z]/.test(local) ? local : `u${local}`;
 
   for (let attempt = 0; attempt < 5; attempt++) {
@@ -43,13 +43,15 @@ export async function POST(req: NextRequest) {
 
   const admin = supabaseAdmin();
 
-  // 구글 로그인으로 이미 발급된 세션의 access token으로 실제 유저를 확인 —
+  // OAuth 로그인으로 이미 발급된 세션의 access token으로 실제 유저를 확인 —
   // 클라이언트가 보낸 id를 그대로 믿지 않고 서버가 직접 검증
   const { data: userData, error: userError } = await admin.auth.getUser(accessToken);
   if (userError || !userData.user) {
     return NextResponse.json({ error: "invalid_session" }, { status: 401 });
   }
   const user = userData.user;
+  // 'google' | 'kakao' | ... — 카카오는 이메일 미동의 유저가 흔해서 provider별 폴백이 필요
+  const provider = user.app_metadata?.provider || "unknown";
 
   const ip = getClientIp(req);
   const windowStart = new Date(Date.now() - RATE_LIMIT_WINDOW_MS).toISOString();
@@ -72,18 +74,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "already_onboarded" }, { status: 409 });
   }
 
+  // 카카오는 이메일 동의항목 없이 붙이면 email이 아예 안 옴 — profiles.email이 NOT NULL이라
+  // 플레이스홀더로 채운다 (로그인은 항상 세션 기반이라 이 값으로 조회할 일은 없음)
+  const email = user.email || `${provider}_${user.id}@no-email.turingcall.cloud`;
   const username = await generateUniqueUsername(user.email || `user${user.id}`, admin);
 
   const { error: profileError } = await admin.from("profiles").insert({
     id: user.id,
-    email: user.email,
+    email,
     username,
     name: name.trim(),
     level: "intermediate",
     goal_topic: null,
     approved: true,
     session_token: null,
-    signup_provider: "google",
+    signup_provider: provider,
   });
 
   if (profileError) {
@@ -91,7 +96,7 @@ export async function POST(req: NextRequest) {
   }
 
   await sendTelegramAlert(
-    `🎉 [EduEng] 신규 가입 (Google)\n${username} (${name.trim()})`,
+    `🎉 [EduEng] 신규 가입 (${provider})\n${username} (${name.trim()})`,
     `signup-${user.id}`
   );
 

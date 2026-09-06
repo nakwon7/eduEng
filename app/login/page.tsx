@@ -32,7 +32,7 @@ export default function LoginPage() {
   // 다른 기기에서 로그인해서(세션 토큰 덮어써짐) 강제 로그아웃된 경우, 그냥 로그인 폼만
   // 덩그러니 보이면 버그처럼 느껴져서 이유를 안내 — app/app/page.tsx·app/ko/page.tsx가 붙여주는 쿼리파라미터
   const [otherDeviceNotice, setOtherDeviceNotice] = useState(false);
-  const [showGoogleNotice, setShowGoogleNotice] = useState(false);
+  const [pendingProvider, setPendingProvider] = useState<"google" | "kakao" | null>(null);
 
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("reason") === "other_device") {
@@ -85,13 +85,19 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleLogin = async () => {
+  const handleOAuthLogin = async (provider: "google" | "kakao") => {
     // signInWithOAuth 기본 리다이렉트는 location.href(push) 방식이라 /login 히스토리가
     // 남는다 — 로그인 후 뒤로가기하면 로그인 화면으로 돌아가버려서, location.replace로
     // 직접 이동시켜 아이디/패스워드 로그인(router.replace)과 동일하게 히스토리를 지운다
     const { data } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback`, skipBrowserRedirect: true },
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        skipBrowserRedirect: true,
+        // Supabase 기본 스코프는 카카오 동의항목(이메일/프로필사진)까지 요청해서 미승인
+        // 항목이면 인가 요청 자체가 거부됨 — 카카오 콘솔에 등록해둔 닉네임만 요청
+        ...(provider === "kakao" ? { scopes: "profile_nickname" } : {}),
+      },
     });
     if (data?.url) window.location.replace(data.url);
   };
@@ -168,35 +174,50 @@ export default function LoginPage() {
           <div className="flex-1 h-px bg-white/10" />
         </div>
 
-        <button
-          type="button"
-          onClick={() => setShowGoogleNotice(true)}
-          className="w-full py-3 bg-white hover:bg-gray-100 text-gray-800 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 shadow-lg"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5">
-            <path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.87c2.27-2.09 3.58-5.17 3.58-8.82z" />
-            <path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.91l-3.87-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.27v3.09A12 12 0 0 0 12 24z" />
-            <path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28V6.63H1.27A12 12 0 0 0 0 12c0 1.94.46 3.77 1.27 5.37z" />
-            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0A12 12 0 0 0 1.27 6.63l4 3.09C6.22 6.86 8.87 4.75 12 4.75z" />
-          </svg>
-          Google로 계속하기
-        </button>
+        <div className="space-y-2">
+          <button
+            type="button"
+            onClick={() => setPendingProvider("google")}
+            className="w-full py-3 bg-white hover:bg-gray-100 text-gray-800 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 shadow-lg"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5">
+              <path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.87c2.27-2.09 3.58-5.17 3.58-8.82z" />
+              <path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.91l-3.87-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.27v3.09A12 12 0 0 0 12 24z" />
+              <path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28V6.63H1.27A12 12 0 0 0 0 12c0 1.94.46 3.77 1.27 5.37z" />
+              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0A12 12 0 0 0 1.27 6.63l4 3.09C6.22 6.86 8.87 4.75 12 4.75z" />
+            </svg>
+            Google로 계속하기
+          </button>
 
-        {showGoogleNotice && (
+          <button
+            type="button"
+            onClick={() => setPendingProvider("kakao")}
+            className="w-full py-3 bg-[#FEE500] hover:bg-[#FADA00] text-[#191919] rounded-xl font-semibold transition-all flex items-center justify-center gap-2 shadow-lg"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5" fill="#191919">
+              <path d="M12 3C6.48 3 2 6.48 2 10.78c0 2.72 1.8 5.1 4.5 6.48-.2.72-.72 2.6-.82 3-.13.5.18.5.38.36.16-.11 2.5-1.7 3.52-2.39.78.11 1.58.17 2.42.17 5.52 0 10-3.48 10-7.78S17.52 3 12 3z" />
+            </svg>
+            카카오로 계속하기
+          </button>
+        </div>
+
+        {pendingProvider && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
             <div className="w-full max-w-xs bg-gray-900 rounded-2xl ring-1 ring-white/10 p-6 shadow-2xl">
               <p className="text-white font-semibold text-sm mb-2">잠깐만요!</p>
               <p className="text-gray-400 text-xs leading-relaxed mb-5">
                 기존에 <span className="text-white">아이디/비밀번호로 가입</span>하신 회원이라면,
-                구글 로그인은 기존 계정과 연결되지 않고 <span className="text-white">완전히 새로운 계정</span>이 만들어져요.
+                {pendingProvider === "google" ? "구글" : "카카오"} 로그인은 기존 계정과 연결되지 않고{" "}
+                <span className="text-white">완전히 새로운 계정</span>이 만들어져요.
                 기존 계정은 아이디/비밀번호로 로그인해주세요.
               </p>
               <div className="flex flex-col gap-2">
                 <button
                   type="button"
                   onClick={() => {
-                    setShowGoogleNotice(false);
-                    handleGoogleLogin();
+                    const provider = pendingProvider;
+                    setPendingProvider(null);
+                    handleOAuthLogin(provider);
                   }}
                   className="w-full py-2.5 bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white rounded-xl text-sm font-semibold transition-all"
                 >
@@ -204,7 +225,7 @@ export default function LoginPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setShowGoogleNotice(false)}
+                  onClick={() => setPendingProvider(null)}
                   className="w-full py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-sm font-semibold transition-all"
                 >
                   아이디/비밀번호로 로그인할게요
