@@ -32,7 +32,6 @@ export default function LoginPage() {
   // 다른 기기에서 로그인해서(세션 토큰 덮어써짐) 강제 로그아웃된 경우, 그냥 로그인 폼만
   // 덩그러니 보이면 버그처럼 느껴져서 이유를 안내 — app/app/page.tsx·app/ko/page.tsx가 붙여주는 쿼리파라미터
   const [otherDeviceNotice, setOtherDeviceNotice] = useState(false);
-  const [pendingProvider, setPendingProvider] = useState<"google" | "kakao" | null>(null);
 
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("reason") === "other_device") {
@@ -177,7 +176,7 @@ export default function LoginPage() {
         <div className="space-y-2">
           <button
             type="button"
-            onClick={() => setPendingProvider("google")}
+            onClick={() => handleOAuthLogin("google")}
             className="w-full py-3 bg-white hover:bg-gray-100 text-gray-800 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 shadow-lg"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5">
@@ -191,7 +190,7 @@ export default function LoginPage() {
 
           <button
             type="button"
-            onClick={() => setPendingProvider("kakao")}
+            onClick={() => handleOAuthLogin("kakao")}
             className="w-full py-3 bg-[#FEE500] hover:bg-[#FADA00] text-[#191919] rounded-xl font-semibold transition-all flex items-center justify-center gap-2 shadow-lg"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5" fill="#191919">
@@ -200,40 +199,6 @@ export default function LoginPage() {
             카카오로 계속하기
           </button>
         </div>
-
-        {pendingProvider && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-            <div className="w-full max-w-xs bg-gray-900 rounded-2xl ring-1 ring-white/10 p-6 shadow-2xl">
-              <p className="text-white font-semibold text-sm mb-2">잠깐만요!</p>
-              <p className="text-gray-400 text-xs leading-relaxed mb-5">
-                기존에 <span className="text-white">아이디/비밀번호로 가입</span>하신 회원이라면,
-                {pendingProvider === "google" ? "구글" : "카카오"} 로그인은 기존 계정과 연결되지 않고{" "}
-                <span className="text-white">완전히 새로운 계정</span>이 만들어져요.
-                기존 계정은 아이디/비밀번호로 로그인해주세요.
-              </p>
-              <div className="flex flex-col gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const provider = pendingProvider;
-                    setPendingProvider(null);
-                    handleOAuthLogin(provider);
-                  }}
-                  className="w-full py-2.5 bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white rounded-xl text-sm font-semibold transition-all"
-                >
-                  신규 회원이에요, 계속할게요
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPendingProvider(null)}
-                  className="w-full py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-sm font-semibold transition-all"
-                >
-                  아이디/비밀번호로 로그인할게요
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
 
         <p className="text-center mt-4">
           <a href="/reset-password" className="text-gray-400 hover:text-gray-300 text-xs">
