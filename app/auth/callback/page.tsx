@@ -29,7 +29,12 @@ export default function AuthCallbackPage() {
         return;
       }
 
-      await establishClientSession(userId);
+      try {
+        await establishClientSession(userId);
+      } catch {
+        setError(true);
+        return;
+      }
       router.replace(profile.ko_access ? "/ko" : "/app");
     };
     run();
