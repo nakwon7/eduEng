@@ -7,6 +7,8 @@ import { supabase } from "@/lib/supabase";
 export default function SignupPage() {
   const router = useRouter();
   const [checking, setChecking] = useState(true);
+  // login/page.tsx handleOAuthLogin과 동일한 이유 — 네트워크 왕복 동안 버튼 반응이 없어보임
+  const [oauthLoading, setOauthLoading] = useState<"google" | "kakao" | null>(null);
 
   useEffect(() => {
     const check = async () => {
@@ -21,6 +23,7 @@ export default function SignupPage() {
   }, [router]);
 
   const handleOAuthSignup = async (provider: "google" | "kakao") => {
+    setOauthLoading(provider);
     // login/page.tsx handleOAuthLogin과 동일한 이유로 replace 방식 리다이렉트 사용
     const { data } = await supabase.auth.signInWithOAuth({
       provider,
@@ -31,7 +34,11 @@ export default function SignupPage() {
         ...(provider === "kakao" ? { scopes: "profile_nickname" } : {}),
       },
     });
-    if (data?.url) window.location.replace(data.url);
+    if (data?.url) {
+      window.location.replace(data.url);
+    } else {
+      setOauthLoading(null);
+    }
   };
 
   if (checking) {
@@ -60,25 +67,35 @@ export default function SignupPage() {
           <button
             type="button"
             onClick={() => handleOAuthSignup("google")}
-            className="relative w-full py-4 bg-white hover:bg-gray-50 active:scale-[0.98] text-gray-800 rounded-2xl font-bold text-base transition-all flex items-center justify-center gap-3 shadow-xl shadow-black/30 ring-1 ring-black/5"
+            disabled={oauthLoading !== null}
+            className="relative w-full py-4 bg-white hover:bg-gray-50 active:scale-[0.98] disabled:opacity-70 text-gray-800 rounded-2xl font-bold text-base transition-all flex items-center justify-center gap-3 shadow-xl shadow-black/30 ring-1 ring-black/5"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-6 h-6">
-              <path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.87c2.27-2.09 3.58-5.17 3.58-8.82z" />
-              <path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.91l-3.87-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.27v3.09A12 12 0 0 0 12 24z" />
-              <path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28V6.63H1.27A12 12 0 0 0 0 12c0 1.94.46 3.77 1.27 5.37z" />
-              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0A12 12 0 0 0 1.27 6.63l4 3.09C6.22 6.86 8.87 4.75 12 4.75z" />
-            </svg>
-            Google로 3초 만에 시작하기
+            {oauthLoading === "google" ? (
+              <span className="w-6 h-6 border-2 border-gray-400 border-t-gray-700 rounded-full animate-spin" />
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-6 h-6">
+                <path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.87c2.27-2.09 3.58-5.17 3.58-8.82z" />
+                <path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.91l-3.87-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.27v3.09A12 12 0 0 0 12 24z" />
+                <path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28V6.63H1.27A12 12 0 0 0 0 12c0 1.94.46 3.77 1.27 5.37z" />
+                <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0A12 12 0 0 0 1.27 6.63l4 3.09C6.22 6.86 8.87 4.75 12 4.75z" />
+              </svg>
+            )}
+            {oauthLoading === "google" ? "이동 중..." : "Google로 3초 만에 시작하기"}
           </button>
           <button
             type="button"
             onClick={() => handleOAuthSignup("kakao")}
-            className="relative w-full py-4 bg-[#FEE500] hover:bg-[#FADA00] active:scale-[0.98] text-[#191919] rounded-2xl font-bold text-base transition-all flex items-center justify-center gap-3 shadow-xl shadow-black/30 ring-1 ring-black/5"
+            disabled={oauthLoading !== null}
+            className="relative w-full py-4 bg-[#FEE500] hover:bg-[#FADA00] active:scale-[0.98] disabled:opacity-70 text-[#191919] rounded-2xl font-bold text-base transition-all flex items-center justify-center gap-3 shadow-xl shadow-black/30 ring-1 ring-black/5"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-6 h-6" fill="#191919">
-              <path d="M12 3C6.48 3 2 6.48 2 10.78c0 2.72 1.8 5.1 4.5 6.48-.2.72-.72 2.6-.82 3-.13.5.18.5.38.36.16-.11 2.5-1.7 3.52-2.39.78.11 1.58.17 2.42.17 5.52 0 10-3.48 10-7.78S17.52 3 12 3z" />
-            </svg>
-            카카오로 3초 만에 시작하기
+            {oauthLoading === "kakao" ? (
+              <span className="w-6 h-6 border-2 border-[#191919]/40 border-t-[#191919] rounded-full animate-spin" />
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-6 h-6" fill="#191919">
+                <path d="M12 3C6.48 3 2 6.48 2 10.78c0 2.72 1.8 5.1 4.5 6.48-.2.72-.72 2.6-.82 3-.13.5.18.5.38.36.16-.11 2.5-1.7 3.52-2.39.78.11 1.58.17 2.42.17 5.52 0 10-3.48 10-7.78S17.52 3 12 3z" />
+              </svg>
+            )}
+            {oauthLoading === "kakao" ? "이동 중..." : "카카오로 3초 만에 시작하기"}
           </button>
         </div>
 

@@ -32,6 +32,9 @@ export default function LoginPage() {
   // 다른 기기에서 로그인해서(세션 토큰 덮어써짐) 강제 로그아웃된 경우, 그냥 로그인 폼만
   // 덩그러니 보이면 버그처럼 느껴져서 이유를 안내 — app/app/page.tsx·app/ko/page.tsx가 붙여주는 쿼리파라미터
   const [otherDeviceNotice, setOtherDeviceNotice] = useState(false);
+  // signInWithOAuth가 Supabase에 URL을 받아오는 동안(네트워크 왕복) 버튼이 아무 반응
+  // 없어 보여서 "눌렸다"는 걸 바로 보여주기 위한 상태
+  const [oauthLoading, setOauthLoading] = useState<"google" | "kakao" | null>(null);
 
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("reason") === "other_device") {
@@ -85,6 +88,7 @@ export default function LoginPage() {
   };
 
   const handleOAuthLogin = async (provider: "google" | "kakao") => {
+    setOauthLoading(provider);
     // signInWithOAuth 기본 리다이렉트는 location.href(push) 방식이라 /login 히스토리가
     // 남는다 — 로그인 후 뒤로가기하면 로그인 화면으로 돌아가버려서, location.replace로
     // 직접 이동시켜 아이디/패스워드 로그인(router.replace)과 동일하게 히스토리를 지운다
@@ -98,7 +102,11 @@ export default function LoginPage() {
         ...(provider === "kakao" ? { scopes: "profile_nickname" } : {}),
       },
     });
-    if (data?.url) window.location.replace(data.url);
+    if (data?.url) {
+      window.location.replace(data.url);
+    } else {
+      setOauthLoading(null);
+    }
   };
 
   if (checking) {
@@ -177,26 +185,36 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={() => handleOAuthLogin("google")}
-            className="w-full py-3 bg-white hover:bg-gray-100 text-gray-800 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 shadow-lg"
+            disabled={oauthLoading !== null}
+            className="w-full py-3 bg-white hover:bg-gray-100 active:scale-[0.97] disabled:opacity-70 text-gray-800 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 shadow-lg"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5">
-              <path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.87c2.27-2.09 3.58-5.17 3.58-8.82z" />
-              <path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.91l-3.87-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.27v3.09A12 12 0 0 0 12 24z" />
-              <path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28V6.63H1.27A12 12 0 0 0 0 12c0 1.94.46 3.77 1.27 5.37z" />
-              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0A12 12 0 0 0 1.27 6.63l4 3.09C6.22 6.86 8.87 4.75 12 4.75z" />
-            </svg>
-            Google로 계속하기
+            {oauthLoading === "google" ? (
+              <span className="w-5 h-5 border-2 border-gray-400 border-t-gray-700 rounded-full animate-spin" />
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5">
+                <path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.87c2.27-2.09 3.58-5.17 3.58-8.82z" />
+                <path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.91l-3.87-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.27v3.09A12 12 0 0 0 12 24z" />
+                <path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28V6.63H1.27A12 12 0 0 0 0 12c0 1.94.46 3.77 1.27 5.37z" />
+                <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0A12 12 0 0 0 1.27 6.63l4 3.09C6.22 6.86 8.87 4.75 12 4.75z" />
+              </svg>
+            )}
+            {oauthLoading === "google" ? "이동 중..." : "Google로 계속하기"}
           </button>
 
           <button
             type="button"
             onClick={() => handleOAuthLogin("kakao")}
-            className="w-full py-3 bg-[#FEE500] hover:bg-[#FADA00] text-[#191919] rounded-xl font-semibold transition-all flex items-center justify-center gap-2 shadow-lg"
+            disabled={oauthLoading !== null}
+            className="w-full py-3 bg-[#FEE500] hover:bg-[#FADA00] active:scale-[0.97] disabled:opacity-70 text-[#191919] rounded-xl font-semibold transition-all flex items-center justify-center gap-2 shadow-lg"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5" fill="#191919">
-              <path d="M12 3C6.48 3 2 6.48 2 10.78c0 2.72 1.8 5.1 4.5 6.48-.2.72-.72 2.6-.82 3-.13.5.18.5.38.36.16-.11 2.5-1.7 3.52-2.39.78.11 1.58.17 2.42.17 5.52 0 10-3.48 10-7.78S17.52 3 12 3z" />
-            </svg>
-            카카오로 계속하기
+            {oauthLoading === "kakao" ? (
+              <span className="w-5 h-5 border-2 border-[#191919]/40 border-t-[#191919] rounded-full animate-spin" />
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5" fill="#191919">
+                <path d="M12 3C6.48 3 2 6.48 2 10.78c0 2.72 1.8 5.1 4.5 6.48-.2.72-.72 2.6-.82 3-.13.5.18.5.38.36.16-.11 2.5-1.7 3.52-2.39.78.11 1.58.17 2.42.17 5.52 0 10-3.48 10-7.78S17.52 3 12 3z" />
+              </svg>
+            )}
+            {oauthLoading === "kakao" ? "이동 중..." : "카카오로 계속하기"}
           </button>
         </div>
 
