@@ -16,8 +16,10 @@ import ChangePassword from "@/components/ChangePassword";
 import PaymentNoteInput from "@/components/PaymentNoteInput";
 import PaymentRejectNotice from "@/components/PaymentRejectNotice";
 import DailyQuestionBanner from "@/components/DailyQuestionBanner";
+import DefaultThemeCollage from "@/components/DefaultThemeCollage";
 import { TRIAL_TOTAL_SECONDS } from "@/lib/trialCalc";
 import { seoulDateKey } from "@/lib/dailyTopic";
+import { BG_THEMES } from "@/lib/bgThemes";
 
 type CallState = "idle" | "calling" | "active";
 
@@ -92,6 +94,8 @@ export default function KoPage() {
   // /ko는 배경 테마 선택 팝업이 따로 없지만, /app 설정에서 고른 값은 같은 계정이면
   // 여기서도 그대로 반영되도록 읽기만 한다
   const [bgTheme, setBgTheme] = useState<number | undefined>(undefined);
+  const [bgPickerOpen, setBgPickerOpen] = useState(false);
+  const selectedBgTheme = bgTheme != null ? BG_THEMES.find((t) => t.id === bgTheme) : undefined;
   const [userId, setUserId] = useState<string | null>(null);
   const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
@@ -842,6 +846,71 @@ export default function KoPage() {
                 )}
               </div>
 
+              <div>
+                <label className="text-emerald-400/70 text-xs mb-2 block">Background Theme</label>
+                <button
+                  onClick={() => setBgPickerOpen(true)}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 bg-blue-500/5 border border-blue-500/10 rounded-xl hover:bg-blue-500/10 transition-all text-left"
+                >
+                  <div className="relative w-11 h-11 rounded-lg overflow-hidden flex-shrink-0 bg-gray-700 ring-1 ring-white/10">
+                    {selectedBgTheme ? (
+                      <Image src={`/tutors/bg/${selectedBgTheme.thumb}`} alt={selectedBgTheme.labelEn} fill className="object-cover object-top" />
+                    ) : (
+                      <DefaultThemeCollage badgeLabel="Auto" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-white text-sm font-medium truncate">{selectedBgTheme ? selectedBgTheme.labelEn : "Default (Auto)"}</div>
+                    <div className="text-gray-400 text-xs">Tap to change</div>
+                  </div>
+                  <span className="text-gray-400 text-xs">›</span>
+                </button>
+              </div>
+
+              {bgPickerOpen && (
+                <div
+                  className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-6"
+                  onClick={() => setBgPickerOpen(false)}
+                >
+                  <div
+                    className="w-full max-w-sm bg-gradient-to-b from-gray-800 to-gray-900 border border-white/10 border-t-emerald-400/30 rounded-2xl p-4 max-h-[80vh] overflow-y-auto shadow-[0_20px_25px_-5px_rgba(0,0,0,0.4),0_0_40px_-12px_rgba(16,185,129,0.35)]"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-white text-sm font-semibold">Choose a Background Theme</p>
+                      <button onClick={() => setBgPickerOpen(false)} className="text-gray-400 hover:text-gray-300 text-xs">Close</button>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        onClick={() => { setBgTheme(undefined); setBgPickerOpen(false); }}
+                        className={`rounded-xl border overflow-hidden text-center transition-all ${
+                          bgTheme == null ? "border-blue-400 ring-2 ring-blue-400/40" : "border-white/5 hover:border-white/20"
+                        }`}
+                      >
+                        <div className="relative w-full aspect-square bg-gray-700 overflow-hidden">
+                          <DefaultThemeCollage showBadge badgeLabel="Auto" />
+                        </div>
+                        <div className="text-[11px] text-gray-300 py-1.5 px-1 truncate">Default</div>
+                      </button>
+                      {BG_THEMES.map((t) => (
+                        <button
+                          key={t.id}
+                          onClick={() => { setBgTheme(t.id); setBgPickerOpen(false); }}
+                          className={`rounded-xl border overflow-hidden text-center transition-all ${
+                            bgTheme === t.id ? "border-blue-400 ring-2 ring-blue-400/40" : "border-white/5 hover:border-white/20"
+                          }`}
+                        >
+                          <div className="relative w-full aspect-square bg-gray-700">
+                            <Image src={`/tutors/bg/${t.thumb}`} alt={t.labelEn} fill className="object-cover object-top" />
+                          </div>
+                          <div className="text-[11px] text-gray-300 py-1.5 px-1 truncate">{t.labelEn}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <button
                 onClick={async () => {
                   if (userId) {
@@ -849,6 +918,7 @@ export default function KoPage() {
                       name: profile.name,
                       level: profile.level,
                       ko_tutor: profile.tutor,
+                      bg_theme: bgTheme ?? null,
                     }).eq("id", userId);
                   }
                   setShowSetup(false);
