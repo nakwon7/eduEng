@@ -14,6 +14,7 @@ export default function AuthCallbackPage() {
   // "to-ko": /login·/signup(lang 없음)에서 왔는데 한국어판 계정(ko_access=true)으로 귀결
   const [crossAppNotice, setCrossAppNotice] = useState<"to-app" | "to-ko" | null>(null);
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
+  const [continuing, setContinuing] = useState(false);
 
   useEffect(() => {
     const run = async () => {
@@ -67,9 +68,13 @@ export default function AuthCallbackPage() {
 
   const handleContinueCrossApp = async () => {
     if (!pendingUserId || !crossAppNotice) return;
+    setContinuing(true);
     try {
       await establishClientSession(pendingUserId);
     } catch {
+      // crossAppNotice가 계속 true라 에러 화면 분기가 안 그려지던 버그가 있었음(2026-09
+      // 발견) — 안내 화면은 내려두고 에러 화면으로 넘어가게 함
+      setCrossAppNotice(null);
       setError(true);
       return;
     }
@@ -87,9 +92,10 @@ export default function AuthCallbackPage() {
           </p>
           <button
             onClick={handleContinueCrossApp}
-            className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 text-white rounded-xl font-semibold transition-all shadow-lg shadow-blue-900/30"
+            disabled={continuing}
+            className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 disabled:opacity-70 text-white rounded-xl font-semibold transition-all shadow-lg shadow-blue-900/30"
           >
-            Continue
+            {continuing ? "Continuing..." : "Continue"}
           </button>
         </div>
       </main>
@@ -107,9 +113,10 @@ export default function AuthCallbackPage() {
           </p>
           <button
             onClick={handleContinueCrossApp}
-            className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white rounded-xl font-semibold transition-all shadow-lg shadow-green-900/30"
+            disabled={continuing}
+            className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 disabled:opacity-70 text-white rounded-xl font-semibold transition-all shadow-lg shadow-green-900/30"
           >
-            계속하기
+            {continuing ? "이동 중..." : "계속하기"}
           </button>
         </div>
       </main>
