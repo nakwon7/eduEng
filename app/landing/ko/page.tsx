@@ -3,17 +3,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import ZoomableImage from "@/components/ZoomableImage";
 
 export default function LandingKoPage() {
   const router = useRouter();
-  // app/page.tsx(영어판 랜딩)와 동일한 이유 — 당근광고 트래픽이 "낚시 사이트 아닌가" 의심하지
-  // 않게, ?utm_source=karrot일 때만 공식 사이트 안심 배너 표시
-  const [fromKarrot, setFromKarrot] = useState(false);
-
-  useEffect(() => {
-    const utmSource = new URLSearchParams(window.location.search).get("utm_source");
-    if (utmSource?.toLowerCase() === "karrot") setFromKarrot(true);
-  }, []);
+  const [showInstallGuide, setShowInstallGuide] = useState(false);
 
   useEffect(() => {
     const check = async () => {
@@ -29,11 +23,6 @@ export default function LandingKoPage() {
     <main className="min-h-screen bg-gray-950 text-white">
       {/* Hero */}
       <div className="flex flex-col items-center px-6 pt-16 pb-10 text-center">
-        {fromKarrot && (
-          <div className="mb-5 inline-block px-3 py-1.5 bg-orange-500/10 border border-orange-500/30 rounded-2xl text-orange-300 text-xs font-medium text-center">
-            🥕 Coming from Karrot? This is the official turingcall.cloud site — safe to browse.
-          </div>
-        )}
         <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mb-5 shadow-lg shadow-blue-900/40">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-11 h-11">
             <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
@@ -151,11 +140,80 @@ export default function LandingKoPage() {
         </a>
 
         {/* Install as app */}
-        <div className="bg-gray-900 border border-white/5 rounded-2xl p-4 text-xs text-gray-400 space-y-2">
-          <p className="text-white text-xs font-semibold">📲 Install as an app (free · no app store needed)</p>
-          <p>🍎 <span className="text-gray-300">iPhone</span> — Open in Safari → Share (□↑) → Add to Home Screen</p>
-          <p>🤖 <span className="text-gray-300">Android</span> — Open in Chrome → Menu (⋮) → Add to Home Screen</p>
-          <p>💻 <span className="text-gray-300">PC / Other browsers</span> — Click the install (⊕) button on the right side of the address bar</p>
+        <div className="bg-gray-900 border border-white/5 rounded-2xl p-4 text-xs text-gray-400">
+          <button
+            type="button"
+            onClick={() => setShowInstallGuide((v) => !v)}
+            className="w-full flex items-center justify-between gap-1.5"
+          >
+            <span className="flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 text-blue-400 shrink-0">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              <span className="text-white text-xs font-semibold">Install as an app (free · no app store needed)</span>
+            </span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={`w-3.5 h-3.5 text-gray-400 shrink-0 transition-transform ${showInstallGuide ? "rotate-180" : ""}`}
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+
+          {showInstallGuide && (
+            <div className="space-y-3 mt-3">
+              <div className="flex items-start gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-gray-800 flex items-center justify-center shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" fill="currentColor" className="w-3.5 h-3.5 text-gray-300">
+                    <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
+                  </svg>
+                </div>
+                <p className="pt-1"><span className="text-gray-300">iPhone</span> — Open in Safari → Share (□↑) → Add to Home Screen</p>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-gray-800 flex items-center justify-center shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="currentColor" className="w-4 h-4 text-blue-400">
+                    <path d="M420.55 301.93a24 24 0 1 1 24-24 24 24 0 0 1-24 24m-265.1 0a24 24 0 1 1 24-24 24 24 0 0 1-24 24m273.7-144.48 47.94-83a10 10 0 1 0-17.27-10l-48.54 84.07a301.25 301.25 0 0 0-246.56 0L116.18 64.45a10 10 0 1 0-17.27 10l47.94 83C64.53 202.22 8.24 285.55 0 384h576c-8.24-98.45-64.54-181.78-146.85-226.55" />
+                  </svg>
+                </div>
+                <p className="pt-1"><span className="text-gray-300">Android</span> — Open in Chrome → Menu (⋮) → Add to Home Screen</p>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-gray-800 flex items-center justify-center shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 text-gray-300">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                    <line x1="8" y1="21" x2="16" y2="21" />
+                    <line x1="12" y1="17" x2="12" y2="21" />
+                  </svg>
+                </div>
+                <p className="pt-1"><span className="text-gray-300">PC / Other browsers</span> — Click the install (⊕) button on the right side of the address bar</p>
+              </div>
+              <div className="space-y-3">
+                <ZoomableImage
+                  src="/install-guide/edge-pc.png"
+                  alt="Edge PC install guide"
+                  width={1203}
+                  height={595}
+                  caption="Edge — click the TuringCall install prompt on the right of the address bar (tap to zoom)"
+                />
+                <ZoomableImage
+                  src="/install-guide/chrome-pc.png"
+                  alt="Chrome PC install guide"
+                  width={1013}
+                  height={630}
+                  caption="Chrome — click the install button, then choose 'Install' in the popup (tap to zoom)"
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
