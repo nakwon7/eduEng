@@ -15,7 +15,9 @@ import UsageHistory from "@/components/UsageHistory";
 import ChangePassword from "@/components/ChangePassword";
 import PaymentNoteInput from "@/components/PaymentNoteInput";
 import PaymentRejectNotice from "@/components/PaymentRejectNotice";
+import DailyQuestionBanner from "@/components/DailyQuestionBanner";
 import { TRIAL_TOTAL_SECONDS } from "@/lib/trialCalc";
+import { seoulDateKey } from "@/lib/dailyTopic";
 
 type CallState = "idle" | "calling" | "active";
 
@@ -101,6 +103,11 @@ export default function KoPage() {
   const [streakCount, setStreakCount] = useState(0);
   const [streakFreezes, setStreakFreezes] = useState(0);
   const [lastStreakDate, setLastStreakDate] = useState<string | null>(null);
+  const [dailyQuestions, setDailyQuestions] = useState<{ ko: string; en: string; categoryId?: string; categoryLabel?: string }[]>([]);
+  const [freezeNotice, setFreezeNotice] = useState<string | null>(null);
+  const freezeNoticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [freezeCelebration, setFreezeCelebration] = useState<{ count: number; freezesRemaining: number } | null>(null);
+  const freezeCelebrationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [weeklySeconds, setWeeklySeconds] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [showSetup, setShowSetup] = useState(false);
@@ -229,6 +236,22 @@ export default function KoPage() {
     setRequestingPayment(false);
   };
 
+  const applyStreakUpdate = useCallback((streak?: { count: number; freezeUsed: boolean; freezesRemaining: number; freezeEarned: boolean }) => {
+    if (!streak) return;
+    setStreakCount(streak.count);
+    setStreakFreezes(streak.freezesRemaining);
+    if (streak.freezeUsed) {
+      setFreezeNotice(`❄️ Streak saved with a freeze · ${streak.freezesRemaining} left`);
+      if (freezeNoticeTimerRef.current) clearTimeout(freezeNoticeTimerRef.current);
+      freezeNoticeTimerRef.current = setTimeout(() => setFreezeNotice(null), 3200);
+    }
+    if (streak.freezeEarned) {
+      setFreezeCelebration({ count: streak.count, freezesRemaining: streak.freezesRemaining });
+      if (freezeCelebrationTimerRef.current) clearTimeout(freezeCelebrationTimerRef.current);
+      freezeCelebrationTimerRef.current = setTimeout(() => setFreezeCelebration(null), 4500);
+    }
+  }, []);
+
   const saveElapsed = useCallback(async () => {
     if (!userId || !sessionToken || callStateRef.current !== "active") return;
     const savedBefore = lastSavedRef.current;
@@ -248,11 +271,13 @@ export default function KoPage() {
         lastSavedRef.current = savedBefore + unsaved;
         setWeeklySeconds((prev) => prev + unsaved);
         if (isTrialCallRef.current) setTrialSecondsLeft((prev) => Math.max(0, prev - unsaved));
+        const data = await res.json().catch(() => null);
+        applyStreakUpdate(data?.streak);
       }
     } catch {
       // 네트워크 실패 시 lastSavedRef를 건드리지 않아 다음 저장에서 재시도됨
     }
-  }, [userId, sessionToken, topic]);
+  }, [userId, sessionToken, topic, applyStreakUpdate]);
 
   // 탭 숨김/앱 강제종료 시점 전용 저장 — fetch(keepalive)는 iOS Safari/PWA에서
   // 페이지가 죽는 타이밍과 경쟁해서 실제로는 잘 안 먹히는 경우가 확인됨.
@@ -298,12 +323,52 @@ export default function KoPage() {
         body: JSON.stringify({ userId, sessionToken, seconds: unsaved, topic }),
         keepalive: true,
       })
-        .then((res) => { if (!res.ok) console.error("[call/end] save failed", res.status); })
+        .then(async (res) => {
+          if (!res.ok) { console.error("[call/end] save failed", res.status); return; }
+          const data = await res.json().catch(() => null);
+          applyStreakUpdate(data?.streak);
+        })
         .catch((err) => console.error("[call/end] save error", err));
       setWeeklySeconds((prev) => prev + unsaved);
       if (wasTrial) setTrialSecondsLeft((prev) => Math.max(0, prev - unsaved));
     }
-  }, [stopSpeaking, userId, sessionToken, topic]);
+  }, [stopSpeaking, userId, sessionToken, topic, applyStreakUpdate]);
+
+  useEffect(() => {
+    return () => {
+      if (freezeNoticeTimerRef.current) clearTimeout(freezeNoticeTimerRef.current);
+      if (freezeCelebrationTimerRef.current) clearTimeout(freezeCelebrationTimerRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!userId || !sessionToken) return;
+
+    const today = seoulDateKey();
+    try {
+      const cached = JSON.parse(localStorage.getItem("koDailyQuestions_v1") || "null");
+      if (cached && cached.date === today && Array.isArray(cached.questions) && cached.questions.length > 0) {
+        setDailyQuestions(cached.questions);
+        return;
+      }
+    } catch {
+      // ignore malformed cache
+    }
+
+    fetch("/api/daily-question", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, sessionToken }),
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (Array.isArray(data?.questions) && data.questions.length > 0) {
+          setDailyQuestions(data.questions);
+          localStorage.setItem("koDailyQuestions_v1", JSON.stringify({ date: today, questions: data.questions }));
+        }
+      })
+      .catch(() => {});
+  }, [userId, sessionToken]);
 
   // 탭 전환/앱 강제종료 시 즉시 저장 — visibilitychange와 pagehide 둘 다 걸어서
   // 브라우저/OS마다 다르게 동작해도 최대한 한쪽에서라도 걸리게 함
@@ -346,8 +411,10 @@ export default function KoPage() {
     }
   }, [callDuration, callState, unlimited, endCall]);
 
-  const startCall = useCallback(async () => {
+  const startCall = useCallback(async (overrideTopic?: string) => {
     if (!canMakeCall || isCoolingDown) return;
+    const effectiveTopic = typeof overrideTopic === "string" ? overrideTopic : topic;
+    if (typeof overrideTopic === "string") setTopic(overrideTopic);
     isTrialCallRef.current = !isPaid && !isUnlimited;
     setMicError(false);
     try {
@@ -383,7 +450,7 @@ export default function KoPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          topic,
+          topic: effectiveTopic,
           firstName: profile.name,
           tutorName,
           tutor: effectiveTutor,
@@ -632,6 +699,9 @@ export default function KoPage() {
             {callState === "idle" && streakCount > 0 && isStreakAlive && (
               <span className="text-orange-400 text-xs font-medium [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">🔥 {streakCount} day streak</span>
             )}
+            {callState === "idle" && streakCount > 0 && isStreakAlive && streakFreezes > 0 && (
+              <span className="text-cyan-300 text-xs font-medium [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">❄️ {streakFreezes}</span>
+            )}
           </div>
           {callState === "active" && (
             <p className="text-green-400 text-sm mt-1 font-mono [text-shadow:0_1px_4px_rgba(0,0,0,0.85)]">{formatTime(callDuration)}</p>
@@ -864,6 +934,14 @@ export default function KoPage() {
             <div className="flex-1 flex flex-col justify-between">
               {/* Topic selector */}
               <div>
+                {dailyQuestions.length > 0 && (
+                  <DailyQuestionBanner
+                    questions={dailyQuestions}
+                    lang="en"
+                    onStart={(q) => startCall(q.ko)}
+                    disabled={!canMakeCall || isCoolingDown}
+                  />
+                )}
                 <div className="flex items-center justify-between mb-3">
                   <p className="text-gray-400 text-sm">Choose a topic</p>
                   <button
@@ -967,14 +1045,14 @@ export default function KoPage() {
                         }
                       </p>
                       <p className="text-gray-400 text-xs">After changing settings, tap the button below</p>
-                      <button onClick={startCall} disabled={isCoolingDown} className="mt-1 px-4 py-1.5 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-xs font-medium">
+                      <button onClick={() => startCall()} disabled={isCoolingDown} className="mt-1 px-4 py-1.5 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-xs font-medium">
                         Try again
                       </button>
                     </>
                   ) : (
                     <>
                       <p className="text-gray-400 text-xs">Tap the button below to allow microphone access</p>
-                      <button onClick={startCall} disabled={isCoolingDown} className="mt-1 px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-sm font-semibold shadow-md shadow-blue-900/30">
+                      <button onClick={() => startCall()} disabled={isCoolingDown} className="mt-1 px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-sm font-semibold shadow-md shadow-blue-900/30">
                         🎙️ Allow Microphone
                       </button>
                     </>
@@ -982,7 +1060,7 @@ export default function KoPage() {
                 </div>
               )}
               <button
-                onClick={startCall}
+                onClick={() => startCall()}
                 disabled={isCoolingDown}
                 className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl font-semibold text-lg transition-all active:scale-95 shadow-lg shadow-blue-900/40"
               >
@@ -1143,6 +1221,56 @@ export default function KoPage() {
             You already have an active membership.<br />No need to pay again yet.
           </div>
         </div>
+
+        <div
+          className={`fixed left-1/2 bottom-40 z-50 -translate-x-1/2 transition-all duration-300 ease-out ${
+            freezeNotice ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"
+          }`}
+        >
+          <div className="bg-gray-800 border border-cyan-700 text-white text-xs px-4 py-3 rounded-xl shadow-xl max-w-[260px] text-center">
+            {freezeNotice}
+          </div>
+        </div>
+
+        {freezeCelebration && (
+          <div
+            className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm overflow-hidden"
+            onClick={() => setFreezeCelebration(null)}
+          >
+            {Array.from({ length: 16 }).map((_, i) => (
+              <span
+                key={i}
+                className="snowflake absolute text-2xl select-none"
+                style={{
+                  left: `${(i * 6.3) % 100}%`,
+                  top: "-8%",
+                  animationName: "snowfall",
+                  animationDuration: `${2.4 + (i % 5) * 0.4}s`,
+                  animationDelay: `${i * 0.12}s`,
+                  animationTimingFunction: "linear",
+                  animationIterationCount: "infinite",
+                }}
+              >
+                ❄️
+              </span>
+            ))}
+            <div
+              className="badge-pop-el relative bg-gray-900 border border-cyan-500/40 rounded-3xl px-8 py-8 mx-6 text-center shadow-2xl"
+              style={{ animation: "badge-pop 0.5s ease-out" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="text-6xl mb-3">❄️</div>
+              <p className="text-white text-lg font-bold">{freezeCelebration.count}-day streak!</p>
+              <p className="text-cyan-300 text-sm mt-1">You earned a freeze · {freezeCelebration.freezesRemaining} left</p>
+              <button
+                onClick={() => setFreezeCelebration(null)}
+                className="mt-5 px-5 py-2 bg-gradient-to-r from-cyan-600 to-blue-500 hover:from-cyan-500 hover:to-blue-400 text-white rounded-xl text-sm font-semibold transition-all active:scale-95"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );

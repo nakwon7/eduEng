@@ -13,6 +13,7 @@ interface DailyQuestionBannerProps {
   questions: Question[];
   onStart: (question: Question) => void;
   disabled?: boolean;
+  lang?: "ko" | "en";
 }
 
 const CATEGORY_STYLES: Record<string, string> = {
@@ -27,7 +28,20 @@ const CATEGORY_STYLES: Record<string, string> = {
   daily: "bg-gray-500/15 text-gray-300",
 };
 
-export default function DailyQuestionBanner({ questions, onStart, disabled }: DailyQuestionBannerProps) {
+// categoryLabel from the API is always Korean — /ko (foreign users) needs an English label instead
+const CATEGORY_LABEL_EN: Record<string, string> = {
+  kpop: "K-pop",
+  celeb: "Celebrities",
+  realestate: "Real Estate",
+  prices: "Prices",
+  stocks: "Stocks",
+  travel: "Travel",
+  tech: "Tech",
+  sports: "Sports",
+  daily: "Daily Life",
+};
+
+export default function DailyQuestionBanner({ questions, onStart, disabled, lang = "ko" }: DailyQuestionBannerProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -48,10 +62,10 @@ export default function DailyQuestionBanner({ questions, onStart, disabled }: Da
   return (
     <div className="w-full mb-4">
       <div className="flex items-center justify-between gap-2 mb-2 px-1">
-        <span className="text-gray-200 text-sm font-semibold">오늘의 질문</span>
+        <span className="text-gray-200 text-sm font-semibold">{lang === "en" ? "Question of the Day" : "오늘의 질문"}</span>
         {questions.length > 1 && (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/5 text-gray-400 text-[10px]">
-            <span aria-hidden="true">↔</span> 좌우로 넘겨서 다른 주제 보기
+            <span aria-hidden="true">↔</span> {lang === "en" ? "Swipe for other topics" : "좌우로 넘겨서 다른 주제 보기"}
           </span>
         )}
       </div>
@@ -63,23 +77,24 @@ export default function DailyQuestionBanner({ questions, onStart, disabled }: Da
         >
           {questions.map((q, i) => {
             const tagStyle = CATEGORY_STYLES[q.categoryId || "daily"] || CATEGORY_STYLES.daily;
+            const categoryLabel = lang === "en" ? CATEGORY_LABEL_EN[q.categoryId || "daily"] : q.categoryLabel;
             return (
               <div
                 key={q.categoryId || i}
                 className="w-full flex-shrink-0 snap-center rounded-xl border border-white/10 bg-white/[0.03] p-4"
               >
-                {q.categoryLabel && (
+                {categoryLabel && (
                   <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-medium mb-2 ${tagStyle}`}>
-                    {q.categoryLabel}
+                    {categoryLabel}
                   </span>
                 )}
-                <p className="text-gray-100 text-base font-semibold leading-snug min-h-[3.5rem]">{q.ko}</p>
+                <p className="text-gray-100 text-base font-semibold leading-snug min-h-[3.5rem]">{lang === "en" ? q.en : q.ko}</p>
                 <button
                   onClick={() => onStart(q)}
                   disabled={disabled}
                   className="mt-3 w-full py-2.5 bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-semibold rounded-lg transition-all active:scale-[0.98]"
                 >
-                  이 질문으로 바로 시작
+                  {lang === "en" ? "Start with this question" : "이 질문으로 바로 시작"}
                 </button>
               </div>
             );
@@ -91,7 +106,7 @@ export default function DailyQuestionBanner({ questions, onStart, disabled }: Da
               type="button"
               onClick={() => scrollToIndex(activeIndex - 1)}
               disabled={activeIndex === 0}
-              aria-label="이전 질문"
+              aria-label={lang === "en" ? "Previous question" : "이전 질문"}
               className="absolute left-1.5 top-1/2 -translate-y-1/2 flex items-center justify-center w-6 h-6 rounded-full bg-gray-900/80 border border-white/10 text-gray-300 hover:text-white hover:border-emerald-500/50 disabled:opacity-0 disabled:pointer-events-none transition-opacity"
             >
               ‹
@@ -100,7 +115,7 @@ export default function DailyQuestionBanner({ questions, onStart, disabled }: Da
               type="button"
               onClick={() => scrollToIndex(activeIndex + 1)}
               disabled={activeIndex === questions.length - 1}
-              aria-label="다음 질문"
+              aria-label={lang === "en" ? "Next question" : "다음 질문"}
               className="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center justify-center w-6 h-6 rounded-full bg-gray-900/80 border border-white/10 text-gray-300 hover:text-white hover:border-emerald-500/50 disabled:opacity-0 disabled:pointer-events-none transition-opacity"
             >
               ›
@@ -115,7 +130,7 @@ export default function DailyQuestionBanner({ questions, onStart, disabled }: Da
               key={i}
               type="button"
               onClick={() => scrollToIndex(i)}
-              aria-label={`${i + 1}번째 질문으로 이동`}
+              aria-label={lang === "en" ? `Go to question ${i + 1}` : `${i + 1}번째 질문으로 이동`}
               className={`h-1.5 rounded-full transition-all ${
                 i === activeIndex ? "w-4 bg-emerald-500" : "w-1.5 bg-white/20 hover:bg-white/40"
               }`}
