@@ -45,17 +45,21 @@ export default function SignupKoPage() {
 
   const handleGoogleSignup = async () => {
     setOauthLoading(true);
-    // ?lang=ko로 표시해서 /auth/callback이 신규 가입자를 /signup/complete/ko(외국인 온보딩)로 보내게 함
+    // lang=ko를 localStorage로 넘겨서 /auth/callback이 신규 가입자를 /signup/complete/ko(외국인
+    // 온보딩)로 보내게 함. redirectTo에 쿼리스트링을 붙이면 Supabase Redirect URLs 허용목록과
+    // 정확히 일치하지 않아 Site URL로 폴백되며 토큰이 노출되는 버그가 있어(2026-09 발견) 대신 사용
+    localStorage.setItem("tc_oauth_lang", "ko");
     const { data } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?lang=ko`,
+        redirectTo: `${window.location.origin}/auth/callback`,
         skipBrowserRedirect: true,
       },
     });
     if (data?.url) {
       window.location.replace(data.url);
     } else {
+      localStorage.removeItem("tc_oauth_lang");
       setOauthLoading(false);
     }
   };

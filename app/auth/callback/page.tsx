@@ -29,7 +29,11 @@ export default function AuthCallbackPage() {
         .eq("id", userId)
         .single();
 
-      const lang = new URLSearchParams(window.location.search).get("lang");
+      // ?lang=ko 같은 쿼리스트링을 redirectTo에 붙이면 Supabase Redirect URLs
+      // 허용목록과 정확히 일치하지 않아 Site URL로 조용히 폴백되며 URL에
+      // #access_token=...이 노출되는 버그가 있었음(2026-09 발견) — localStorage로 전달
+      const lang = localStorage.getItem("tc_oauth_lang");
+      localStorage.removeItem("tc_oauth_lang");
 
       if (!profile) {
         // /signup/ko에서 시작한 구글 가입은 ?lang=ko로 표시해서, 신규 프로필 온보딩도

@@ -44,18 +44,22 @@ export default function LoginKoPage() {
   const handleGoogleLogin = async () => {
     setOauthLoading(true);
     // login/page.tsx handleOAuthLogin과 동일한 이유로 replace 방식 리다이렉트 사용.
-    // ?lang=ko로 표시해두면, 이메일이 겹쳐서 영어판 계정(ko_access=false)으로 로그인되는
-    // 경우에 /auth/callback이 조용히 /app으로 보내지 않고 먼저 안내를 보여줌
+    // lang=ko를 localStorage로 넘겨두면, 이메일이 겹쳐서 영어판 계정(ko_access=false)으로
+    // 로그인되는 경우에 /auth/callback이 조용히 /app으로 보내지 않고 먼저 안내를 보여줌.
+    // redirectTo에 쿼리스트링을 붙이면 Supabase Redirect URLs 허용목록과 정확히 일치하지
+    // 않아 Site URL로 폴백되며 토큰이 노출되는 버그가 있어(2026-09 발견) 쿼리스트링 대신 사용
+    localStorage.setItem("tc_oauth_lang", "ko");
     const { data } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?lang=ko`,
+        redirectTo: `${window.location.origin}/auth/callback`,
         skipBrowserRedirect: true,
       },
     });
     if (data?.url) {
       window.location.replace(data.url);
     } else {
+      localStorage.removeItem("tc_oauth_lang");
       setOauthLoading(false);
     }
   };
