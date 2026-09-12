@@ -8,10 +8,11 @@ import { establishClientSession } from "@/lib/session";
 export default function AuthCallbackPage() {
   const router = useRouter();
   const [error, setError] = useState(false);
-  // /login/ko, /signup/ko에서 온(lang=ko) 사람이 구글 계정 이메일이 기존 영어판 계정과
-  // 겹쳐서(Supabase 자동 이메일 연동) ko_access=false인 그 계정으로 로그인돼버리는 경우 —
-  // 조용히 /app으로 보내면 "왜 한국어판이 아니지" 혼란스러우니 안내 후 직접 넘어가게 함
-  const [crossAppNotice, setCrossAppNotice] = useState(false);
+  // 이메일이 겹쳐서(Supabase 자동 이메일 연동) 시작한 쪽과 다른 앱 계정으로 로그인돼버리는
+  // 경우 — 조용히 넘기면 "왜 다른 화면이지" 혼란스러우니 안내 후 직접 넘어가게 함.
+  // "to-app": /login/ko·/signup/ko(lang=ko)에서 왔는데 영어판 계정(ko_access=false)으로 귀결
+  // "to-ko": /login·/signup(lang 없음)에서 왔는데 한국어판 계정(ko_access=true)으로 귀결
+  const [crossAppNotice, setCrossAppNotice] = useState<"to-app" | "to-ko" | null>(null);
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -44,7 +45,12 @@ export default function AuthCallbackPage() {
 
       if (lang === "ko" && !profile.ko_access) {
         setPendingUserId(userId);
-        setCrossAppNotice(true);
+        setCrossAppNotice("to-app");
+        return;
+      }
+      if (lang !== "ko" && profile.ko_access) {
+        setPendingUserId(userId);
+        setCrossAppNotice("to-ko");
         return;
       }
 
@@ -59,31 +65,51 @@ export default function AuthCallbackPage() {
     run();
   }, [router]);
 
-  const handleContinueToApp = async () => {
-    if (!pendingUserId) return;
+  const handleContinueCrossApp = async () => {
+    if (!pendingUserId || !crossAppNotice) return;
     try {
       await establishClientSession(pendingUserId);
     } catch {
       setError(true);
       return;
     }
-    router.replace("/app");
+    router.replace(crossAppNotice === "to-app" ? "/app" : "/ko");
   };
 
-  if (crossAppNotice) {
+  if (crossAppNotice === "to-app") {
     return (
       <main className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
         <div className="w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl ring-1 ring-white/5 p-8 text-center">
-          <p className="text-white text-sm mb-2">This Google account is already linked</p>
+          <p className="text-white text-sm mb-2">This account is already linked</p>
           <p className="text-gray-400 text-xs leading-relaxed mb-6">
             You already have an account on our English-learning app (Alex/Rachel) with this email,
             so you&apos;ll be signed into that account instead of the Korean-learning app.
           </p>
           <button
-            onClick={handleContinueToApp}
+            onClick={handleContinueCrossApp}
             className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 text-white rounded-xl font-semibold transition-all shadow-lg shadow-blue-900/30"
           >
             Continue
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  if (crossAppNotice === "to-ko") {
+    return (
+      <main className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
+        <div className="w-full max-w-sm bg-gray-900 rounded-3xl shadow-2xl ring-1 ring-white/5 p-8 text-center">
+          <p className="text-white text-sm mb-2">이미 연결된 계정이에요</p>
+          <p className="text-gray-400 text-xs leading-relaxed mb-6">
+            이 이메일로 이미 한국어 학습 앱(외국인 대상) 계정이 있어서, 영어판이 아니라
+            해당 계정으로 로그인됩니다.
+          </p>
+          <button
+            onClick={handleContinueCrossApp}
+            className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white rounded-xl font-semibold transition-all shadow-lg shadow-green-900/30"
+          >
+            계속하기
           </button>
         </div>
       </main>
