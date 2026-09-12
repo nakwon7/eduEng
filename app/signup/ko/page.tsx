@@ -40,6 +40,25 @@ export default function SignupKoPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(false);
+  // login/page.tsx handleOAuthLogin과 동일한 이유 — 네트워크 왕복 동안 버튼 반응이 없어보임
+  const [oauthLoading, setOauthLoading] = useState(false);
+
+  const handleGoogleSignup = async () => {
+    setOauthLoading(true);
+    // ?lang=ko로 표시해서 /auth/callback이 신규 가입자를 /signup/complete/ko(외국인 온보딩)로 보내게 함
+    const { data } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?lang=ko`,
+        skipBrowserRedirect: true,
+      },
+    });
+    if (data?.url) {
+      window.location.replace(data.url);
+    } else {
+      setOauthLoading(false);
+    }
+  };
 
   const usernameError = username && !USERNAME_REGEX.test(username)
     ? "Must start with a letter, 4–20 alphanumeric characters"
@@ -127,6 +146,31 @@ export default function SignupKoPage() {
           </div>
           <h1 className="text-white text-xl font-bold">Learn Korean with AI</h1>
           <p className="text-gray-400 text-xs mt-1">2 free trial sessions included</p>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleGoogleSignup}
+          disabled={oauthLoading}
+          className="w-full py-3 bg-white hover:bg-gray-100 active:scale-[0.97] disabled:opacity-70 text-gray-800 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 shadow-lg mb-5"
+        >
+          {oauthLoading ? (
+            <span className="w-5 h-5 border-2 border-gray-400 border-t-gray-700 rounded-full animate-spin" />
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5">
+              <path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.87c2.27-2.09 3.58-5.17 3.58-8.82z" />
+              <path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.91l-3.87-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.27v3.09A12 12 0 0 0 12 24z" />
+              <path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28V6.63H1.27A12 12 0 0 0 0 12c0 1.94.46 3.77 1.27 5.37z" />
+              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0A12 12 0 0 0 1.27 6.63l4 3.09C6.22 6.86 8.87 4.75 12 4.75z" />
+            </svg>
+          )}
+          {oauthLoading ? "Redirecting..." : "Sign up with Google"}
+        </button>
+
+        <div className="flex items-center gap-3 mb-5">
+          <div className="flex-1 h-px bg-white/10" />
+          <span className="text-gray-400 text-xs">or</span>
+          <div className="flex-1 h-px bg-white/10" />
         </div>
 
         <form onSubmit={handleSignup} className="space-y-4">

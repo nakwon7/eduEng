@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { establishClientSession } from "@/lib/session";
 
 export default function LoginKoPage() {
   const router = useRouter();
@@ -31,12 +32,33 @@ export default function LoginKoPage() {
   // 다른 기기에서 로그인해서(세션 토큰 덮어써짐) 강제 로그아웃된 경우, 그냥 로그인 폼만
   // 덩그러니 보이면 버그처럼 느껴져서 이유를 안내 — app/ko/page.tsx가 붙여주는 쿼리파라미터
   const [otherDeviceNotice, setOtherDeviceNotice] = useState(false);
+  // login/page.tsx handleOAuthLogin과 동일한 이유 — 네트워크 왕복 동안 버튼 반응이 없어보임
+  const [oauthLoading, setOauthLoading] = useState(false);
 
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("reason") === "other_device") {
       setOtherDeviceNotice(true);
     }
   }, []);
+
+  const handleGoogleLogin = async () => {
+    setOauthLoading(true);
+    // login/page.tsx handleOAuthLogin과 동일한 이유로 replace 방식 리다이렉트 사용.
+    // ?lang=ko로 표시해두면, 이메일이 겹쳐서 영어판 계정(ko_access=false)으로 로그인되는
+    // 경우에 /auth/callback이 조용히 /app으로 보내지 않고 먼저 안내를 보여줌
+    const { data } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?lang=ko`,
+        skipBrowserRedirect: true,
+      },
+    });
+    if (data?.url) {
+      window.location.replace(data.url);
+    } else {
+      setOauthLoading(false);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,9 +89,7 @@ export default function LoginKoPage() {
       const userId = data.user?.id;
       if (!userId) throw new Error("Login failed");
 
-      const sessionToken = crypto.randomUUID();
-      await supabase.from("profiles").update({ session_token: sessionToken }).eq("id", userId);
-      localStorage.setItem("turingcall_session", sessionToken);
+      await establishClientSession(userId);
 
       router.replace(ko_access ? "/ko" : "/app");
     } catch (err: unknown) {
@@ -144,6 +164,31 @@ export default function LoginKoPage() {
             {loading ? "Logging in..." : "Log in"}
           </button>
         </form>
+
+        <div className="flex items-center gap-3 my-5">
+          <div className="flex-1 h-px bg-white/10" />
+          <span className="text-gray-400 text-xs">or</span>
+          <div className="flex-1 h-px bg-white/10" />
+        </div>
+
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          disabled={oauthLoading}
+          className="w-full py-3 bg-white hover:bg-gray-100 active:scale-[0.97] disabled:opacity-70 text-gray-800 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 shadow-lg"
+        >
+          {oauthLoading ? (
+            <span className="w-5 h-5 border-2 border-gray-400 border-t-gray-700 rounded-full animate-spin" />
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5">
+              <path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.87c2.27-2.09 3.58-5.17 3.58-8.82z" />
+              <path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.91l-3.87-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.27v3.09A12 12 0 0 0 12 24z" />
+              <path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28V6.63H1.27A12 12 0 0 0 0 12c0 1.94.46 3.77 1.27 5.37z" />
+              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0A12 12 0 0 0 1.27 6.63l4 3.09C6.22 6.86 8.87 4.75 12 4.75z" />
+            </svg>
+          )}
+          {oauthLoading ? "Redirecting..." : "Continue with Google"}
+        </button>
 
         <p className="text-center mt-4">
           <a href="/reset-password/ko" className="text-gray-400 hover:text-gray-300 text-xs">

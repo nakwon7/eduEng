@@ -32,7 +32,7 @@ async function generateUniqueUsername(seed: string, admin: ReturnType<typeof sup
 }
 
 export async function POST(req: NextRequest) {
-  const { name, accessToken } = await req.json();
+  const { name, accessToken, lang } = await req.json();
 
   if (
     typeof name !== "string" || !name.trim() || name.trim().length > 20 ||
@@ -79,6 +79,8 @@ export async function POST(req: NextRequest) {
   const email = user.email || `${provider}_${user.id}@no-email.turingcall.cloud`;
   const username = await generateUniqueUsername(user.email || `user${user.id}`, admin);
 
+  const koAccess = lang === "ko";
+
   const { error: profileError } = await admin.from("profiles").insert({
     id: user.id,
     email,
@@ -89,6 +91,7 @@ export async function POST(req: NextRequest) {
     approved: true,
     session_token: null,
     signup_provider: provider,
+    ko_access: koAccess,
   });
 
   if (profileError) {
@@ -96,7 +99,7 @@ export async function POST(req: NextRequest) {
   }
 
   await sendTelegramAlert(
-    `🎉 [EduEng] 신규 가입 (${provider})\n${username} (${name.trim()})`,
+    `🎉 [EduEng] 신규 가입 (${provider}${koAccess ? ", ko" : ""})\n${username} (${name.trim()})`,
     `signup-${user.id}`
   );
 
