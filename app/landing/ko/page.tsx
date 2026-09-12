@@ -1,11 +1,19 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 export default function LandingKoPage() {
   const router = useRouter();
+  // app/page.tsx(영어판 랜딩)와 동일한 이유 — 당근광고 트래픽이 "낚시 사이트 아닌가" 의심하지
+  // 않게, ?utm_source=karrot일 때만 공식 사이트 안심 배너 표시
+  const [fromKarrot, setFromKarrot] = useState(false);
+
+  useEffect(() => {
+    const utmSource = new URLSearchParams(window.location.search).get("utm_source");
+    if (utmSource?.toLowerCase() === "karrot") setFromKarrot(true);
+  }, []);
 
   useEffect(() => {
     const check = async () => {
@@ -21,6 +29,11 @@ export default function LandingKoPage() {
     <main className="min-h-screen bg-gray-950 text-white">
       {/* Hero */}
       <div className="flex flex-col items-center px-6 pt-16 pb-10 text-center">
+        {fromKarrot && (
+          <div className="mb-5 inline-block px-3 py-1.5 bg-orange-500/10 border border-orange-500/30 rounded-2xl text-orange-300 text-xs font-medium text-center">
+            🥕 Coming from Karrot? This is the official turingcall.cloud site — safe to browse.
+          </div>
+        )}
         <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mb-5 shadow-lg shadow-blue-900/40">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-11 h-11">
             <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
@@ -147,18 +160,6 @@ export default function LandingKoPage() {
       </div>
 
       <div className="text-center pb-8 space-y-3">
-        <a
-          href="https://www.paypal.com/ncp/payment/DC7LDXNCBE4NY"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 text-white text-sm font-semibold rounded-xl transition-all shadow-md shadow-blue-900/30"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-            <rect x="1" y="4" width="22" height="16" rx="2.5" />
-            <line x1="1" y1="10" x2="23" y2="10" />
-          </svg>
-          Pay with PayPal — $3/week
-        </a>
         <a
           href="https://open.kakao.com/o/sPanl0Ci"
           target="_blank"
