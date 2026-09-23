@@ -673,6 +673,17 @@ export default function AdminPanel({ userId, sessionToken }: AdminPanelProps) {
                         >
                           {busy === u.id + "_approve30" ? "..." : "+30일"}
                         </button>
+                        {/* 이벤트로 큰 분량을 줄 때 30일 안에 다 못 쓰는 문제가 있어 추가.
+                            라이트는 서버가 7일로 강제하므로 30일과 동일하게 막아둔다. */}
+                        <button
+                          onClick={() => handleApprove(u.id, 60, eligibleForLite ? currentPlan : "standard")}
+                          disabled={!!busy || u.blocked || liteSelected}
+                          className="flex-1 py-1.5 bg-emerald-700 hover:bg-emerald-600 disabled:bg-gray-700 disabled:opacity-50 text-white text-xs rounded-xl transition-all"
+                        >
+                          {busy === u.id + "_approve60" ? "..." : "+60일"}
+                        </button>
+                      </div>
+                      <div className="flex gap-2">
                         <button
                           onClick={() => handleToggleUnlimited(u.id, u.unlimited)}
                           disabled={!!busy || activeMembership || u.blocked}
