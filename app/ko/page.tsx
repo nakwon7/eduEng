@@ -313,6 +313,10 @@ export default function KoPage() {
 
     const unsaved = callDurationRef.current - lastSavedRef.current;
     lastSavedRef.current = 0;
+    // ref는 렌더 후 effect에서야 동기화되는데, 자동종료 직후 alert()가 렌더를 막는 동안
+    // 30초 자동저장/sendBeacon이 끼어들면 "active + lastSaved 0"으로 보고 같은 시간을 한 번 더 저장함
+    callStateRef.current = "idle";
+    callDurationRef.current = 0;
 
     setCallState("idle");
     setMessages([]);
