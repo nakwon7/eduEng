@@ -25,7 +25,7 @@ export default function TermsEnPage() {
             <ul className="text-gray-400 text-sm leading-relaxed space-y-1 list-disc list-inside">
               <li>"Member" refers to a person who has agreed to these Terms and completed registration.</li>
               <li>"Service" refers to the AI-based voice Korean learning service provided by the Company.</li>
-              <li>"Free Trial" refers to 3 free sessions (up to 30 minutes each) provided upon sign-up.</li>
+              <li>"Free Trial" refers to 10 minutes of free use in total, available within 1 week of sign-up.</li>
               <li>"Membership" refers to a paid subscription granting unlimited access during the subscription period.</li>
             </ul>
           </div>
